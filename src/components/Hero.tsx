@@ -10,11 +10,13 @@ import { asset } from "@/lib/asset";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 
-/** Firm imagery revealed through the intervø isotype, one per slide. */
+/** Thematic (no faces) imagery revealed through the intervø isotype — the
+ * firm's own marble/stone: the visual world of corporate, real estate and
+ * estate-planning practice. One per slide. */
 const SLIDE_IMAGES = [
-  "/images/hero-partners.jpg",
-  "/images/boardroom-wide.jpg",
   "/images/textures/marble-2.jpg",
+  "/images/textures/marble-1.jpg",
+  "/images/textures/marble-3.jpg",
 ];
 const AUTO_MS = 6000;
 
