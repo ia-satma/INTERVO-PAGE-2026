@@ -35,11 +35,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const loc = isLocale(locale) ? locale : "es";
   const dict = getDictionary(loc);
   const t = dict.home;
-  const rotating = FEATURED_SERVICES.map((id) => dict.services.featured[id].title);
 
   return (
     <>
-      <Hero locale={loc} dict={dict} rotating={rotating} />
+      <Hero locale={loc} dict={dict} />
 
       {/* Stats band overlapping hero */}
       <div className="container-x relative z-10 -mt-14 md:-mt-20">

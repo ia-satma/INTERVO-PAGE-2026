@@ -40,6 +40,11 @@ const en: Dictionary = {
       ctaPrimary: "Let's talk about your business",
       ctaSecondary: "View services",
       chambers: "Recognized by Chambers & Partners — Latin America, three years in a row",
+      slides: [
+        { kicker: "Boutique firm · Monterrey", title: "The bridge between business and the law" },
+        { kicker: "Corporate · M&A · Finance", title: "From strategy to signing" },
+        { kicker: "Allied across 32 jurisdictions", title: "Local presence, global capacity" },
+      ],
     },
     stats: [
       { value: "3 years", label: "Ranked in Chambers & Partners Latin America" },

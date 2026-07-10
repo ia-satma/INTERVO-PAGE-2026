@@ -224,3 +224,24 @@
 
 /* Italic serif accent for pull phrases */
 .serif-italic { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+
+/* ---- Hero carousel ---- */
+@keyframes heroTextIn {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes heroMaskIn {
+  from { opacity: 0; transform: scale(1.06); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes heroFloat {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(4deg) translateY(-1.4%); }
+}
+.hero-anim { animation: heroTextIn 0.9s var(--ease-out-expo) both; }
+.hero-mask-anim { animation: heroMaskIn 1.4s var(--ease-out-expo) both; }
+.hero-float { animation: heroFloat 16s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-anim, .hero-mask-anim, .hero-float { animation: none !important; }
+}

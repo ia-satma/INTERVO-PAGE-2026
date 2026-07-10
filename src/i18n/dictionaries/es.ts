@@ -38,6 +38,11 @@ const es = {
       ctaPrimary: "Hablemos de su negocio",
       ctaSecondary: "Ver servicios",
       chambers: "Reconocidos por Chambers & Partners — Latin America, 3 años consecutivos",
+      slides: [
+        { kicker: "Firma boutique · Monterrey", title: "El puente entre los negocios y la ley" },
+        { kicker: "Corporativo · M&A · Finanzas", title: "De la estrategia a la firma" },
+        { kicker: "Alianza en 32 jurisdicciones", title: "Presencia local, capacidad global" },
+      ],
     },
     stats: [
       { value: "3 años", label: "Rankeados en Chambers & Partners Latin America" },
