@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 import LanguageToggle from "./LanguageToggle";
-import { GradientMesh, BridgeMotif } from "./abstract";
+import { MarbleDuotone, BridgeMotif } from "./abstract";
 import { Menu, Close, ArrowUpRight, Phone, Mail, Linkedin } from "./icons";
 import { NAV, localePath, CONTACT, SITE } from "@/lib/site";
 import type { Locale } from "@/i18n/config";
@@ -88,8 +88,12 @@ export default function Header({ locale, dict }: { locale: Locale; dict: Diction
             open ? "opacity-100" : "opacity-0"
           }`}
         >
-          <GradientMesh className="absolute inset-0 opacity-80" />
-          <BridgeMotif className="pointer-events-none absolute -bottom-16 -left-16 w-[34rem] text-white/[0.06]" />
+          <MarbleDuotone src="/images/textures/marble-1.jpg" className="absolute inset-0 opacity-[0.14]" />
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{ background: "radial-gradient(90% 75% at 70% 60%, rgba(10,118,184,0.20), transparent 72%)" }}
+          />
+          <BridgeMotif className="pointer-events-none absolute -bottom-10 right-6 w-72 text-white/[0.05]" />
           <div className="relative flex h-full flex-col justify-between p-12">
             <Logo variant="white" className="h-9 w-auto" />
             <div>
@@ -99,9 +103,9 @@ export default function Header({ locale, dict }: { locale: Locale; dict: Diction
           </div>
         </div>
 
-        {/* Right champagne panel */}
+        {/* Right panel */}
         <div
-          className={`relative ml-auto flex h-full w-full flex-col bg-accent transition-transform duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] lg:w-[58%] ${
+          className={`relative ml-auto flex h-full w-full flex-col bg-white transition-transform duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] lg:w-[58%] ${
             open ? "translate-x-0" : "translate-x-full"
           }`}
         >
@@ -112,7 +116,7 @@ export default function Header({ locale, dict }: { locale: Locale; dict: Diction
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2 font-display text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-navy-950 transition-opacity hover:opacity-70"
+              className="flex items-center gap-2 font-display text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-ink transition-opacity hover:opacity-60"
             >
               {closeLabel}
               <Close className="h-6 w-6" />
@@ -127,18 +131,18 @@ export default function Header({ locale, dict }: { locale: Locale; dict: Diction
                 href={localePath(locale, slug)}
                 onClick={() => setOpen(false)}
                 style={{ transitionDelay: open ? `${0.15 + idx * 0.06}s` : "0s" }}
-                className={`group flex items-center gap-4 font-serif text-4xl leading-[1.15] text-navy-950 transition-[color,transform,opacity] duration-500 hover:translate-x-2 md:text-5xl ${
+                className={`group flex items-center gap-4 font-serif text-4xl leading-[1.15] text-ink transition-[color,transform,opacity] duration-500 hover:translate-x-2 hover:text-navy md:text-5xl ${
                   open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
                 }`}
               >
                 {dict.nav[key]}
-                <ArrowUpRight className="h-6 w-6 -translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+                <ArrowUpRight className="h-6 w-6 -translate-x-2 text-accent opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
               </Link>
             ))}
           </nav>
 
           {/* Footer utilities */}
-          <div className="flex flex-col gap-5 border-t border-navy-950/15 px-8 py-7 text-navy-950 sm:flex-row sm:items-center sm:justify-between md:px-14">
+          <div className="flex flex-col gap-5 border-t border-line px-8 py-7 text-ink sm:flex-row sm:items-center sm:justify-between md:px-14">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium">
               <a href={CONTACT.phoneHref} className="inline-flex items-center gap-2 transition-opacity hover:opacity-70">
                 <Phone className="h-4 w-4" /> {CONTACT.phoneDisplay}
@@ -152,7 +156,7 @@ export default function Header({ locale, dict }: { locale: Locale; dict: Diction
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-navy-950/25 transition-colors hover:bg-navy-950 hover:text-accent"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/20 transition-colors hover:bg-navy hover:text-white"
             >
               <Linkedin className="h-5 w-5" />
             </a>
