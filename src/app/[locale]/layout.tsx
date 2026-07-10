@@ -43,6 +43,7 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const dict = getDictionary(locale);
+  const bp = process.env.EXPORT === "true" ? "/INTERVO-PAGE-2026" : "";
   return {
     metadataBase: new URL(SITE_URL),
     title: {
@@ -65,8 +66,8 @@ export async function generateMetadata({
       url: `/${locale}`,
     },
     icons: {
-      icon: "/brand/favicon.png",
-      apple: "/brand/favicon.png",
+      icon: `${bp}/brand/favicon.png`,
+      apple: `${bp}/brand/favicon.png`,
     },
     robots: { index: true, follow: true },
   };

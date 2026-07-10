@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { asset } from "@/lib/asset";
 
 /** Brand-blue conceptual gradient mesh (pure CSS). */
 export function GradientMesh({ className = "", grain = true }: { className?: string; grain?: boolean }) {
@@ -58,7 +59,7 @@ export function MarbleDuotone({
     // — required because the inner <Image fill> needs a positioned ancestor.
     <div className={`overflow-hidden ${className}`} aria-hidden>
       <Image
-        src={src}
+        src={asset(src)}
         alt=""
         fill
         priority={priority}

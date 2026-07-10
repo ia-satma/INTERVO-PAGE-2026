@@ -1,0 +1,71 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Middleware/proxy is not supported with `output: export`; it only does the
+      # root→/es redirect, which we recreate statically below.
+      - name: Remove proxy (incompatible with static export)
+        run: rm -f src/proxy.ts
+
+      - name: Build static export
+        run: npm run build
+        env:
+          EXPORT: "true"
+
+      - name: Add root redirect and Jekyll bypass
+        run: |
+          touch out/.nojekyll
+          cat > out/index.html <<'HTML'
+          <!doctype html>
+          <html lang="es">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <meta http-equiv="refresh" content="0; url=./es/" />
+              <link rel="canonical" href="./es/" />
+              <title>intervø</title>
+            </head>
+            <body style="font-family:system-ui,sans-serif;background:#08203c;color:#fff;display:grid;place-items:center;height:100vh;margin:0">
+              <a href="./es/" style="color:#dcc08a;text-decoration:none">intervø →</a>
+            </body>
+          </html>
+          HTML
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

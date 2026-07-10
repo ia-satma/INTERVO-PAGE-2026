@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { asset } from "@/lib/asset";
 import PageHeader from "@/components/PageHeader";
 import SectionHeading from "@/components/SectionHeading";
 import CTASection from "@/components/CTASection";
@@ -46,7 +47,7 @@ export default async function FirmaPage({ params }: { params: Promise<{ locale: 
           <Reveal>
             <div className="overflow-hidden rounded-2xl shadow-card">
               <Image
-                src="/images/boardroom-wide.jpg"
+                src={asset("/images/boardroom-wide.jpg")}
                 alt="Equipo de intervø en su oficina de Monterrey"
                 width={1100}
                 height={760}

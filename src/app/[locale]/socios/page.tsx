@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { asset } from "@/lib/asset";
 import PageHeader from "@/components/PageHeader";
 import PartnerCard from "@/components/PartnerCard";
 import CTASection from "@/components/CTASection";
@@ -38,7 +39,7 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
           <Reveal>
             <div className="relative overflow-hidden rounded-2xl shadow-card">
               <Image
-                src="/images/partners-group.jpg"
+                src={asset("/images/partners-group.jpg")}
                 alt="Socios de intervø — Monterrey"
                 width={1800}
                 height={900}

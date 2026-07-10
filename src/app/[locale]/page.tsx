@@ -14,6 +14,7 @@ import { ValueIcon, ArrowRight, ArrowUpRight } from "@/components/icons";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localePath, FEATURED_SERVICES, PARTNERS } from "@/lib/site";
+import { asset } from "@/lib/asset";
 
 export async function generateMetadata({
   params,
@@ -165,7 +166,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="grid lg:grid-cols-2">
               <div className="relative min-h-[22rem]">
                 <Image
-                  src="/images/partners-group.jpg"
+                  src={asset("/images/partners-group.jpg")}
                   alt="Socios de intervø"
                   fill
                   className="object-cover object-top"
