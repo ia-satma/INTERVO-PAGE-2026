@@ -9,6 +9,7 @@ const es = {
     servicios: "Servicios",
     socios: "Socios",
     global: "Alcance Global",
+    publicaciones: "Publicaciones",
     contacto: "Contacto",
   },
   actions: {
@@ -80,6 +81,12 @@ const es = {
       title: "Un equipo reconocido por el mercado",
       body: "Tres de nuestros socios están rankeados individualmente por Chambers & Partners en Corporate/Commercial: Monterrey.",
       cta: "Conoce a los socios",
+    },
+    insights: {
+      eyebrow: "Publicaciones",
+      title: "Perspectiva legal para decisiones de negocio",
+      subtitle: "Análisis, alertas y notas de nuestros especialistas.",
+      cta: "Ver todas las publicaciones",
     },
     cta: {
       title: "Convirtamos su próxima operación en una decisión con certeza",
@@ -382,11 +389,52 @@ const es = {
       desc: "Integridad y transparencia en todas nuestras acciones y relaciones profesionales.",
     },
   ],
+  insights: {
+    hero: {
+      eyebrow: "Publicaciones",
+      title: "Perspectiva legal para decisiones de negocio",
+      subtitle:
+        "Análisis, alertas regulatorias y notas de la firma escritas por nuestros especialistas. Conocimiento aplicado a la operación real de las empresas.",
+    },
+    note: "Contenido de muestra. Las publicaciones reales serán provistas por la firma.",
+    readMore: "Leer",
+    items: [
+      {
+        category: "Alerta",
+        area: "Tecnología Financiera",
+        date: "Junio 2026",
+        title: "Nuevas obligaciones de cumplimiento para plataformas Fintech en México",
+        excerpt:
+          "Un repaso práctico a los cambios regulatorios recientes y qué deben ajustar las instituciones de tecnología financiera antes del cierre del año.",
+      },
+      {
+        category: "Artículo",
+        area: "Fusiones y Adquisiciones",
+        date: "Mayo 2026",
+        title: "Due diligence en operaciones transfronterizas: cinco riesgos que se subestiman",
+        excerpt:
+          "De la contingencia fiscal a las cláusulas de cambio de control, las lecciones de estructurar adquisiciones entre México y el extranjero.",
+      },
+      {
+        category: "Nota de la Firma",
+        area: "Reconocimientos",
+        date: "Abril 2026",
+        title: "intervø, reconocida por tercer año consecutivo en Chambers & Partners Latin America",
+        excerpt:
+          "Tres de nuestros socios fueron rankeados individualmente en Corporate/Commercial: Monterrey. Gracias a nuestros clientes por la confianza.",
+      },
+    ],
+  },
   meta: {
     home: {
       title: "intervø — Consultoría Legal y de Negocios | Monterrey",
       description:
         "Firma boutique de abogados en Monterrey especializada en M&A, finanzas corporativas, fideicomisos e inmobiliario. El puente entre los negocios y la ley.",
+    },
+    publicaciones: {
+      title: "Publicaciones — intervø",
+      description:
+        "Análisis, alertas y notas de la firma sobre M&A, finanzas, fintech, fiscal y más. Perspectiva legal para decisiones de negocio.",
     },
     firma: {
       title: "La Firma — intervø",

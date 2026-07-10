@@ -30,13 +30,13 @@ export default function PartnerCard({
           {initials(name)}
         </span>
         <div className="min-w-0">
-          <h3 className="font-display text-lg font-semibold leading-tight">{name}</h3>
+          <h3 className="font-serif text-xl font-medium leading-tight">{name}</h3>
           <p className="mt-1 text-sm font-medium text-azure">{role}</p>
         </div>
       </div>
 
       {chambers && (
-        <span className="mt-5 inline-flex w-fit items-center gap-1.5 rounded-full border border-navy/15 bg-mist px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-wide text-navy">
+        <span className="tag mt-5 w-fit rounded-full border border-accent/30 bg-accent/[0.06] px-3 py-1.5">
           Chambers · {chambers}
         </span>
       )}

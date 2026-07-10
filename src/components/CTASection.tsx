@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Reveal from "./Reveal";
+import { BridgeMotif } from "./abstract";
 import { ArrowUpRight, Phone } from "./icons";
 import { localePath, CONTACT } from "@/lib/site";
 import type { Locale } from "@/i18n/config";
@@ -13,13 +14,9 @@ type Props = {
 
 export default function CTASection({ locale, title, body, ctaLabel }: Props) {
   return (
-    <section className="relative overflow-hidden bg-navy text-white">
-      <div className="bg-grid pointer-events-none absolute inset-0 opacity-40" />
-      <div
-        className="pointer-events-none absolute -right-24 top-1/2 h-[30rem] w-[30rem] -translate-y-1/2 rounded-full opacity-60 blur-3xl"
-        style={{ background: "radial-gradient(circle, rgba(10,134,207,0.35) 0%, transparent 70%)" }}
-      />
-      <div className="container-x section relative text-center">
+    <section className="mesh grain relative overflow-hidden text-white">
+      <BridgeMotif className="pointer-events-none absolute left-1/2 top-1/2 w-[70%] -translate-x-1/2 -translate-y-1/2 text-white/[0.05]" />
+      <div className="container-x section relative z-10 text-center">
         <Reveal>
           <h2 className="display-2 mx-auto max-w-3xl text-white">{title}</h2>
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/70">{body}</p>

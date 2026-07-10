@@ -12,8 +12,10 @@ firma boutique de asesoría legal y de negocios con sede en Monterrey.
 - **Next.js 16** (App Router, React 19) — SSR/SSG + SEO
 - **TypeScript 5.9**
 - **Tailwind CSS v4** (configuración CSS-first, tokens de marca en `globals.css`)
-- **Framer Motion** — animaciones de entrada, respetando `prefers-reduced-motion`
-- Internacionalización propia (ES/EN) vía segmento `[locale]` + middleware de detección de idioma
+- **Tipografía editorial**: Fraunces (serif display) + Montserrat (UI) + Inter (cuerpo), vía `next/font`
+- **Motion**: Framer Motion (reveals) + **GSAP + ScrollTrigger** (hero cinemático, contadores, parallax), todo con fallback `prefers-reduced-motion`
+- **Imaginería conceptual** (dirección editorial estilo Woods Rogers, adaptada): gradient-mesh, grano, motivo puente/∞ y **texturas de mármol en duotono** de la foto propia de la firma (`public/images/textures/`)
+- Internacionalización propia (ES/EN) vía segmento `[locale]` + `proxy` de detección de idioma
 - Sin dependencias de backend: el formulario de contacto usa `mailto:` (ver TODO)
 
 ## Requisitos
@@ -91,6 +93,9 @@ Tipografía: **Montserrat** (display, en línea con el wordmark) + **Inter** (cu
       (p. ej. Resend, Formspree, o una Route Handler `/api/contact`) en `src/components/ContactForm.tsx`.
 - [ ] **Retratos individuales de socios (opcional):** hoy se usan avatares con iniciales para evitar
       atribuciones incorrectas. Si se desea, agregar los retratos ya mapeados a cada socio.
+- [ ] **Publicaciones / Insights:** los 3 artículos son contenido de muestra (en `dictionaries/{es,en}.ts`,
+      bloque `insights.items`). La firma debe proveer las publicaciones reales; hoy las tarjetas no enlazan
+      a páginas de detalle (se puede añadir `[slug]` cuando exista contenido).
 - [ ] **Aviso de Privacidad:** el texto en `dictionaries` es de referencia; debe validarlo la firma.
 - [ ] **Dominio/URL canónica:** actualizar `SITE_URL` en `src/lib/site.ts` si difiere de `https://www.intervo.legal`.
 - [ ] Verificar el orden/identidad de los socios en la foto grupal contra el material oficial.

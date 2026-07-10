@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Reveal from "./Reveal";
+import { BridgeMotif } from "./abstract";
 
 type Props = {
   eyebrow: string;
@@ -10,13 +10,10 @@ type Props = {
 export default function PageHeader({ eyebrow, title, subtitle }: Props) {
   return (
     <section className="relative overflow-hidden border-b border-line bg-mist pb-16 pt-36 md:pb-20 md:pt-44">
-      <Image
-        src="/brand/isotype-color.png"
-        alt=""
-        width={520}
-        height={520}
-        aria-hidden
-        className="pointer-events-none absolute -right-16 -top-10 hidden w-[26rem] opacity-[0.05] md:block"
+      <BridgeMotif className="pointer-events-none absolute -right-16 -top-6 hidden w-[34rem] text-navy/[0.06] md:block" />
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
+        style={{ background: "linear-gradient(to top, rgba(198,161,91,0.06), transparent)" }}
       />
       <div className="container-x relative">
         <Reveal>

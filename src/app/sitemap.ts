@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 import { locales } from "@/i18n/config";
 
-const slugs = ["", "firma", "servicios", "socios", "global", "contacto", "aviso-de-privacidad"];
+const slugs = ["", "firma", "servicios", "socios", "global", "publicaciones", "contacto", "aviso-de-privacidad"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];

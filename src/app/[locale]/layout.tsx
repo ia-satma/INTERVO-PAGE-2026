@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat, Inter } from "next/font/google";
+import { Montserrat, Inter, Fraunces } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import Header from "@/components/Header";
@@ -19,6 +19,14 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
 });
 
 export const dynamicParams = false;
@@ -76,7 +84,7 @@ export default async function LocaleLayout({
   const dict = getDictionary(locale);
 
   return (
-    <html lang={dict.htmlLang} className={`${montserrat.variable} ${inter.variable}`}>
+    <html lang={dict.htmlLang} className={`${montserrat.variable} ${inter.variable} ${fraunces.variable}`}>
       <body>
         <Header locale={locale} nav={dict.nav} cta={dict.header.cta} />
         <main>{children}</main>

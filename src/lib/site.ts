@@ -64,9 +64,10 @@ export const NAV: { key: NavKey; slug: string }[] = [
   { key: "servicios", slug: "servicios" },
   { key: "socios", slug: "socios" },
   { key: "global", slug: "global" },
+  { key: "publicaciones", slug: "publicaciones" },
   { key: "contacto", slug: "contacto" },
 ];
-export type NavKey = "firma" | "servicios" | "socios" | "global" | "contacto";
+export type NavKey = "firma" | "servicios" | "socios" | "global" | "publicaciones" | "contacto";
 
 export function localePath(locale: Locale, slug = ""): string {
   return `/${locale}${slug ? `/${slug}` : ""}`;

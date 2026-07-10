@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 /* ============================================================
-   intervø — Design system
+   intervø — Design system (editorial + conceptual)
    Brand palette sampled from original logo assets:
    Pantone 3005 C  #0072AD  (bright azure)
    Pantone 2736 C  #0F4386  (deep navy)
    Ink             #101820
+   Accent (new)    #C6A15B  (champagne / brass — editorial)
    ============================================================ */
 
 @theme {
@@ -14,9 +15,15 @@
   --color-ink-soft: #1d2a3a;
   --color-navy: #0f4386;
   --color-navy-700: #0c3468;
-  --color-navy-900: #08213f;
+  --color-navy-900: #08203c;
+  --color-navy-950: #061627;
   --color-azure: #0a76b8;
   --color-azure-bright: #0a86cf;
+
+  /* Editorial accent */
+  --color-accent: #c6a15b;
+  --color-accent-soft: #dcc08a;
+  --color-accent-deep: #a37e3c;
 
   /* Neutrals */
   --color-paper: #ffffff;
@@ -27,6 +34,7 @@
   --color-muted-2: #8695a6;
 
   /* Fonts (wired from next/font) */
+  --font-serif: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
   --font-display: var(--font-montserrat), "Segoe UI", system-ui, sans-serif;
   --font-body: var(--font-inter), system-ui, -apple-system, sans-serif;
 
@@ -41,6 +49,7 @@
 
   /* Easing */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0.05, 0.36, 1);
 }
 
 @layer base {
@@ -48,11 +57,8 @@
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
-
   @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
+    html { scroll-behavior: auto; }
   }
 
   body {
@@ -64,20 +70,19 @@
     text-rendering: optimizeLegibility;
   }
 
-  ::selection {
-    background: var(--color-navy);
-    color: #fff;
-  }
+  ::selection { background: var(--color-navy); color: #fff; }
 
+  /* Headings default to the editorial serif */
   h1, h2, h3, h4, h5 {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    font-family: var(--font-serif);
+    letter-spacing: -0.015em;
     color: var(--color-ink);
     text-wrap: balance;
+    font-weight: 500;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-azure);
+    outline: 2px solid var(--color-accent);
     outline-offset: 3px;
     border-radius: 2px;
   }
@@ -86,42 +91,34 @@
 @layer components {
   .container-x {
     width: 100%;
-    max-width: 78rem;
+    max-width: 80rem;
     margin-inline: auto;
     padding-inline: 1.5rem;
   }
-  @media (min-width: 768px) {
-    .container-x { padding-inline: 2.5rem; }
-  }
+  @media (min-width: 768px) { .container-x { padding-inline: 2.5rem; } }
 
-  /* Eyebrow / kicker label */
+  /* Eyebrow / kicker — champagne editorial label */
   .eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.7rem;
     font-family: var(--font-display);
     font-weight: 600;
     font-size: 0.72rem;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: var(--color-azure);
+    color: var(--color-accent-deep);
   }
   .eyebrow::before {
     content: "";
-    width: 1.75rem;
+    width: 1.9rem;
     height: 1px;
-    background: currentColor;
-    opacity: 0.6;
+    background: var(--color-accent);
+    opacity: 0.9;
   }
   .eyebrow--center::before { display: none; }
-
-  /* Gradient ink for accent words */
-  .text-gradient {
-    background: linear-gradient(100deg, var(--color-azure) 0%, var(--color-navy) 70%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+  .eyebrow--light { color: var(--color-accent-soft); }
+  .eyebrow--light::before { background: var(--color-accent-soft); }
 
   /* Buttons */
   .btn {
@@ -131,51 +128,58 @@
     gap: 0.55rem;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     letter-spacing: 0.01em;
     padding: 0.85rem 1.6rem;
     border-radius: 999px;
-    transition: transform 0.35s var(--ease-out-expo), background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
+    transition: transform 0.4s var(--ease-out-expo), background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
     will-change: transform;
   }
   .btn:hover { transform: translateY(-2px); }
-  .btn-primary {
-    background: var(--color-navy);
-    color: #fff;
-    box-shadow: 0 10px 24px -12px rgb(15 67 134 / 0.7);
-  }
+  .btn-primary { background: var(--color-navy); color: #fff; box-shadow: 0 10px 24px -12px rgb(15 67 134 / 0.7); }
   .btn-primary:hover { background: var(--color-azure); box-shadow: 0 16px 30px -12px rgb(10 118 184 / 0.6); }
-  .btn-ghost {
-    background: transparent;
-    color: var(--color-ink);
-    border: 1px solid var(--color-line);
-  }
+  .btn-ghost { background: transparent; color: var(--color-ink); border: 1px solid var(--color-line); }
   .btn-ghost:hover { border-color: var(--color-navy); color: var(--color-navy); }
-  .btn-light {
-    background: #fff;
-    color: var(--color-navy);
-  }
+  .btn-light { background: #fff; color: var(--color-navy); }
   .btn-light:hover { background: var(--color-mist); }
-  .btn-outline-light {
-    background: transparent;
-    color: #fff;
-    border: 1px solid rgb(255 255 255 / 0.35);
-  }
+  .btn-accent { background: var(--color-accent); color: #1c1403; box-shadow: 0 10px 24px -12px rgb(163 126 60 / 0.7); }
+  .btn-accent:hover { background: var(--color-accent-soft); }
+  .btn-outline-light { background: transparent; color: #fff; border: 1px solid rgb(255 255 255 / 0.35); }
   .btn-outline-light:hover { background: rgb(255 255 255 / 0.1); border-color: #fff; }
 
-  /* Section rhythm */
-  .section { padding-block: 5.5rem; }
-  @media (min-width: 768px) { .section { padding-block: 7.5rem; } }
+  /* Section rhythm — more editorial breathing room */
+  .section { padding-block: 6rem; }
+  @media (min-width: 768px) { .section { padding-block: 8.5rem; } }
 
-  /* Hairline divider */
   .hairline { height: 1px; background: var(--color-line); }
 
-  /* Subtle grid texture for dark panels */
+  /* Fine grid texture for dark panels */
   .bg-grid {
     background-image:
       linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
       linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
     background-size: 64px 64px;
+  }
+
+  /* Conceptual gradient mesh in brand blues */
+  .mesh {
+    background-color: var(--color-navy-950);
+    background-image:
+      radial-gradient(60% 55% at 15% 12%, rgb(10 134 207 / 0.55) 0%, transparent 60%),
+      radial-gradient(55% 60% at 88% 20%, rgb(15 67 134 / 0.85) 0%, transparent 62%),
+      radial-gradient(70% 70% at 75% 95%, rgb(10 118 184 / 0.45) 0%, transparent 65%),
+      radial-gradient(50% 50% at 40% 80%, rgb(6 22 39 / 0.9) 0%, transparent 70%);
+  }
+
+  /* Grain overlay */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   .link-underline {
@@ -186,9 +190,32 @@
     transition: background-size 0.4s var(--ease-out-expo);
   }
   .link-underline:hover { background-size: 100% 1px; }
+
+  /* Insight category tag */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-accent-deep);
+  }
+  .tag::before {
+    content: "";
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 999px;
+    background: var(--color-accent);
+  }
 }
 
-/* Fluid display type helper */
-.display-1 { font-size: clamp(2.4rem, 6vw, 4.6rem); line-height: 1.02; font-weight: 700; }
-.display-2 { font-size: clamp(2rem, 4.4vw, 3.3rem); line-height: 1.06; font-weight: 700; }
-.display-3 { font-size: clamp(1.5rem, 2.8vw, 2.1rem); line-height: 1.12; font-weight: 600; }
+/* Fluid editorial display type */
+.display-1 { font-family: var(--font-serif); font-size: clamp(2.7rem, 6.6vw, 5.4rem); line-height: 1.0; font-weight: 500; letter-spacing: -0.025em; }
+.display-2 { font-family: var(--font-serif); font-size: clamp(2.1rem, 4.6vw, 3.6rem); line-height: 1.05; font-weight: 500; letter-spacing: -0.02em; }
+.display-3 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.8vw, 2.15rem); line-height: 1.12; font-weight: 500; }
+
+/* Italic serif accent for pull phrases */
+.serif-italic { font-family: var(--font-serif); font-style: italic; font-weight: 400; }

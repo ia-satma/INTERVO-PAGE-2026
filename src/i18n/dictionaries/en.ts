@@ -11,6 +11,7 @@ const en: Dictionary = {
     servicios: "Services",
     socios: "Partners",
     global: "Global Reach",
+    publicaciones: "Insights",
     contacto: "Contact",
   },
   actions: {
@@ -82,6 +83,12 @@ const en: Dictionary = {
       title: "A team recognized by the market",
       body: "Three of our partners are individually ranked by Chambers & Partners in Corporate/Commercial: Monterrey.",
       cta: "Meet the partners",
+    },
+    insights: {
+      eyebrow: "Insights",
+      title: "Legal perspective for business decisions",
+      subtitle: "Analysis, alerts and firm notes from our specialists.",
+      cta: "View all insights",
     },
     cta: {
       title: "Let's turn your next deal into a decision made with certainty",
@@ -384,11 +391,52 @@ const en: Dictionary = {
       desc: "Integrity and transparency in all our actions and professional relationships.",
     },
   ],
+  insights: {
+    hero: {
+      eyebrow: "Insights",
+      title: "Legal perspective for business decisions",
+      subtitle:
+        "Analysis, regulatory alerts and firm notes written by our specialists. Knowledge applied to how companies actually operate.",
+    },
+    note: "Sample content. Real publications will be provided by the firm.",
+    readMore: "Read",
+    items: [
+      {
+        category: "Alert",
+        area: "Financial Technology",
+        date: "June 2026",
+        title: "New compliance obligations for Fintech platforms in Mexico",
+        excerpt:
+          "A practical review of recent regulatory changes and what financial-technology institutions should adjust before year-end.",
+      },
+      {
+        category: "Article",
+        area: "Mergers & Acquisitions",
+        date: "May 2026",
+        title: "Due diligence in cross-border deals: five underestimated risks",
+        excerpt:
+          "From tax contingencies to change-of-control clauses, lessons from structuring acquisitions between Mexico and abroad.",
+      },
+      {
+        category: "Firm News",
+        area: "Recognition",
+        date: "April 2026",
+        title: "intervø recognized for the third consecutive year in Chambers & Partners Latin America",
+        excerpt:
+          "Three of our partners were individually ranked in Corporate/Commercial: Monterrey. Thank you to our clients for their trust.",
+      },
+    ],
+  },
   meta: {
     home: {
       title: "intervø — Legal and Business Consulting | Monterrey",
       description:
         "Boutique law firm in Monterrey specialized in M&A, corporate finance, trusts and real estate. The bridge between business and the law.",
+    },
+    publicaciones: {
+      title: "Insights — intervø",
+      description:
+        "Analysis, alerts and firm notes on M&A, finance, fintech, tax and more. Legal perspective for business decisions.",
     },
     firma: {
       title: "The Firm — intervø",

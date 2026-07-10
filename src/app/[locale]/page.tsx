@@ -4,9 +4,12 @@ import Link from "next/link";
 import Hero from "@/components/Hero";
 import SectionHeading from "@/components/SectionHeading";
 import ServiceCard from "@/components/ServiceCard";
+import InsightCard from "@/components/InsightCard";
 import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
+import Counter from "@/components/motion/Counter";
 import { Stat } from "@/components/Stat";
+import { MarbleDuotone, BridgeMotif } from "@/components/abstract";
 import { ValueIcon, ArrowRight, ArrowUpRight } from "@/components/icons";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
@@ -31,10 +34,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const loc = isLocale(locale) ? locale : "es";
   const dict = getDictionary(loc);
   const t = dict.home;
+  const rotating = FEATURED_SERVICES.map((id) => dict.services.featured[id].title);
 
   return (
     <>
-      <Hero locale={loc} dict={dict} />
+      <Hero locale={loc} dict={dict} rotating={rotating} />
 
       {/* Stats band overlapping hero */}
       <div className="container-x relative z-10 -mt-14 md:-mt-20">
@@ -42,9 +46,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="grid grid-cols-2 gap-y-8 rounded-2xl border border-line bg-white px-8 py-9 shadow-card md:grid-cols-4 md:gap-8 md:px-12">
             {t.stats.map((s) => (
               <div key={s.label} className="border-line md:border-l md:pl-8 md:first:border-l-0 md:first:pl-0">
-                <div className="font-display text-3xl font-bold tracking-tight text-navy md:text-4xl">
-                  {s.value}
-                </div>
+                <Counter
+                  value={s.value}
+                  className="block font-serif text-3xl font-medium tracking-tight text-navy md:text-4xl"
+                />
                 <div className="mt-2 text-[0.82rem] leading-snug text-muted">{s.label}</div>
               </div>
             ))}
@@ -52,55 +57,34 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </Reveal>
       </div>
 
-      {/* Intro / Firm */}
-      <section className="section">
-        <div className="container-x grid items-center gap-14 lg:grid-cols-2">
-          <Reveal className="order-2 lg:order-1">
-            <div className="relative">
-              <div className="overflow-hidden rounded-2xl shadow-card">
-                <Image
-                  src="/images/boardroom.jpg"
-                  alt="Sala de juntas de intervø en Monterrey"
-                  width={1000}
-                  height={720}
-                  className="h-full w-full object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              </div>
-              <div className="absolute -bottom-6 -right-4 hidden rounded-xl border border-line bg-white px-6 py-5 shadow-soft sm:block">
-                <div className="font-display text-3xl font-bold text-navy">2019</div>
-                <div className="text-xs text-muted">{loc === "es" ? "Fundación" : "Founded"}</div>
-              </div>
-            </div>
-          </Reveal>
-
-          <div className="order-1 lg:order-2">
-            <SectionHeading eyebrow={t.intro.eyebrow} title={t.intro.title} />
-            <div className="mt-6 space-y-5 text-[1.02rem] leading-relaxed text-muted">
+      {/* Manifesto band — "Esto es intervø" */}
+      <section className="mesh grain relative overflow-hidden text-white">
+        <MarbleDuotone src="/images/textures/marble-1.jpg" className="absolute inset-0 opacity-25" />
+        <BridgeMotif className="pointer-events-none absolute -left-16 bottom-[-20%] w-[42rem] text-white/[0.05]" />
+        <div className="container-x section relative z-10 grid gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <SectionHeading eyebrow={t.intro.eyebrow} title={t.intro.title} tone="light" />
+          </div>
+          <div className="lg:col-span-6 lg:col-start-7">
+            <div className="space-y-5 text-[1.05rem] leading-relaxed text-white/75">
               {t.intro.body.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
             </div>
-            <Link
-              href={localePath(loc, "firma")}
-              className="mt-8 inline-flex items-center gap-2 font-display font-semibold text-navy transition-colors hover:text-azure"
-            >
+            <Link href={localePath(loc, "firma")} className="btn btn-light mt-8 !px-6 !py-3">
               {t.intro.cta}
-              <ArrowRight className="h-4 w-4" />
+              <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
       </section>
 
       {/* Services preview */}
-      <section className="section bg-mist">
+      <section className="section">
         <div className="container-x">
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
             <SectionHeading eyebrow={t.services.eyebrow} title={t.services.title} subtitle={t.services.subtitle} />
-            <Link
-              href={localePath(loc, "servicios")}
-              className="btn btn-ghost shrink-0 !px-5 !py-2.5 text-[0.85rem]"
-            >
+            <Link href={localePath(loc, "servicios")} className="btn btn-ghost shrink-0 !px-5 !py-2.5 text-[0.85rem]">
               {t.services.cta}
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -108,7 +92,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURED_SERVICES.map((id, i) => (
-              <Reveal key={id} delay={i * 0.05}>
+              <Reveal key={id} delay={(i % 3) * 0.05}>
                 <ServiceCard
                   id={id}
                   index={String(i + 1).padStart(2, "0")}
@@ -117,13 +101,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 />
               </Reveal>
             ))}
-            <Reveal delay={FEATURED_SERVICES.length * 0.05}>
+            <Reveal delay={0.1}>
               <Link
                 href={localePath(loc, "servicios")}
-                className="group flex h-full min-h-[13rem] flex-col justify-between rounded-2xl bg-navy p-7 text-white transition-transform duration-500 hover:-translate-y-1"
+                className="group relative flex h-full min-h-[13rem] flex-col justify-between overflow-hidden rounded-2xl bg-navy p-7 text-white transition-transform duration-500 hover:-translate-y-1"
               >
-                <span className="font-display text-lg font-semibold">{t.services.cta}</span>
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-colors group-hover:bg-white group-hover:text-navy">
+                <BridgeMotif className="pointer-events-none absolute -right-6 -top-6 w-32 text-white/10" />
+                <span className="relative font-serif text-xl font-medium">{t.services.cta}</span>
+                <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-colors group-hover:bg-white group-hover:text-navy">
                   <ArrowUpRight className="h-5 w-5" />
                 </span>
               </Link>
@@ -133,16 +118,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* Global reach teaser */}
-      <section className="relative overflow-hidden bg-navy-900 text-white">
-        <Image
-          src="/images/boardroom-bw.jpg"
-          alt=""
-          fill
-          className="object-cover opacity-15"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-navy-900/70" />
-        <div className="container-x section relative">
+      <section className="mesh grain relative overflow-hidden text-white">
+        <MarbleDuotone src="/images/textures/marble-2.jpg" className="absolute inset-0 opacity-20" />
+        <div className="container-x section relative z-10">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
               <SectionHeading eyebrow={t.global.eyebrow} title={t.global.title} subtitle={t.global.body} tone="light" />
@@ -171,7 +149,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-mist text-navy">
                     <ValueIcon id={v.key} className="h-7 w-7" />
                   </span>
-                  <h3 className="mt-6 font-display text-xl font-semibold">{v.title}</h3>
+                  <h3 className="mt-6 font-serif text-xl font-medium">{v.title}</h3>
                   <p className="mt-3 text-[0.95rem] leading-relaxed text-muted">{v.desc}</p>
                 </div>
               </Reveal>
@@ -199,10 +177,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <SectionHeading eyebrow={t.partners.eyebrow} title={t.partners.title} subtitle={t.partners.body} tone="light" />
                 <div className="mt-7 flex flex-wrap gap-2.5">
                   {PARTNERS.map((p) => (
-                    <span
-                      key={p.id}
-                      className="rounded-full border border-white/15 px-3.5 py-1.5 text-[0.82rem] text-white/80"
-                    >
+                    <span key={p.id} className="rounded-full border border-white/15 px-3.5 py-1.5 text-[0.82rem] text-white/80">
                       {p.name.split(" ").slice(0, 2).join(" ")}
                     </span>
                   ))}
@@ -213,6 +188,26 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Insights teaser */}
+      <section className="section">
+        <div className="container-x">
+          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+            <SectionHeading eyebrow={t.insights.eyebrow} title={t.insights.title} subtitle={t.insights.subtitle} />
+            <Link href={localePath(loc, "publicaciones")} className="btn btn-ghost shrink-0 !px-5 !py-2.5 text-[0.85rem]">
+              {t.insights.cta}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {dict.insights.items.map((item, i) => (
+              <Reveal key={item.title} delay={(i % 3) * 0.06}>
+                <InsightCard item={item} readMore={dict.insights.readMore} />
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
