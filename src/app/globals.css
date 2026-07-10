@@ -225,6 +225,20 @@
 /* Italic serif accent for pull phrases */
 .serif-italic { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
 
+/* Hand-drawn strikethrough swoosh (champagne) over a word */
+.strike-accent { position: relative; white-space: nowrap; color: inherit; opacity: 0.55; }
+.strike-accent::after {
+  content: "";
+  position: absolute;
+  left: -3%;
+  right: -3%;
+  top: 54%;
+  height: 0.08em;
+  background: var(--color-accent);
+  border-radius: 999px;
+  transform: rotate(-3.5deg);
+}
+
 /* ---- Hero carousel ---- */
 /* The isotype mask stays static; only the revealed image crossfades and the
    slide text animates in. */

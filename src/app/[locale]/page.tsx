@@ -13,7 +13,7 @@ import { MarbleDuotone, BridgeMotif } from "@/components/abstract";
 import { ValueIcon, ArrowRight, ArrowUpRight } from "@/components/icons";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
-import { localePath, FEATURED_SERVICES, PARTNERS } from "@/lib/site";
+import { localePath, FEATURED_SERVICES } from "@/lib/site";
 import { asset } from "@/lib/asset";
 
 export async function generateMetadata({
@@ -57,25 +57,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </Reveal>
       </div>
 
-      {/* Manifesto band — "Esto es intervø" */}
-      <section className="mesh grain relative overflow-hidden text-white">
-        <MarbleDuotone src="/images/textures/marble-1.jpg" className="absolute inset-0 opacity-25" />
-        <BridgeMotif className="pointer-events-none absolute -left-16 bottom-[-20%] w-[42rem] text-white/[0.05]" />
-        <div className="container-x section relative z-10 grid gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <SectionHeading eyebrow={t.intro.eyebrow} title={t.intro.title} tone="light" />
-          </div>
-          <div className="lg:col-span-6 lg:col-start-7">
-            <div className="space-y-5 text-lg leading-relaxed text-white/75 md:text-xl">
-              {t.intro.body.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
+      {/* Brand statement — centered */}
+      <section className="section">
+        <div className="container-x text-center">
+          <Reveal>
+            <div className="flex justify-center">
+              <span className="eyebrow eyebrow--center">{t.brandStatement.eyebrow}</span>
             </div>
-            <Link href={localePath(loc, "firma")} className="btn btn-light mt-8 !px-6 !py-3">
-              {t.intro.cta}
+            <h2 className="display-1 mx-auto mt-6 max-w-4xl">{t.brandStatement.title}</h2>
+            <p className="lead mx-auto mt-7 max-w-2xl text-muted">{t.brandStatement.body}</p>
+            <Link href={localePath(loc, "firma")} className="btn btn-primary mt-9 !px-7 !py-3.5">
+              {t.brandStatement.cta}
               <ArrowUpRight className="h-4 w-4" />
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -158,37 +153,66 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
-      {/* Partners teaser */}
+      {/* Positioning — strikethrough statement */}
+      <section className="mesh grain relative overflow-hidden text-white">
+        <MarbleDuotone src="/images/textures/marble-3.jpg" className="absolute inset-0 opacity-20" />
+        <BridgeMotif className="pointer-events-none absolute left-1/2 top-1/2 w-[62%] -translate-x-1/2 -translate-y-1/2 text-white/[0.05]" />
+        <div className="container-x section relative z-10 text-center">
+          <Reveal>
+            <h2 className="display-1 text-white">
+              <span className="strike-accent">{t.positioning.strike}</span> {t.positioning.keep}
+            </h2>
+            <p className="lead mx-auto mt-6 max-w-2xl text-white/75">{t.positioning.body}</p>
+            <Link href={localePath(loc, "contacto")} className="btn btn-light mt-9 !px-7 !py-3.5">
+              {t.positioning.cta}
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Recognition + photo mosaic */}
       <section className="section bg-mist">
-        <div className="container-x">
-          <div className="overflow-hidden rounded-3xl bg-navy-900 text-white shadow-card">
-            <div className="grid lg:grid-cols-2">
-              <div className="relative min-h-[22rem]">
-                <Image
-                  src={asset("/images/partners-group.jpg")}
-                  alt="Socios de intervø"
-                  fill
-                  className="object-cover object-top"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-900/70 to-transparent lg:bg-gradient-to-r" />
+        <div className="container-x grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <SectionHeading eyebrow={t.recognition.eyebrow} title={t.recognition.title} />
+            <p className="lead mt-6 text-muted">{t.recognition.lead}</p>
+            <ul className="mt-8 space-y-4">
+              {dict.firma.recognition.badges.map((b) => (
+                <li key={b.name} className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <ArrowRight className="h-4 w-4 shrink-0 text-accent" />
+                  <span className="font-serif text-xl text-ink">{b.name}</span>
+                  <span className="tag rounded-full border border-accent/30 bg-accent/[0.07] px-3 py-1">
+                    Chambers · {b.band}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <Link href={localePath(loc, "socios")} className="btn btn-primary mt-9 w-fit !px-7 !py-3.5">
+              {t.recognition.cta}
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          {/* Staggered mosaic of partner portraits */}
+          <Reveal>
+            <div className="grid grid-cols-2 gap-4 lg:gap-5">
+              <div className="space-y-4 lg:space-y-5">
+                {["/images/team/m1.jpg", "/images/team/m3.jpg"].map((src) => (
+                  <div key={src} className="relative aspect-[3/4] overflow-hidden rounded-2xl shadow-card">
+                    <Image src={asset(src)} alt="" fill className="object-cover" sizes="(max-width:1024px) 45vw, 25vw" />
+                  </div>
+                ))}
               </div>
-              <div className="flex flex-col justify-center p-9 md:p-12">
-                <SectionHeading eyebrow={t.partners.eyebrow} title={t.partners.title} subtitle={t.partners.body} tone="light" />
-                <div className="mt-7 flex flex-wrap gap-2.5">
-                  {PARTNERS.map((p) => (
-                    <span key={p.id} className="rounded-full border border-white/15 px-3.5 py-1.5 text-[0.82rem] text-white/80">
-                      {p.name.split(" ").slice(0, 2).join(" ")}
-                    </span>
-                  ))}
-                </div>
-                <Link href={localePath(loc, "socios")} className="btn btn-light mt-8 w-fit !px-6 !py-3">
-                  {t.partners.cta}
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
+              <div className="space-y-4 pt-8 lg:space-y-5 lg:pt-14">
+                {["/images/team/m2.jpg", "/images/team/m4.jpg"].map((src) => (
+                  <div key={src} className="relative aspect-[3/4] overflow-hidden rounded-2xl shadow-card">
+                    <Image src={asset(src)} alt="" fill className="object-cover" sizes="(max-width:1024px) 45vw, 25vw" />
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 

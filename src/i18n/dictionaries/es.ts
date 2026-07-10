@@ -93,6 +93,24 @@ const es = {
       subtitle: "Análisis, alertas y notas de nuestros especialistas.",
       cta: "Ver todas las publicaciones",
     },
+    brandStatement: {
+      eyebrow: "Esto es intervø",
+      title: "Un despacho hecho para los negocios.",
+      body: "La mejor manera de crear valor para nuestros clientes es entender su negocio tan a fondo como su derecho. Por eso unimos rigor legal y visión de negocio en cada operación.",
+      cta: "Conoce la firma",
+    },
+    recognition: {
+      eyebrow: "Reconocimiento",
+      title: "Una trayectoria que el mercado reconoce.",
+      lead: "Rankeados por Chambers & Partners — Latin America por tercer año consecutivo, con tres socios reconocidos individualmente en Corporate/Commercial: Monterrey.",
+      cta: "Conoce a los socios",
+    },
+    positioning: {
+      strike: "Asesores.",
+      keep: "Aliados.",
+      body: "No solo asesoramos: entendemos su operación y la acompañamos de la estrategia a la firma. Ese es el puente entre los negocios y la ley.",
+      cta: "Hablemos de su negocio",
+    },
     cta: {
       title: "Convirtamos su próxima operación en una decisión con certeza",
       body: "Cuéntenos su objetivo de negocio y le mostraremos el camino legal para lograrlo.",

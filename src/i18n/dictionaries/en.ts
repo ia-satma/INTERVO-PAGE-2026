@@ -95,6 +95,24 @@ const en: Dictionary = {
       subtitle: "Analysis, alerts and firm notes from our specialists.",
       cta: "View all insights",
     },
+    brandStatement: {
+      eyebrow: "This is intervø",
+      title: "A firm built for business.",
+      body: "The best way to create value for our clients is to understand their business as deeply as their law. That's why we combine legal rigor with business judgment in every deal.",
+      cta: "About the firm",
+    },
+    recognition: {
+      eyebrow: "Recognition",
+      title: "A track record the market recognizes.",
+      lead: "Ranked by Chambers & Partners — Latin America for the third consecutive year, with three partners individually recognized in Corporate/Commercial: Monterrey.",
+      cta: "Meet the partners",
+    },
+    positioning: {
+      strike: "Advisors.",
+      keep: "Allies.",
+      body: "We don't just advise: we understand your operation and stand with you from strategy to signing. That's the bridge between business and the law.",
+      cta: "Let's talk about your business",
+    },
     cta: {
       title: "Let's turn your next deal into a decision made with certainty",
       body: "Tell us your business objective and we'll show you the legal path to reach it.",
