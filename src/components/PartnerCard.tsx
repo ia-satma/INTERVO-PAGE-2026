@@ -30,7 +30,7 @@ export default function PartnerCard({
           {initials(name)}
         </span>
         <div className="min-w-0">
-          <h3 className="font-serif text-xl font-medium leading-tight">{name}</h3>
+          <h3 className="font-serif text-2xl leading-tight">{name}</h3>
           <p className="mt-1 text-sm font-medium text-azure">{role}</p>
         </div>
       </div>

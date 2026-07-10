@@ -37,7 +37,7 @@ export default async function FirmaPage({ params }: { params: Promise<{ locale: 
         <div className="container-x grid items-center gap-14 lg:grid-cols-2">
           <div>
             <SectionHeading eyebrow={t.story.eyebrow} title={t.story.title} />
-            <div className="mt-6 space-y-5 text-[1.02rem] leading-relaxed text-muted">
+            <div className="mt-6 space-y-5 text-lg leading-relaxed text-muted">
               {t.story.body.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}

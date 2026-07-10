@@ -19,7 +19,7 @@ export default function CTASection({ locale, title, body, ctaLabel }: Props) {
       <div className="container-x section relative z-10 text-center">
         <Reveal>
           <h2 className="display-2 mx-auto max-w-3xl text-white">{title}</h2>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-white/70">{body}</p>
+          <p className="lead mx-auto mt-6 max-w-xl text-white/70">{body}</p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href={localePath(locale, "contacto")} className="btn btn-light !px-7 !py-3.5">
               {ctaLabel}

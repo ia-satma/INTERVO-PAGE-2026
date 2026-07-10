@@ -18,8 +18,8 @@ export default function ServiceCard({ id, title, desc, index }: Props) {
           <span className="font-display text-sm font-semibold text-accent-deep">{index}</span>
         )}
       </div>
-      <h3 className="mt-6 font-serif text-[1.35rem] font-medium leading-snug">{title}</h3>
-      {desc && <p className="mt-3 text-[0.95rem] leading-relaxed text-muted">{desc}</p>}
+      <h3 className="mt-6 font-serif text-2xl leading-snug">{title}</h3>
+      {desc && <p className="mt-3 text-[1rem] leading-relaxed text-muted">{desc}</p>}
       <span className="mt-5 block h-px w-10 bg-accent transition-all duration-500 group-hover:w-20" />
     </div>
   );

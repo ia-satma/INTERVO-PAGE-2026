@@ -93,7 +93,7 @@ export default async function GlobalPage({ params }: { params: Promise<{ locale:
               <Reveal key={i} delay={(i % 2) * 0.05}>
                 <div className="flex h-full gap-5 rounded-2xl border border-line bg-white p-7">
                   <span className="font-display text-lg font-bold text-azure">{String(i + 1).padStart(2, "0")}</span>
-                  <p className="text-[0.98rem] leading-relaxed text-ink/85">{d}</p>
+                  <p className="text-[1.05rem] leading-relaxed text-ink/85">{d}</p>
                 </div>
               </Reveal>
             ))}

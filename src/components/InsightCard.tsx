@@ -17,8 +17,8 @@ export default function InsightCard({ item, readMore }: { item: Insight; readMor
           <span className="text-line">·</span>
           <span>{item.date}</span>
         </div>
-        <h3 className="mt-3 font-serif text-xl font-medium leading-snug">{item.title}</h3>
-        <p className="mt-3 line-clamp-3 text-[0.92rem] leading-relaxed text-muted">{item.excerpt}</p>
+        <h3 className="mt-3 font-serif text-2xl leading-snug">{item.title}</h3>
+        <p className="mt-3 line-clamp-3 text-[1rem] leading-relaxed text-muted">{item.excerpt}</p>
         <span className="mt-auto inline-flex items-center gap-1.5 pt-6 font-display text-sm font-semibold text-navy">
           {readMore}
           <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />

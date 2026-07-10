@@ -27,7 +27,7 @@ export default function SectionHeading({
       )}
       <h2 className={`display-2 mt-5 ${tone === "light" ? "text-white" : ""}`}>{title}</h2>
       {subtitle && (
-        <p className={`mt-5 text-lg leading-relaxed ${tone === "light" ? "text-white/70" : "text-muted"}`}>
+        <p className={`lead mt-6 ${tone === "light" ? "text-white/70" : "text-muted"}`}>
           {subtitle}
         </p>
       )}

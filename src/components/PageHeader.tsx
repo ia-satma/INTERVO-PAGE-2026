@@ -19,7 +19,7 @@ export default function PageHeader({ eyebrow, title, subtitle }: Props) {
         <Reveal>
           <span className="eyebrow">{eyebrow}</span>
           <h1 className="display-1 mt-5 max-w-4xl">{title}</h1>
-          {subtitle && <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">{subtitle}</p>}
+          {subtitle && <p className="lead mt-6 max-w-2xl text-muted">{subtitle}</p>}
         </Reveal>
       </div>
     </section>

@@ -66,7 +66,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <SectionHeading eyebrow={t.intro.eyebrow} title={t.intro.title} tone="light" />
           </div>
           <div className="lg:col-span-6 lg:col-start-7">
-            <div className="space-y-5 text-[1.05rem] leading-relaxed text-white/75">
+            <div className="space-y-5 text-lg leading-relaxed text-white/75 md:text-xl">
               {t.intro.body.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
@@ -107,7 +107,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 className="group relative flex h-full min-h-[13rem] flex-col justify-between overflow-hidden rounded-2xl bg-navy p-7 text-white transition-transform duration-500 hover:-translate-y-1"
               >
                 <BridgeMotif className="pointer-events-none absolute -right-6 -top-6 w-32 text-white/10" />
-                <span className="relative font-serif text-xl font-medium">{t.services.cta}</span>
+                <span className="relative font-serif text-2xl">{t.services.cta}</span>
                 <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-colors group-hover:bg-white group-hover:text-navy">
                   <ArrowUpRight className="h-5 w-5" />
                 </span>

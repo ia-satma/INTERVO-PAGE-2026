@@ -91,7 +91,7 @@ export default function Hero({
       <BridgeMotif className="pointer-events-none absolute right-[-5%] top-[14%] hidden w-[48%] text-white/[0.06] lg:block" />
 
       <div className="container-x relative z-10 w-full pb-24 pt-36">
-        <div className="max-w-3xl">
+        <div className="max-w-4xl">
           <span className="hero-eyebrow eyebrow eyebrow--light">{t.eyebrow}</span>
 
           <h1 className="display-1 mt-7 text-white" aria-label={t.title}>
@@ -123,7 +123,7 @@ export default function Hero({
             </span>
           </div>
 
-          <p className="hero-line mt-6 max-w-xl text-lg leading-relaxed text-white/75">{t.subtitle}</p>
+          <p className="hero-line lead mt-7 max-w-xl text-white/75">{t.subtitle}</p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link href={localePath(locale, "contacto")} className="hero-cta btn btn-light !px-7 !py-3.5">
