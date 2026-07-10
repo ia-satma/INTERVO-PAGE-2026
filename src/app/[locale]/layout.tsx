@@ -87,7 +87,7 @@ export default async function LocaleLayout({
   return (
     <html lang={dict.htmlLang} className={`${montserrat.variable} ${inter.variable} ${fraunces.variable}`}>
       <body>
-        <Header locale={locale} nav={dict.nav} cta={dict.header.cta} />
+        <Header locale={locale} dict={dict} />
         <main>{children}</main>
         <Footer locale={locale} dict={dict} />
       </body>
