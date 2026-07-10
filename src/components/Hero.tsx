@@ -55,28 +55,26 @@ export default function Hero({ locale, dict }: { locale: Locale; dict: Dictionar
     >
       <GradientMesh className="absolute inset-0 opacity-70" grain={false} />
 
-      {/* Giant intervø isotype masking crossfading firm imagery */}
+      {/* Giant intervø isotype (static) masking the crossfading firm imagery */}
       <div className="pointer-events-none absolute right-[-16%] top-1/2 -translate-y-1/2 md:right-[-8%]">
-        <div className="hero-mask-anim">
-          <div
-            className="hero-float relative h-[94vmin] w-[94vmin] max-h-[1000px] max-w-[1000px]"
-            style={maskStyle}
-          >
-            {SLIDE_IMAGES.map((src, idx) => (
-              <Image
-                key={src}
-                src={asset(src)}
-                alt=""
-                fill
-                priority={idx === 0}
-                sizes="94vmin"
-                className={`object-cover transition-opacity duration-[1200ms] ease-out ${
-                  idx === i ? "opacity-100" : "opacity-0"
-                }`}
-              />
-            ))}
-            <div className="absolute inset-0 bg-gradient-to-br from-azure/25 via-transparent to-navy-950/60" />
-          </div>
+        <div
+          className="relative h-[94vmin] w-[94vmin] max-h-[1000px] max-w-[1000px]"
+          style={maskStyle}
+        >
+          {SLIDE_IMAGES.map((src, idx) => (
+            <Image
+              key={src}
+              src={asset(src)}
+              alt=""
+              fill
+              priority={idx === 0}
+              sizes="94vmin"
+              className={`object-cover transition-opacity duration-[1200ms] ease-out ${
+                idx === i ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ))}
+          <div className="absolute inset-0 bg-gradient-to-br from-azure/25 via-transparent to-navy-950/60" />
         </div>
       </div>
 
