@@ -9,7 +9,7 @@ type Props = {
 
 export default function ServiceCard({ id, title, desc, index }: Props) {
   return (
-    <div className="group relative flex h-full flex-col rounded-2xl border border-line bg-white p-7 transition-[translate,box-shadow,border-color] duration-500 hover:-translate-y-1 hover:border-transparent hover:shadow-card">
+    <div className="spotlight-border group relative flex h-full flex-col rounded-2xl border border-line bg-white p-7 transition-[translate,box-shadow,border-color] duration-500 hover:-translate-y-1 hover:border-transparent hover:shadow-card">
       <div className="flex items-center justify-between">
         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-mist text-navy transition-colors duration-500 group-hover:bg-navy group-hover:text-white">
           <ServiceIcon id={id} className="h-6 w-6" />

@@ -8,7 +8,7 @@ type Props = {
 
 export default function ValueCard({ id, title, desc }: Props) {
   return (
-    <div className="group flex h-full flex-col items-start rounded-2xl border border-line bg-white p-7 transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card">
+    <div className="spotlight-border group flex h-full flex-col items-start rounded-2xl border border-line bg-white p-7 transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card">
       <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-mist text-navy transition-colors duration-500 group-hover:bg-navy group-hover:text-white">
         <ValueIcon id={id} className="h-7 w-7" />
       </span>

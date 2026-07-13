@@ -137,6 +137,7 @@
     will-change: transform;
   }
   .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(0) scale(0.97); transition-duration: 0.15s; }
   .btn-primary { background: var(--color-navy); color: #fff; box-shadow: 0 10px 24px -12px rgb(15 67 134 / 0.7); }
   .btn-primary:hover { background: var(--color-azure); box-shadow: 0 16px 30px -12px rgb(10 118 184 / 0.6); }
   .btn-ghost { background: transparent; color: var(--color-ink); border: 1px solid var(--color-line); }
@@ -204,6 +205,27 @@
   }
   .link-underline:hover { background-size: 100% 1px; }
 
+  /* Illuminated 1px edge on hover — a still light source from the top,
+     no JS/cursor-tracking needed. For the site's plain white cards
+     (ServiceCard/ValueCard/InsightCard) so hover reads as "alive", not
+     just a shadow lift. */
+  .spotlight-border { position: relative; }
+  .spotlight-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: radial-gradient(140px 90px at 50% -10%, rgb(198 161 91 / 0.6), transparent 72%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.5s var(--ease-out-expo);
+    pointer-events: none;
+  }
+  .spotlight-border:hover::before { opacity: 1; }
+
   /* Insight category tag */
   .tag {
     display: inline-flex;
@@ -266,4 +288,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .hero-anim, .chip-anim { animation: none !important; }
+  /* TeamWall: keep the grayscale→color reveal (it aids comprehension, no
+     movement) but drop the flex-grow expansion and photo zoom — real size
+     and position changes that reduced-motion users asked to avoid. */
+  .wall-tile:hover, .wall-tile:focus-within { flex-grow: 1 !important; }
+  .wall-tile-photo { transform: none !important; }
 }

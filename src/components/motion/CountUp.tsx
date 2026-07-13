@@ -44,7 +44,7 @@ export default function CountUp({ value, className, duration = 1100 }: Props) {
   }, [value, duration]);
 
   return (
-    <span ref={ref} className={className}>
+    <span ref={ref} className={className} style={{ fontVariantNumeric: "tabular-nums" }}>
       {String(display).padStart(2, "0")}
     </span>
   );

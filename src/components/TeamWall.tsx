@@ -126,18 +126,18 @@ export default function TeamWall({
             {filtered.map((p) => (
               <div
                 key={p.id}
-                className="group relative h-full w-[82vw] shrink-0 snap-center transition-[flex-grow] duration-500 ease-out md:w-auto md:flex-1 md:hover:flex-[2.6] md:focus-within:flex-[2.6]"
+                className="wall-tile group relative h-full w-[82vw] shrink-0 snap-center transition-[flex-grow] duration-500 ease-[var(--ease-out-expo)] md:w-auto md:flex-1 md:hover:flex-[2.6] md:focus-within:flex-[2.6]"
               >
                 <Link href={p.href} className="absolute inset-0 block overflow-hidden focus-visible:z-10">
                   <Image
                     src={asset(p.photo)}
                     alt={p.name}
                     fill
-                    className="object-cover grayscale transition-[filter,transform] duration-700 ease-out group-hover:scale-[1.08] group-hover:grayscale-0 group-focus-within:grayscale-0"
+                    className="wall-tile-photo object-cover grayscale transition-[filter,transform] duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.08] group-hover:grayscale-0 group-focus-within:grayscale-0"
                     sizes="(max-width: 767px) 82vw, 22vw"
                   />
                   <div
-                    className="pointer-events-none absolute inset-0 mix-blend-multiply transition-opacity duration-700 ease-out group-hover:opacity-0 group-focus-within:opacity-0"
+                    className="pointer-events-none absolute inset-0 mix-blend-multiply transition-opacity duration-700 ease-[var(--ease-out-expo)] group-hover:opacity-0 group-focus-within:opacity-0"
                     style={{ background: "var(--color-navy-900)" }}
                   />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/85 via-navy-950/10 to-transparent" />
@@ -153,18 +153,20 @@ export default function TeamWall({
                     <p className="font-display text-[0.82rem] font-medium text-white/70">{p.role}</p>
                     <p className="mt-1 truncate font-serif text-xl leading-tight text-white">{p.name}</p>
 
-                    <div className="mt-3 flex max-h-24 flex-wrap gap-1.5 overflow-hidden opacity-100 transition-all duration-500 md:max-h-0 md:opacity-0 md:group-hover:max-h-24 md:group-hover:opacity-100 md:group-focus-within:max-h-24 md:group-focus-within:opacity-100">
-                      <p className="w-full text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-white/45">
-                        {specialtiesLabel}
-                      </p>
-                      {p.specialties.slice(0, 3).map((s) => (
-                        <span
-                          key={s}
-                          className="rounded-full border border-white/20 bg-white/[0.06] px-2.5 py-1 text-[0.72rem] leading-none text-white/85"
-                        >
-                          {s}
-                        </span>
-                      ))}
+                    <div className="mt-3 grid grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-[var(--ease-out-expo)] md:grid-rows-[0fr] md:group-hover:grid-rows-[1fr] md:group-focus-within:grid-rows-[1fr]">
+                      <div className="flex flex-wrap gap-1.5 overflow-hidden opacity-100 transition-opacity duration-500 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                        <p className="w-full text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-white/45">
+                          {specialtiesLabel}
+                        </p>
+                        {p.specialties.slice(0, 3).map((s) => (
+                          <span
+                            key={s}
+                            className="rounded-full border border-white/20 bg-white/[0.06] px-2.5 py-1 text-[0.72rem] leading-none text-white/85"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
                     </div>
 
                     <span className="mt-3 flex items-center gap-1.5 font-display text-sm font-semibold text-white opacity-100 transition-opacity duration-500 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
