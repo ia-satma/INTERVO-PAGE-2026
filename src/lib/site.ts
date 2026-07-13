@@ -82,6 +82,9 @@ export function localePath(locale: Locale, slug = ""): string {
  * Partners — left-to-right order per the official brochure "Nuestros Socios".
  * Email/phone verified against each partner's individual business card
  * (pCloud "PAPELERIA" folder); phones formatted from the card's 10-digit MX numbers.
+ * Photos: cropped from the firm's own group portrait (pCloud, session "thisisraw"
+ * 2022-10-17), whose left-to-right order is confirmed by the official brochure —
+ * not sourced from the unlabeled studio session, to avoid misattributing a face.
  */
 export type PartnerMeta = {
   id: string;
@@ -91,6 +94,8 @@ export type PartnerMeta = {
   email: string;
   phoneDisplay: string;
   phoneHref: string;
+  photo: string;
+  linkedin?: string;
 };
 
 export const PARTNERS: PartnerMeta[] = [
@@ -101,6 +106,7 @@ export const PARTNERS: PartnerMeta[] = [
     email: "jgarza@intervo.legal",
     phoneDisplay: "+52 811 405 5614",
     phoneHref: "tel:+528114055614",
+    photo: "/images/team/jorge.jpg",
   },
   {
     id: "carlos",
@@ -109,6 +115,7 @@ export const PARTNERS: PartnerMeta[] = [
     email: "cmarcos@intervo.legal",
     phoneDisplay: "+52 811 259 7313",
     phoneHref: "tel:+528112597313",
+    photo: "/images/team/carlos.jpg",
   },
   {
     id: "luis",
@@ -117,6 +124,7 @@ export const PARTNERS: PartnerMeta[] = [
     email: "lromero@intervo.legal",
     phoneDisplay: "+52 811 531 5893",
     phoneHref: "tel:+528115315893",
+    photo: "/images/team/luis.jpg",
   },
   {
     id: "alfredo",
@@ -126,6 +134,8 @@ export const PARTNERS: PartnerMeta[] = [
     email: "agarcia@intervo.legal",
     phoneDisplay: "+52 811 396 7180",
     phoneHref: "tel:+528113967180",
+    photo: "/images/team/alfredo.jpg",
+    linkedin: "https://mx.linkedin.com/in/alfredogarciaintervolegal",
   },
   {
     id: "faustino",
@@ -134,8 +144,13 @@ export const PARTNERS: PartnerMeta[] = [
     email: "fmartinez@intervo.legal",
     phoneDisplay: "+52 811 599 9025",
     phoneHref: "tel:+528115999025",
+    photo: "/images/team/faustino.jpg",
   },
 ];
+
+export function getPartner(id: string): PartnerMeta | undefined {
+  return PARTNERS.find((p) => p.id === id);
+}
 
 export function initials(name: string): string {
   const parts = name.split(" ").filter(Boolean);

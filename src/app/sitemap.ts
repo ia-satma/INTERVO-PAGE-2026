@@ -1,10 +1,20 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, PARTNERS } from "@/lib/site";
 import { locales } from "@/i18n/config";
 
 export const dynamic = "force-static";
 
-const slugs = ["", "firma", "servicios", "socios", "global", "publicaciones", "contacto", "aviso-de-privacidad"];
+const slugs = [
+  "",
+  "firma",
+  "servicios",
+  "socios",
+  ...PARTNERS.map((p) => `socios/${p.id}`),
+  "global",
+  "publicaciones",
+  "contacto",
+  "aviso-de-privacidad",
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];

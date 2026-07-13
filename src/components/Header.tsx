@@ -94,7 +94,7 @@ export default function Header({ locale, dict }: { locale: Locale; dict: Diction
             style={{ background: "radial-gradient(90% 75% at 70% 60%, rgba(10,118,184,0.20), transparent 72%)" }}
           />
           <BridgeMotif className="pointer-events-none absolute -bottom-10 right-6 w-72 text-white/[0.05]" />
-          <div className="relative flex h-full flex-col justify-between p-12">
+          <div className="relative flex h-full flex-col items-start justify-between p-12">
             <Logo variant="white" className="h-9 w-auto" />
             <div>
               <p className="font-serif text-3xl leading-tight text-white/90">{dict.brand.tagline}</p>

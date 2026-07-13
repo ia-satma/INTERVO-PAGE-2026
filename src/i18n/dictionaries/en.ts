@@ -9,7 +9,7 @@ const en: Dictionary = {
   nav: {
     firma: "The Firm",
     servicios: "Services",
-    socios: "Partners",
+    socios: "Attorneys",
     global: "Global Reach",
     publicaciones: "Insights",
     contacto: "Contact",
@@ -181,6 +181,14 @@ const en: Dictionary = {
     partnerLabel: "Partner",
     specialtiesLabel: "Focus areas",
     note: "The order of the partners follows the firm's official materials.",
+    viewProfile: "View profile",
+    profile: {
+      back: "All attorneys",
+      practiceLabel: "Practice areas",
+      bioLabel: "Profile",
+      contactLabel: "Direct contact",
+      chambersLabel: "Recognition",
+    },
     cta: {
       title: "Talk directly with a partner",
       body: "At intervø, your deal is handled by someone who understands it.",
@@ -356,6 +364,7 @@ const en: Dictionary = {
         "Financial Technology (Fintech)",
         "Foreign Investment",
       ],
+      bio: "Jorge focuses his practice on mergers and acquisitions and on structuring international contracts and transactions, with a particular focus on financial technology and foreign investment. Recognized by Chambers & Partners — Latin America as Up and Coming, Corporate/Commercial: Monterrey.",
     },
     carlos: {
       role: "Partner",
@@ -365,6 +374,7 @@ const en: Dictionary = {
         "Mergers & Acquisitions",
         "Estate Planning",
       ],
+      bio: "Carlos advises financial institutions, banks and corporate clients on finance and banking law matters, mergers and acquisitions, and estate planning. Ranked by Chambers & Partners — Latin America (Band 2), Corporate/Commercial: Monterrey.",
     },
     luis: {
       role: "Partner",
@@ -375,6 +385,7 @@ const en: Dictionary = {
         "Industrial Property",
         "Real Estate",
       ],
+      bio: "Luis supports intervø's clients in mergers and acquisitions, trust structuring and real estate transactions, alongside immigration law and industrial property advice.",
     },
     alfredo: {
       role: "Managing Partner",
@@ -384,6 +395,7 @@ const en: Dictionary = {
         "Real Estate Law",
         "Financing",
       ],
+      bio: "Alfredo is intervø's Managing Partner. He holds an LL.M. in Business Law from Universitat Pompeu Fabra (2004–2005) and previously practiced at White & Case LLP and Arizpe, Valdés & Marcos, S.C. His practice focuses on corporate law, acquisitions in Mexico and abroad, real estate law and financing. Ranked by Chambers & Partners — Latin America (Band 3), Corporate/Commercial: Monterrey.",
     },
     faustino: {
       role: "Partner",
@@ -392,6 +404,7 @@ const en: Dictionary = {
         "Contracts",
         "Commercial Financing",
       ],
+      bio: "Faustino advises intervø's clients on commercial and corporate law, contract negotiation and drafting, and commercial financing transactions.",
     },
   },
   valuesData: [

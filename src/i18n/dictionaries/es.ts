@@ -7,7 +7,7 @@ const es = {
   nav: {
     firma: "La Firma",
     servicios: "Servicios",
-    socios: "Socios",
+    socios: "Abogados",
     global: "Alcance Global",
     publicaciones: "Publicaciones",
     contacto: "Contacto",
@@ -179,6 +179,14 @@ const es = {
     partnerLabel: "Socio",
     specialtiesLabel: "Especialidad",
     note: "La disposición de los socios corresponde al material oficial de la firma.",
+    viewProfile: "Ver perfil",
+    profile: {
+      back: "Todos los abogados",
+      practiceLabel: "Áreas de práctica",
+      bioLabel: "Perfil",
+      contactLabel: "Contacto directo",
+      chambersLabel: "Reconocimiento",
+    },
     cta: {
       title: "Hable directamente con un socio",
       body: "En intervø, su operación la lleva quien la entiende.",
@@ -354,6 +362,7 @@ const es = {
         "Tecnología Financiera (Fintech)",
         "Inversión Extranjera",
       ],
+      bio: "Jorge concentra su práctica en operaciones de fusiones y adquisiciones y en la estructuración de contratos y transacciones internacionales, con un enfoque particular en tecnología financiera e inversión extranjera. Reconocido por Chambers & Partners — Latin America en la categoría Up and Coming, Corporate/Commercial: Monterrey.",
     },
     carlos: {
       role: "Socio",
@@ -363,6 +372,7 @@ const es = {
         "Fusiones y Adquisiciones",
         "Planeación Patrimonial",
       ],
+      bio: "Carlos asesora a instituciones financieras, bancos y clientes corporativos en operaciones de derecho financiero y bancario, fusiones y adquisiciones, y planeación patrimonial. Rankeado por Chambers & Partners — Latin America (Band 2), Corporate/Commercial: Monterrey.",
     },
     luis: {
       role: "Socio",
@@ -373,6 +383,7 @@ const es = {
         "Propiedad Industrial",
         "Real Estate",
       ],
+      bio: "Luis acompaña a los clientes de intervø en operaciones de fusiones y adquisiciones, estructuración de fideicomisos y transacciones inmobiliarias, además de asesoría en derecho migratorio y propiedad industrial.",
     },
     alfredo: {
       role: "Socio Director",
@@ -382,6 +393,7 @@ const es = {
         "Derecho Inmobiliario",
         "Financiamiento",
       ],
+      bio: "Alfredo es Socio Director de intervø. Cuenta con una Maestría en Derecho de la Empresa (LL.M.) por la Universitat Pompeu Fabra (2004–2005) y experiencia previa en White & Case LLP y Arizpe, Valdés & Marcos, S.C. Su práctica se enfoca en derecho corporativo, adquisiciones en México y el extranjero, derecho inmobiliario y financiamiento. Rankeado por Chambers & Partners — Latin America (Band 3), Corporate/Commercial: Monterrey.",
     },
     faustino: {
       role: "Socio",
@@ -390,6 +402,7 @@ const es = {
         "Contratos",
         "Financiamiento Comercial",
       ],
+      bio: "Faustino asesora a clientes de intervø en derecho mercantil y corporativo, negociación y redacción de contratos, y operaciones de financiamiento comercial.",
     },
   },
   valuesData: [

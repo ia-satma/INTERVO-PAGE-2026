@@ -25,6 +25,9 @@ function Base({ children, ...props }: IconProps & { children: React.ReactNode })
 export const ArrowRight = (p: IconProps) => (
   <Base {...p}><path d="M5 12h14M13 6l6 6-6 6" /></Base>
 );
+export const ArrowLeft = (p: IconProps) => (
+  <Base {...p}><path d="M19 12H5M11 6l-6 6 6 6" /></Base>
+);
 export const ArrowUpRight = (p: IconProps) => (
   <Base {...p}><path d="M7 17 17 7M8 7h9v9" /></Base>
 );

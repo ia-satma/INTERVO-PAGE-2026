@@ -7,7 +7,7 @@ import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
-import { PARTNERS } from "@/lib/site";
+import { PARTNERS, localePath } from "@/lib/site";
 
 export async function generateMetadata({
   params,
@@ -62,8 +62,10 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
               return (
                 <Reveal key={p.id} delay={(i % 3) * 0.05}>
                   <PartnerCard
+                    href={localePath(loc, `socios/${p.id}`)}
                     name={p.name}
                     role={info.role}
+                    photo={p.photo}
                     chambers={p.chambers}
                     specialties={info.specialties}
                     specialtiesLabel={t.specialtiesLabel}
@@ -71,6 +73,7 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
                     email={p.email}
                     phoneDisplay={p.phoneDisplay}
                     phoneHref={p.phoneHref}
+                    viewProfileLabel={t.viewProfile}
                   />
                 </Reveal>
               );

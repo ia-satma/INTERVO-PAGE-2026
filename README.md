@@ -15,8 +15,11 @@ firma boutique de asesoría legal y de negocios con sede en Monterrey.
 - **Tipografía editorial**: Fraunces (serif display) + Montserrat (UI) + Inter (cuerpo), vía `next/font`
 - **Motion**: Framer Motion (reveals) + **GSAP + ScrollTrigger** (hero cinemático, contadores, parallax), todo con fallback `prefers-reduced-motion`
 - **Imaginería conceptual** (dirección editorial estilo Woods Rogers, adaptada): gradient-mesh, grano, motivo puente/∞ y **texturas de mármol en duotono** de la foto propia de la firma (`public/images/textures/`)
+- **Directorio de Abogados**: grid de socios con foto real + perfil individual por abogado (`/socios/[id]`) — bio, áreas de práctica, contacto directo
 - Internacionalización propia (ES/EN) vía segmento `[locale]` + `proxy` de detección de idioma
 - Sin dependencias de backend: el formulario de contacto usa `mailto:` (ver TODO)
+- `sharp` como dependencia para el optimizador de imágenes de Next (necesaria para `npm run dev`/`npm start`
+  locales; el export estático a GitHub Pages usa `images.unoptimized`, así que no la necesita en producción)
 
 ## Requisitos
 
@@ -47,7 +50,8 @@ src/
       page.tsx           # Home
       firma/             # La Firma
       servicios/         # Servicios
-      socios/            # Socios
+      socios/            # Abogados (grid)
+        [id]/            # Perfil individual del abogado
       global/            # Alcance Global
       contacto/          # Contacto
       aviso-de-privacidad/
@@ -64,6 +68,7 @@ src/
 public/
   brand/                 # logos e isotipos (assets originales de la firma)
   images/                # fotografía real del despacho (optimizada)
+    team/                # retratos individuales por socio (ver nota abajo)
 ```
 
 ## Marca
@@ -101,12 +106,29 @@ Tipografía: **Montserrat** (display, en línea con el wordmark) + **Inter** (cu
 - [ ] **Nombre completo de Carlos Marcos:** el brochure 2025 usa "Roberto Carlos Marcos Romero" en una
       tarjeta y "Carlos Marcos Iga" en otra (mismo correo `cmarcos@intervo.legal`). Se mantiene "Carlos
       Marcos Iga" (el usado en Chambers & Partners); confirmar con la firma cuál es el nombre preferido.
-- [ ] Verificar el orden/identidad de los socios en la foto grupal contra el material oficial.
+- [x] **Fotos individuales de socios:** cada abogado tiene su foto real en `/socios/[id]`, recortada de
+      la foto de grupo de la firma (`int_3.jpg`, sesión "thisisraw" 2022-10-17) cuyo orden izquierda→derecha
+      está confirmado por el brochure oficial (Jorge · Carlos · Luis · Alfredo · Faustino). No se usaron
+      las fotos de estudio sueltas (carpeta AGV, ~61 fotos sin etiquetar) para evitar atribuir mal una cara.
+- [ ] **Bios/currículum de los socios:** hoy solo la bio de Alfredo García incluye datos verificados de
+      formación y trayectoria previa (LL.M. Universitat Pompeu Fabra, White & Case, Arizpe Valdés & Marcos —
+      fuente: LinkedIn). Las bios de Jorge, Carlos, Luis y Faustino son deliberadamente genéricas (solo
+      describen su enfoque de práctica) para no inventar universidades, años de experiencia o firmas
+      previas no verificadas — **pedir a la firma el CV/perfil de cada socio para completarlas**.
 
 ## Despliegue
 
 Compatible con Vercel (recomendado para Next.js), o cualquier host con soporte Node.
 El middleware de i18n requiere runtime (no es export estático puro).
+
+**GitHub Pages (actual):** export estático vía `EXPORT=true npm run build` (ver
+`.github/workflows/deploy-pages.yml`), con `images.unoptimized` — las imágenes se sirven tal cual,
+sin pasar por el optimizador de Next.
+
+> **Nota:** si corres `npm run dev`/`npm start` en local SIN `sharp` instalado, el optimizador de
+> imágenes de Next puede devolver un archivo corrupto (`Content-Type: application/octet-stream`,
+> ~4KB) para ciertas fotos, cacheado en `.next/cache/images`. `sharp` ya está en `dependencies` para
+> evitarlo; si reaparece, borra `.next` y reinstala (`rm -rf .next node_modules/.cache`).
 
 ## Créditos de contenido
 
