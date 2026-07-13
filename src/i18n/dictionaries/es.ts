@@ -175,6 +175,9 @@ const es = {
       subtitle:
         "Socios con trayectoria en las principales firmas y transacciones del país, rankeados por Chambers & Partners.",
     },
+    teamWall: {
+      eyebrow: "Nuestro Equipo",
+    },
     managingLabel: "Socio Director",
     partnerLabel: "Socio",
     specialtiesLabel: "Especialidad",

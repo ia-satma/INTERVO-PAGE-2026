@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageHeader from "@/components/PageHeader";
+import TeamWall from "@/components/TeamWall";
 import SociosDirectory from "@/components/SociosDirectory";
 import CTASection from "@/components/CTASection";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -46,6 +47,8 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
   return (
     <>
       <PageHeader eyebrow={t.hero.eyebrow} title={t.hero.title} subtitle={t.hero.subtitle} />
+
+      <TeamWall partners={partners} eyebrow={t.teamWall.eyebrow} />
 
       <section className="section">
         <div className="container-x">

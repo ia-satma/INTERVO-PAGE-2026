@@ -177,6 +177,9 @@ const en: Dictionary = {
       subtitle:
         "Partners with a track record in the country's leading firms and transactions, ranked by Chambers & Partners.",
     },
+    teamWall: {
+      eyebrow: "Our Team",
+    },
     managingLabel: "Managing Partner",
     partnerLabel: "Partner",
     specialtiesLabel: "Focus areas",
