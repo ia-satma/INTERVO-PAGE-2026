@@ -89,10 +89,7 @@ export default function Header({ locale, dict }: { locale: Locale; dict: Diction
           }`}
         >
           <MarbleDuotone src="/images/textures/marble-1.jpg" className="absolute inset-0 opacity-[0.14]" />
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{ background: "radial-gradient(90% 75% at 70% 60%, rgba(10,118,184,0.20), transparent 72%)" }}
-          />
+          <div className="glow-radial pointer-events-none absolute inset-0" />
           <BridgeMotif className="pointer-events-none absolute -bottom-10 right-6 w-72 text-white/[0.05]" />
           <div className="relative flex h-full flex-col items-start justify-between p-12">
             <Logo variant="white" className="h-9 w-auto" />

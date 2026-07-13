@@ -37,7 +37,7 @@ export default function Footer({ locale, dict }: { locale: Locale; dict: Diction
 
         {/* Row 2 — legal + copyright */}
         <div className="mt-7 flex flex-col gap-x-6 gap-y-2 border-t border-line pt-6 text-sm text-muted-2 md:flex-row md:flex-wrap md:items-center">
-          <Link href={localePath(locale, "aviso-de-privacidad")} className="transition-colors hover:text-navy">
+          <Link href={localePath(locale, "aviso-de-privacidad")} className="link-underline transition-colors hover:text-navy">
             {t.privacy}
           </Link>
           <span className="hidden text-line md:inline">·</span>

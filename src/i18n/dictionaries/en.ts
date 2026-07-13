@@ -270,7 +270,7 @@ const en: Dictionary = {
       messagePlaceholder: "Tell us briefly how we can help",
       submit: "Send message",
       sending: "Sending…",
-      success: "Thank you. We've received your message and will contact you shortly.",
+      success: "Thank you. We've drafted your message in your email client — please review and hit send to complete it.",
       error: "Something went wrong. Please reach us directly by email or phone.",
       privacy: "By submitting you accept our Privacy Notice.",
     },
@@ -286,6 +286,11 @@ const en: Dictionary = {
       branch: "Office",
     },
     mapsLabel: "View on map",
+  },
+  notFound: {
+    code: "404",
+    message: "Page not found",
+    backHome: "Back to home",
   },
   privacy: {
     title: "Privacy Notice",

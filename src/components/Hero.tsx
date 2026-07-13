@@ -120,7 +120,7 @@ export default function Hero({ locale, dict }: { locale: Locale; dict: Dictionar
                 onClick={() => setI(idx)}
                 aria-label={`${idx + 1}. ${s.title}`}
                 aria-current={idx === i}
-                className="group py-2"
+                className="group -m-2.5 flex items-center justify-center p-4"
               >
                 <span
                   className={`block h-1.5 rounded-full transition-all duration-500 ${

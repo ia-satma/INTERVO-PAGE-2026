@@ -70,7 +70,7 @@ export default async function GlobalPage({ params }: { params: Promise<{ locale:
           </div>
 
           <div className="mt-10">
-            <p className="font-display text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-white/40">
+            <p className="font-display text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-white/50">
               {t.reach.regionsLabel}
             </p>
             <div className="mt-4 flex flex-wrap gap-2.5">

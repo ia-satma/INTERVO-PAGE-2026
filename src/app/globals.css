@@ -23,7 +23,7 @@
   /* Editorial accent */
   --color-accent: #c6a15b;
   --color-accent-soft: #dcc08a;
-  --color-accent-deep: #a37e3c;
+  --color-accent-deep: #8a6c34; /* darkened from #a37e3c — 4.91:1 on white, passes WCAG AA */
 
   /* Neutrals */
   --color-paper: #ffffff;
@@ -31,7 +31,7 @@
   --color-mist-2: #eaf1f8;
   --color-line: #e2e9f2;
   --color-muted: #5c6b7d;
-  --color-muted-2: #8695a6;
+  --color-muted-2: #647380; /* darkened from #8695a6 — 4.88:1 on white, passes WCAG AA */
 
   /* Fonts (wired from next/font) */
   --font-serif: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
@@ -49,7 +49,6 @@
 
   /* Easing */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out-soft: cubic-bezier(0.65, 0.05, 0.36, 1);
 }
 
 @layer base {
@@ -144,8 +143,6 @@
   .btn-ghost:hover { border-color: var(--color-navy); color: var(--color-navy); }
   .btn-light { background: #fff; color: var(--color-navy); }
   .btn-light:hover { background: var(--color-mist); }
-  .btn-accent { background: var(--color-accent); color: #1c1403; box-shadow: 0 10px 24px -12px rgb(163 126 60 / 0.7); }
-  .btn-accent:hover { background: var(--color-accent-soft); }
   .btn-outline-light { background: transparent; color: #fff; border: 1px solid rgb(255 255 255 / 0.35); }
   .btn-outline-light:hover { background: rgb(255 255 255 / 0.1); border-color: #fff; }
 
@@ -171,6 +168,20 @@
       radial-gradient(55% 60% at 88% 20%, rgb(15 67 134 / 0.85) 0%, transparent 62%),
       radial-gradient(70% 70% at 75% 95%, rgb(10 118 184 / 0.45) 0%, transparent 65%),
       radial-gradient(50% 50% at 40% 80%, rgb(6 22 39 / 0.9) 0%, transparent 70%);
+  }
+
+  /* Decorative radial glow — parametrizable via custom properties */
+  .glow-radial {
+    background-image: radial-gradient(
+      var(--glow-size, 90% 75%) at var(--glow-pos, 70% 60%),
+      var(--glow-color, rgb(10 118 184 / 0.2)),
+      transparent 72%
+    );
+  }
+
+  /* Decorative accent fade at the base of a light panel */
+  .fade-accent-top {
+    background-image: linear-gradient(to top, rgb(198 161 91 / 0.06), transparent);
   }
 
   /* Grain overlay */
@@ -200,7 +211,7 @@
     gap: 0.4rem;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 0.66rem;
+    font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--color-accent-deep);
@@ -221,9 +232,6 @@
 
 /* Lead paragraph (WR body ≈ 18px, intro copy a touch larger) */
 .lead { font-size: clamp(1.15rem, 1.4vw, 1.35rem); line-height: 1.55; }
-
-/* Italic serif accent for pull phrases */
-.serif-italic { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
 
 /* Hand-drawn strikethrough swoosh (champagne) over a word */
 .strike-accent { position: relative; white-space: nowrap; color: inherit; opacity: 0.55; }

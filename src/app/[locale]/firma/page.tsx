@@ -5,7 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import SectionHeading from "@/components/SectionHeading";
 import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
-import { ValueIcon } from "@/components/icons";
+import ValueCard from "@/components/ValueCard";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
 
@@ -66,13 +66,7 @@ export default async function FirmaPage({ params }: { params: Promise<{ locale: 
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {dict.valuesData.map((v, i) => (
               <Reveal key={v.key} delay={i * 0.06}>
-                <div className="flex h-full flex-col items-start rounded-2xl border border-line bg-white p-7">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-mist text-navy">
-                    <ValueIcon id={v.key} className="h-7 w-7" />
-                  </span>
-                  <h3 className="mt-6 font-display text-xl font-semibold">{v.title}</h3>
-                  <p className="mt-3 text-[0.95rem] leading-relaxed text-muted">{v.desc}</p>
-                </div>
+                <ValueCard id={v.key} title={v.title} desc={v.desc} />
               </Reveal>
             ))}
           </div>

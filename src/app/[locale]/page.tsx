@@ -4,13 +4,14 @@ import Link from "next/link";
 import Hero from "@/components/Hero";
 import SectionHeading from "@/components/SectionHeading";
 import ServiceCard from "@/components/ServiceCard";
+import ValueCard from "@/components/ValueCard";
 import InsightCard from "@/components/InsightCard";
 import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
 import Counter from "@/components/motion/Counter";
 import { Stat } from "@/components/Stat";
 import { MarbleDuotone, BridgeMotif } from "@/components/abstract";
-import { ValueIcon, ArrowRight, ArrowUpRight } from "@/components/icons";
+import { ArrowRight, ArrowUpRight } from "@/components/icons";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localePath, FEATURED_SERVICES } from "@/lib/site";
@@ -140,13 +141,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {dict.valuesData.map((v, i) => (
               <Reveal key={v.key} delay={i * 0.06}>
-                <div className="flex flex-col items-start">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-mist text-navy">
-                    <ValueIcon id={v.key} className="h-7 w-7" />
-                  </span>
-                  <h3 className="mt-6 font-serif text-xl font-medium">{v.title}</h3>
-                  <p className="mt-3 text-[0.95rem] leading-relaxed text-muted">{v.desc}</p>
-                </div>
+                <ValueCard id={v.key} title={v.title} desc={v.desc} />
               </Reveal>
             ))}
           </div>

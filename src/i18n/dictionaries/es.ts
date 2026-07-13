@@ -268,7 +268,7 @@ const es = {
       messagePlaceholder: "Cuéntenos brevemente en qué podemos ayudar",
       submit: "Enviar mensaje",
       sending: "Enviando…",
-      success: "Gracias. Hemos recibido su mensaje y le contactaremos a la brevedad.",
+      success: "Gracias. Preparamos su mensaje en su cliente de correo — revíselo y presione enviar para completarlo.",
       error: "Ocurrió un problema al enviar. Por favor, escríbanos directamente por correo o teléfono.",
       privacy: "Al enviar acepta nuestro Aviso de Privacidad.",
     },
@@ -284,6 +284,11 @@ const es = {
       branch: "Oficina",
     },
     mapsLabel: "Ver en el mapa",
+  },
+  notFound: {
+    code: "404",
+    message: "Página no encontrada",
+    backHome: "Volver al inicio",
   },
   privacy: {
     title: "Aviso de Privacidad",

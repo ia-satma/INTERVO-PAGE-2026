@@ -31,7 +31,7 @@ export default function LanguageToggle({ locale, tone = "dark", className = "" }
           <Link
             href={pathFor(l)}
             aria-current={l === locale ? "true" : undefined}
-            className={`tracking-wide transition-colors ${l === locale ? active : `${base} hover:${active}`}`}
+            className={`-m-2 inline-block p-2 tracking-wide transition-colors ${l === locale ? active : `${base} hover:${active}`}`}
           >
             {l.toUpperCase()}
           </Link>

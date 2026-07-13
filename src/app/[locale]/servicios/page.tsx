@@ -59,7 +59,7 @@ export default async function ServiciosPage({ params }: { params: Promise<{ loca
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {OTHER_SERVICES.map((id, i) => (
               <Reveal key={id} delay={(i % 3) * 0.05}>
-                <div className="flex items-center gap-4 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
+                <div className="flex items-center gap-4 rounded-xl border border-line bg-white px-5 py-4 transition-[transform,box-shadow,border-color] duration-500 hover:-translate-y-1 hover:border-transparent hover:shadow-card">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-mist text-navy">
                     <ServiceIcon id={id} className="h-5 w-5" />
                   </span>
