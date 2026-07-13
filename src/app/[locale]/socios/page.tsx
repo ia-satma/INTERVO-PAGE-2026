@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import { asset } from "@/lib/asset";
 import PageHeader from "@/components/PageHeader";
 import PartnerCard from "@/components/PartnerCard";
 import CTASection from "@/components/CTASection";
@@ -33,28 +31,8 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
     <>
       <PageHeader eyebrow={t.hero.eyebrow} title={t.hero.title} subtitle={t.hero.subtitle} />
 
-      {/* Group photo */}
-      <section className="pt-14">
-        <div className="container-x">
-          <Reveal>
-            <div className="relative overflow-hidden rounded-2xl shadow-card">
-              <Image
-                src={asset("/images/partners-group.jpg")}
-                alt="Socios de intervø — Monterrey"
-                width={1800}
-                height={900}
-                className="h-full w-full object-cover"
-                sizes="100vw"
-                priority
-              />
-              <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5" />
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
       {/* Partner cards */}
-      <section className="section pt-16">
+      <section className="section">
         <div className="container-x">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {PARTNERS.map((p, i) => {
