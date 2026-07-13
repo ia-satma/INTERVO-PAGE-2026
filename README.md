@@ -60,7 +60,7 @@ src/
     dictionaries/es.ts   # copy en español (fuente de tipos)
     dictionaries/en.ts   # copy en inglés
   lib/site.ts            # contacto, oficinas, socios, servicios, navegación
-  middleware.ts          # redirección/idioma
+  proxy.ts               # redirección/idioma (proxy de Next 16; sustituye a middleware.ts)
 public/
   brand/                 # logos e isotipos (assets originales de la firma)
   images/                # fotografía real del despacho (optimizada)
@@ -86,18 +86,21 @@ Tipografía: **Montserrat** (display, en línea con el wordmark) + **Inter** (cu
 
 ## TODO antes de lanzar
 
-- [ ] **Correo público de la firma:** no se encontró en la web ni en el brochure. Está como
-      placeholder `contacto@intervo.legal` en `src/lib/site.ts`. **Confirmar el correo real.**
+- [x] **Correo de contacto:** resuelto con datos reales de la papelería oficial (tarjetas de
+      presentación). No existe un inbox genérico `info@`/`contacto@`; cada socio tiene su propio
+      correo (`inicial+apellido@intervo.legal`). El contacto general del sitio usa el del Socio
+      Director (`agarcia@intervo.legal`) y cada `PartnerCard` en Socios muestra su correo/tel. directo.
 - [ ] **Formulario de contacto:** hoy abre el cliente de correo del usuario (`mailto:`).
       Para recibir mensajes directo en un inbox/CRM, conectar un endpoint
       (p. ej. Resend, Formspree, o una Route Handler `/api/contact`) en `src/components/ContactForm.tsx`.
-- [ ] **Retratos individuales de socios (opcional):** hoy se usan avatares con iniciales para evitar
-      atribuciones incorrectas. Si se desea, agregar los retratos ya mapeados a cada socio.
 - [ ] **Publicaciones / Insights:** los 3 artículos son contenido de muestra (en `dictionaries/{es,en}.ts`,
       bloque `insights.items`). La firma debe proveer las publicaciones reales; hoy las tarjetas no enlazan
       a páginas de detalle (se puede añadir `[slug]` cuando exista contenido).
 - [ ] **Aviso de Privacidad:** el texto en `dictionaries` es de referencia; debe validarlo la firma.
 - [ ] **Dominio/URL canónica:** actualizar `SITE_URL` en `src/lib/site.ts` si difiere de `https://www.intervo.legal`.
+- [ ] **Nombre completo de Carlos Marcos:** el brochure 2025 usa "Roberto Carlos Marcos Romero" en una
+      tarjeta y "Carlos Marcos Iga" en otra (mismo correo `cmarcos@intervo.legal`). Se mantiene "Carlos
+      Marcos Iga" (el usado en Chambers & Partners); confirmar con la firma cuál es el nombre preferido.
 - [ ] Verificar el orden/identidad de los socios en la foto grupal contra el material oficial.
 
 ## Despliegue
@@ -107,5 +110,6 @@ El middleware de i18n requiere runtime (no es export estático puro).
 
 ## Créditos de contenido
 
-Investigación, textos e imágenes derivados de los materiales oficiales de la firma
-(sitio actual, brand kit y brochure 2023). Fotografía del despacho: sesión profesional de la firma.
+Investigación, textos e imágenes derivados de los materiales oficiales de la firma: sitio actual,
+brand kit, brochures 2023 y 2025, y papelería oficial (tarjetas de presentación, hoja membretada).
+Fotografía del despacho: sesión profesional de la firma.
