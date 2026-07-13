@@ -6,7 +6,7 @@ import "./globals.css";
 import { ArrowRight } from "@/components/icons";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale, defaultLocale } from "@/i18n/config";
-import { localePath } from "@/lib/site";
+import { localePath, SITE } from "@/lib/site";
 
 /**
  * Root-level not-found — this is the one Next actually bakes into the static
@@ -24,6 +24,9 @@ export default function RootNotFound() {
 
   return (
     <html lang={dict.htmlLang}>
+      <head>
+        <title>{`${t.code} — ${t.message} · ${SITE.name}`}</title>
+      </head>
       <body>
         <section className="grid min-h-screen place-items-center px-6">
           <div className="text-center">
