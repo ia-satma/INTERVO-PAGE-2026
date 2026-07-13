@@ -37,7 +37,7 @@ export default function FeaturedPartner({
   viewProfileLabel,
 }: Props) {
   return (
-    <div className="grain relative overflow-hidden rounded-2xl bg-navy-950">
+    <div className="grain relative overflow-hidden rounded-2xl bg-navy-950 shadow-soft transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card">
       <div className="glow-radial pointer-events-none absolute inset-0" />
       <div className="relative grid gap-0 lg:grid-cols-12">
         <Link
@@ -48,7 +48,7 @@ export default function FeaturedPartner({
             src={asset(photo)}
             alt={name}
             fill
-            className="object-cover grayscale transition-[filter,transform] duration-700 group-hover:scale-[1.03] group-hover:grayscale-0"
+            className="object-cover grayscale transition-[filter,scale] duration-700 group-hover:scale-[1.03] group-hover:grayscale-0"
             sizes="(max-width: 1024px) 100vw, 42vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/10 to-transparent lg:bg-gradient-to-r" />

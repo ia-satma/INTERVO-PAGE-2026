@@ -172,7 +172,7 @@ export default async function PartnerProfilePage({
                   <Link
                     key={p.id}
                     href={localePath(loc, `socios/${p.id}`)}
-                    className="group flex items-center gap-3.5 rounded-xl border border-line bg-white p-3.5 transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card"
+                    className="group flex items-center gap-3.5 rounded-xl border border-line bg-white p-3.5 transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card"
                   >
                     <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-mist">
                       <Image

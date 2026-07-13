@@ -13,7 +13,7 @@ type RevealProps = {
 
 /** Fade + rise on scroll into view. Plain IntersectionObserver + CSS transition —
  * no animation library — since this is the only scroll-reveal need on the site. */
-export default function Reveal({ children, className, delay = 0, y = 24, once = true }: RevealProps) {
+export default function Reveal({ children, className, delay = 0, y = 32, once = true }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [armed, setArmed] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -44,8 +44,8 @@ export default function Reveal({ children, className, delay = 0, y = 24, once = 
   const style: CSSProperties | undefined = armed
     ? {
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : `translateY(${y}px)`,
-        transition: `opacity 0.7s var(--ease-out-expo) ${delay}s, transform 0.7s var(--ease-out-expo) ${delay}s`,
+        transform: visible ? "translateY(0) scale(1)" : `translateY(${y}px) scale(0.97)`,
+        transition: `opacity 0.85s var(--ease-out-expo) ${delay}s, transform 0.85s var(--ease-out-expo) ${delay}s`,
       }
     : undefined;
 

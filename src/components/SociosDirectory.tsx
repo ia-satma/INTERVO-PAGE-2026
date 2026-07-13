@@ -5,6 +5,7 @@ import Link from "next/link";
 import PartnerCard from "./PartnerCard";
 import FeaturedPartner from "./FeaturedPartner";
 import Reveal from "./Reveal";
+import CountUp from "./motion/CountUp";
 import { ArrowUpRight } from "./icons";
 
 export type DirectoryPartner = {
@@ -66,20 +67,22 @@ export default function SociosDirectory({
 
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-8 border-b border-line pb-8">
+      <Reveal className="flex flex-wrap items-end justify-between gap-x-10 gap-y-8 border-b border-line pb-8">
         <div className="flex gap-10">
           <div>
-            <span className="font-serif text-4xl leading-none text-navy md:text-5xl">
-              {String(partners.length).padStart(2, "0")}
-            </span>
+            <CountUp
+              value={partners.length}
+              className="block font-serif text-4xl leading-none text-navy md:text-5xl"
+            />
             <p className="mt-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-muted-2">
               {statsPartnersLabel}
             </p>
           </div>
           <div>
-            <span className="font-serif text-4xl leading-none text-navy md:text-5xl">
-              {String(areas.length).padStart(2, "0")}
-            </span>
+            <CountUp
+              value={areas.length}
+              className="block font-serif text-4xl leading-none text-navy md:text-5xl"
+            />
             <p className="mt-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-muted-2">
               {statsAreasLabel}
             </p>
@@ -93,19 +96,21 @@ export default function SociosDirectory({
               type="button"
               onClick={() => setActive(null)}
               aria-pressed={active === null}
-              className={`link-underline font-display text-[0.92rem] font-semibold transition-colors ${
+              style={{ animationDelay: "0.05s" }}
+              className={`chip-anim link-underline font-display text-[0.92rem] font-semibold transition-colors ${
                 active === null ? "text-navy [background-size:100%_1px]" : "text-muted hover:text-navy"
               }`}
             >
               {filterAllLabel}
             </button>
-            {areas.map((area) => (
+            {areas.map((area, i) => (
               <button
                 key={area}
                 type="button"
                 onClick={() => setActive(area)}
                 aria-pressed={active === area}
-                className={`link-underline text-[0.92rem] transition-colors ${
+                style={{ animationDelay: `${0.05 + Math.min(i + 1, 10) * 0.03}s` }}
+                className={`chip-anim link-underline text-[0.92rem] transition-colors ${
                   active === area ? "text-navy [background-size:100%_1px]" : "text-muted hover:text-navy"
                 }`}
               >
@@ -114,7 +119,7 @@ export default function SociosDirectory({
             ))}
           </div>
         </div>
-      </div>
+      </Reveal>
 
       {filtered.length === 0 ? (
         <div className="mt-16 text-center">
@@ -149,7 +154,7 @@ export default function SociosDirectory({
           {rest.length > 0 && (
             <div className={managing ? "mt-4" : "mt-6"}>
               {rest.map((p, i) => (
-                <Reveal key={p.id} delay={Math.min(i, 2) * 0.05}>
+                <Reveal key={p.id} delay={Math.min(i, 4) * 0.08}>
                   <PartnerCard
                     href={p.href}
                     index={i + 1}

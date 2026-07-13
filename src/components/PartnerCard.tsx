@@ -40,7 +40,7 @@ export default function PartnerCard({
   const reversed = index % 2 === 0;
 
   return (
-    <article className="group border-b border-line py-12 first:pt-0 last:border-b-0 md:py-14">
+    <article className="group border-b border-line py-12 transition-transform duration-500 first:pt-0 last:border-b-0 hover:-translate-y-1 md:py-14">
       <div className={`flex flex-col gap-8 md:gap-12 lg:items-center ${reversed ? "lg:flex-row-reverse" : "lg:flex-row"}`}>
         <Link
           href={href}
@@ -50,7 +50,7 @@ export default function PartnerCard({
             src={asset(photo)}
             alt={name}
             fill
-            className="object-cover grayscale transition-[filter,transform] duration-700 group-hover:scale-[1.04] group-hover:grayscale-0"
+            className="object-cover grayscale transition-[filter,scale] duration-700 group-hover:scale-[1.04] group-hover:grayscale-0"
             sizes="(max-width: 1024px) 100vw, 34vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-950/60 via-navy-950/0 to-transparent" />

@@ -6,7 +6,7 @@ type Insight = Dictionary["insights"]["items"][number];
 
 export default function InsightCard({ item, readMore }: { item: Insight; readMore: string }) {
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card">
       <div className="mesh grain relative h-36 overflow-hidden">
         <BridgeMotif className="pointer-events-none absolute -right-8 -top-8 w-44 text-white/10" />
         <span className="tag absolute left-5 top-5 text-accent-soft">{item.category}</span>

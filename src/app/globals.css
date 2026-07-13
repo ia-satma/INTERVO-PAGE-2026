@@ -256,6 +256,14 @@
 }
 .hero-anim { animation: heroTextIn 0.9s var(--ease-out-expo) both; }
 
+/* Small staggered cascade — filter chips, tag rows, anything that should
+   trickle in as a group rather than pop all at once. */
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chip-anim { animation: chipIn 0.6s var(--ease-out-expo) both; }
+
 @media (prefers-reduced-motion: reduce) {
-  .hero-anim { animation: none !important; }
+  .hero-anim, .chip-anim { animation: none !important; }
 }
