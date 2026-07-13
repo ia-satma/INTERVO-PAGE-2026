@@ -47,16 +47,12 @@ export function MarbleDuotone({
   priority,
   sizes = "100vw",
   intensity = 1,
-  screen = true,
 }: {
   src: string;
   className?: string;
   priority?: boolean;
   sizes?: string;
   intensity?: number;
-  /** Render the azure "highlights" screen layer. Off gives a flatter, darker
-   * monochrome-navy tint instead of the default blue-tinted duotone. */
-  screen?: boolean;
 }) {
   return (
     // Caller supplies positioning (e.g. `absolute inset-0` or `relative h-full`)
@@ -77,12 +73,10 @@ export function MarbleDuotone({
         style={{ background: "var(--color-navy-900)", opacity: intensity }}
       />
       {/* highlights → azure */}
-      {screen && (
-        <div
-          className="absolute inset-0 mix-blend-screen"
-          style={{ background: "var(--color-azure)", opacity: 0.55 * intensity }}
-        />
-      )}
+      <div
+        className="absolute inset-0 mix-blend-screen"
+        style={{ background: "var(--color-azure)", opacity: 0.55 * intensity }}
+      />
     </div>
   );
 }
