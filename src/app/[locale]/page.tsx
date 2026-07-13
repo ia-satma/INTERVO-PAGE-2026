@@ -115,7 +115,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* Global reach teaser */}
       <section className="mesh grain relative overflow-hidden text-white">
-        <MarbleDuotone src="/images/textures/marble-2.jpg" className="absolute inset-0 opacity-20" />
+        <MarbleDuotone src="/images/textures/marble-2.webp" className="absolute inset-0 opacity-20" />
         <div className="container-x section relative z-10">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
@@ -150,7 +150,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* Positioning — strikethrough statement */}
       <section className="mesh grain relative overflow-hidden text-white">
-        <MarbleDuotone src="/images/textures/marble-3.jpg" className="absolute inset-0 opacity-20" />
+        <MarbleDuotone src="/images/textures/marble-3.webp" className="absolute inset-0 opacity-20" />
         <BridgeMotif className="pointer-events-none absolute left-1/2 top-1/2 w-[62%] -translate-x-1/2 -translate-y-1/2 text-white/[0.05]" />
         <div className="container-x section relative z-10 text-center">
           <Reveal>
@@ -193,14 +193,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <Reveal>
             <div className="grid grid-cols-2 gap-4 lg:gap-5">
               <div className="space-y-4 lg:space-y-5">
-                {["/images/team/m1.jpg", "/images/team/m3.jpg"].map((src) => (
+                {["/images/team/m1.webp", "/images/team/m3.webp"].map((src) => (
                   <div key={src} className="relative aspect-[3/4] overflow-hidden rounded-2xl shadow-card">
                     <Image src={asset(src)} alt="" fill className="object-cover" sizes="(max-width:1024px) 45vw, 25vw" />
                   </div>
                 ))}
               </div>
               <div className="space-y-4 pt-8 lg:space-y-5 lg:pt-14">
-                {["/images/team/m2.jpg", "/images/team/m4.jpg"].map((src) => (
+                {["/images/team/m2.webp", "/images/team/m4.webp"].map((src) => (
                   <div key={src} className="relative aspect-[3/4] overflow-hidden rounded-2xl shadow-card">
                     <Image src={asset(src)} alt="" fill className="object-cover" sizes="(max-width:1024px) 45vw, 25vw" />
                   </div>

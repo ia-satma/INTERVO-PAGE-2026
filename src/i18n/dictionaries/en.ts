@@ -182,6 +182,17 @@ const en: Dictionary = {
     specialtiesLabel: "Focus areas",
     note: "The order of the partners follows the firm's official materials.",
     viewProfile: "View profile",
+    filter: {
+      label: "Filter by practice area",
+      all: "All practice areas",
+      empty:
+        "We don't yet have a partner focused solely on this area. Write to us and we'll connect you with the right specialist.",
+    },
+    otherPartners: "Other partners",
+    stats: {
+      partners: "Partners",
+      areas: "Practice areas",
+    },
     profile: {
       back: "All attorneys",
       practiceLabel: "Practice areas",

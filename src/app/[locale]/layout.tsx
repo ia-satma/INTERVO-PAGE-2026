@@ -12,7 +12,7 @@ const montserrat = Montserrat({
   subsets: ["latin"],
   variable: "--font-montserrat",
   display: "swap",
-  weight: ["500", "600", "700", "800"],
+  weight: ["500", "600", "700"],
 });
 
 const inter = Inter({
@@ -26,7 +26,7 @@ const fraunces = Fraunces({
   variable: "--font-fraunces",
   display: "swap",
   weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
+  style: ["normal"],
 });
 
 export const dynamicParams = false;

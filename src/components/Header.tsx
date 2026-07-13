@@ -88,7 +88,7 @@ export default function Header({ locale, dict }: { locale: Locale; dict: Diction
             open ? "opacity-100" : "opacity-0"
           }`}
         >
-          <MarbleDuotone src="/images/textures/marble-1.jpg" className="absolute inset-0 opacity-[0.14]" />
+          <MarbleDuotone src="/images/textures/marble-1.webp" className="absolute inset-0 opacity-[0.14]" />
           <div className="glow-radial pointer-events-none absolute inset-0" />
           <BridgeMotif className="pointer-events-none absolute -bottom-10 right-6 w-72 text-white/[0.05]" />
           <div className="relative flex h-full flex-col items-start justify-between p-12">

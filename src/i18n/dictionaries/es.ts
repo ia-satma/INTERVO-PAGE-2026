@@ -180,6 +180,17 @@ const es = {
     specialtiesLabel: "Especialidad",
     note: "La disposición de los socios corresponde al material oficial de la firma.",
     viewProfile: "Ver perfil",
+    filter: {
+      label: "Filtrar por área de práctica",
+      all: "Todas las áreas",
+      empty:
+        "Aún no tenemos un socio enfocado únicamente en esta área. Escríbanos y lo conectamos con el especialista indicado.",
+    },
+    otherPartners: "Otros socios",
+    stats: {
+      partners: "Socios",
+      areas: "Áreas de práctica",
+    },
     profile: {
       back: "Todos los abogados",
       practiceLabel: "Áreas de práctica",

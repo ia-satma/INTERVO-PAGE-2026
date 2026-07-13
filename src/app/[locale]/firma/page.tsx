@@ -47,7 +47,7 @@ export default async function FirmaPage({ params }: { params: Promise<{ locale: 
           <Reveal>
             <div className="overflow-hidden rounded-2xl shadow-card">
               <Image
-                src={asset("/images/boardroom-wide.jpg")}
+                src={asset("/images/boardroom-wide.webp")}
                 alt="Equipo de intervø en su oficina de Monterrey"
                 width={1100}
                 height={760}

@@ -14,9 +14,9 @@ import type { Dictionary } from "@/i18n/dictionaries";
  * firm's own marble/stone: the visual world of corporate, real estate and
  * estate-planning practice. One per slide. */
 const SLIDE_IMAGES = [
-  "/images/textures/marble-2.jpg",
-  "/images/textures/marble-1.jpg",
-  "/images/textures/marble-3.jpg",
+  "/images/textures/marble-2.webp",
+  "/images/textures/marble-1.webp",
+  "/images/textures/marble-3.webp",
 ];
 const AUTO_MS = 6000;
 

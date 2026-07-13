@@ -106,7 +106,7 @@ export const PARTNERS: PartnerMeta[] = [
     email: "jgarza@intervo.legal",
     phoneDisplay: "+52 811 405 5614",
     phoneHref: "tel:+528114055614",
-    photo: "/images/team/jorge.jpg",
+    photo: "/images/team/jorge.webp",
   },
   {
     id: "carlos",
@@ -115,7 +115,7 @@ export const PARTNERS: PartnerMeta[] = [
     email: "cmarcos@intervo.legal",
     phoneDisplay: "+52 811 259 7313",
     phoneHref: "tel:+528112597313",
-    photo: "/images/team/carlos.jpg",
+    photo: "/images/team/carlos.webp",
   },
   {
     id: "luis",
@@ -124,7 +124,7 @@ export const PARTNERS: PartnerMeta[] = [
     email: "lromero@intervo.legal",
     phoneDisplay: "+52 811 531 5893",
     phoneHref: "tel:+528115315893",
-    photo: "/images/team/luis.jpg",
+    photo: "/images/team/luis.webp",
   },
   {
     id: "alfredo",
@@ -134,7 +134,7 @@ export const PARTNERS: PartnerMeta[] = [
     email: "agarcia@intervo.legal",
     phoneDisplay: "+52 811 396 7180",
     phoneHref: "tel:+528113967180",
-    photo: "/images/team/alfredo.jpg",
+    photo: "/images/team/alfredo.webp",
     linkedin: "https://mx.linkedin.com/in/alfredogarciaintervolegal",
   },
   {
@@ -144,7 +144,7 @@ export const PARTNERS: PartnerMeta[] = [
     email: "fmartinez@intervo.legal",
     phoneDisplay: "+52 811 599 9025",
     phoneHref: "tel:+528115999025",
-    photo: "/images/team/faustino.jpg",
+    photo: "/images/team/faustino.webp",
   },
 ];
 

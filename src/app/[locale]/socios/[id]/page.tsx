@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
 import { BridgeMotif } from "@/components/abstract";
-import { ArrowLeft, Mail, Phone, Linkedin } from "@/components/icons";
+import { ArrowLeft, ArrowUpRight, Award, Mail, Phone, Linkedin } from "@/components/icons";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale, locales } from "@/i18n/config";
 import { PARTNERS, getPartner, localePath, SITE } from "@/lib/site";
@@ -53,6 +53,8 @@ export default async function PartnerProfilePage({
 
   const info = dict.partners[id as keyof typeof dict.partners];
   const t = dict.socios;
+  const others = PARTNERS.filter((p) => p.id !== id);
+  const index = PARTNERS.findIndex((p) => p.id === id) + 1;
 
   return (
     <>
@@ -83,11 +85,18 @@ export default async function PartnerProfilePage({
               </div>
             </Reveal>
 
-            <Reveal delay={0.08} className="lg:col-span-8">
+            <Reveal delay={0.08} className="relative lg:col-span-8">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -top-6 right-0 hidden font-serif text-[7rem] leading-none text-navy/[0.05] md:block lg:-top-10 lg:text-[9rem]"
+              >
+                {String(index).padStart(2, "0")}
+              </span>
               <span className="eyebrow">{info.role}</span>
               <h1 className="display-1 mt-5">{partner.name}</h1>
               {partner.chambers && (
-                <span className="tag mt-5 inline-flex w-fit rounded-full border border-accent/30 bg-accent/[0.07] px-3 py-1.5">
+                <span className="mt-5 inline-flex w-fit items-center gap-2 rounded-full border border-accent/30 bg-accent/[0.07] px-3.5 py-1.5 text-[0.72rem] font-semibold uppercase tracking-wide text-accent-deep">
+                  <Award className="h-3.5 w-3.5" />
                   {t.profile.chambersLabel} · Chambers · {partner.chambers}
                 </span>
               )}
@@ -99,24 +108,23 @@ export default async function PartnerProfilePage({
 
       <section className="section">
         <div className="container-x grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-7">
+          <Reveal className="lg:col-span-7">
             <p className="text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-muted-2">
               {t.profile.practiceLabel}
             </p>
-            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-5 flex flex-wrap gap-2">
               {info.specialties.map((s) => (
-                <li
+                <span
                   key={s}
-                  className="flex items-start gap-2.5 rounded-xl border border-line bg-white px-4 py-3 text-[0.95rem] text-ink/85"
+                  className="rounded-full border border-line bg-white px-4 py-2 text-[0.92rem] text-ink/85"
                 >
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
                   {s}
-                </li>
+                </span>
               ))}
-            </ul>
-          </div>
+            </div>
+          </Reveal>
 
-          <div className="lg:col-span-4 lg:col-start-9">
+          <Reveal delay={0.08} className="lg:col-span-4 lg:col-start-9 lg:self-start lg:sticky lg:top-28">
             <p className="text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-muted-2">
               {t.profile.contactLabel}
             </p>
@@ -147,7 +155,48 @@ export default async function PartnerProfilePage({
                 </a>
               )}
             </div>
-          </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="border-t border-line bg-mist py-16 md:py-20">
+        <div className="container-x">
+          <Reveal>
+            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-muted-2">
+              {t.otherPartners}
+            </p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {others.map((p) => {
+                const oInfo = dict.partners[p.id as keyof typeof dict.partners];
+                return (
+                  <Link
+                    key={p.id}
+                    href={localePath(loc, `socios/${p.id}`)}
+                    className="group flex items-center gap-3.5 rounded-xl border border-line bg-white p-3.5 transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card"
+                  >
+                    <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-mist">
+                      <Image
+                        src={asset(p.photo)}
+                        alt={p.name}
+                        fill
+                        className="object-cover grayscale transition-[filter] duration-500 group-hover:grayscale-0"
+                        sizes="56px"
+                      />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-serif text-base leading-tight transition-colors group-hover:text-navy">
+                        {p.name}
+                      </span>
+                      <span className="mt-0.5 flex items-center gap-1 text-[0.82rem] text-azure">
+                        {oInfo.role}
+                        <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      </span>
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </Reveal>
         </div>
       </section>
 

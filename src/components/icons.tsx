@@ -105,7 +105,7 @@ const Users = (p: IconProps) => (
 const Bulb = (p: IconProps) => (
   <Base {...p}><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.7 1 1.2 1 2.5h6c0-1.3.2-1.8 1-2.5A6 6 0 0 0 12 3Z" /></Base>
 );
-const Award = (p: IconProps) => (
+export const Award = (p: IconProps) => (
   <Base {...p}><circle cx="12" cy="9" r="5" /><path d="m9 13.5-1.5 7L12 18l4.5 2.5-1.5-7" /></Base>
 );
 const Chat = (p: IconProps) => (

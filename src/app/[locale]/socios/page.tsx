@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import PageHeader from "@/components/PageHeader";
-import PartnerCard from "@/components/PartnerCard";
+import SociosDirectory from "@/components/SociosDirectory";
 import CTASection from "@/components/CTASection";
-import Reveal from "@/components/Reveal";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { PARTNERS, localePath } from "@/lib/site";
@@ -27,37 +26,43 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
   const dict = getDictionary(loc);
   const t = dict.socios;
 
+  const partners = PARTNERS.map((p) => {
+    const info = dict.partners[p.id as keyof typeof dict.partners];
+    return {
+      id: p.id,
+      href: localePath(loc, `socios/${p.id}`),
+      name: p.name,
+      role: info.role,
+      photo: p.photo,
+      chambers: p.chambers,
+      specialties: info.specialties,
+      managing: p.managing,
+      email: p.email,
+      phoneDisplay: p.phoneDisplay,
+      phoneHref: p.phoneHref,
+    };
+  });
+
   return (
     <>
       <PageHeader eyebrow={t.hero.eyebrow} title={t.hero.title} subtitle={t.hero.subtitle} />
 
-      {/* Partner cards */}
       <section className="section">
         <div className="container-x">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {PARTNERS.map((p, i) => {
-              const info = dict.partners[p.id as keyof typeof dict.partners];
-              return (
-                <Reveal key={p.id} delay={(i % 3) * 0.05}>
-                  <PartnerCard
-                    href={localePath(loc, `socios/${p.id}`)}
-                    name={p.name}
-                    role={info.role}
-                    photo={p.photo}
-                    chambers={p.chambers}
-                    specialties={info.specialties}
-                    specialtiesLabel={t.specialtiesLabel}
-                    managing={p.managing}
-                    email={p.email}
-                    phoneDisplay={p.phoneDisplay}
-                    phoneHref={p.phoneHref}
-                    viewProfileLabel={t.viewProfile}
-                  />
-                </Reveal>
-              );
-            })}
-          </div>
-          <p className="mt-8 text-sm text-muted-2">{t.note}</p>
+          <SociosDirectory
+            partners={partners}
+            specialtiesLabel={t.specialtiesLabel}
+            chambersLabel={t.profile.chambersLabel}
+            viewProfileLabel={t.viewProfile}
+            filterLabel={t.filter.label}
+            filterAllLabel={t.filter.all}
+            filterEmptyLabel={t.filter.empty}
+            contactHref={localePath(loc, "contacto")}
+            contactLabel={dict.actions.contact}
+            statsPartnersLabel={t.stats.partners}
+            statsAreasLabel={t.stats.areas}
+          />
+          <p className="mt-10 text-sm text-muted-2">{t.note}</p>
         </div>
       </section>
 
