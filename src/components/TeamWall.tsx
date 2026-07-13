@@ -14,7 +14,6 @@ export type TeamMember = {
   name: string;
   role: string;
   photo: string;
-  chambers: string | null;
   specialties: string[];
   managing?: boolean;
 };
@@ -134,15 +133,19 @@ export default function TeamWall({
                     src={asset(p.photo)}
                     alt={p.name}
                     fill
-                    className="object-cover transition-[filter,transform] duration-700 ease-out [filter:grayscale(1)_sepia(0.35)_hue-rotate(180deg)_saturate(2.2)_brightness(0.82)_contrast(1.05)] group-hover:scale-[1.08] group-hover:[filter:none] group-focus-within:[filter:none]"
+                    className="object-cover grayscale transition-[filter,transform] duration-700 ease-out group-hover:scale-[1.08] group-hover:grayscale-0 group-focus-within:grayscale-0"
                     sizes="(max-width: 767px) 82vw, 22vw"
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0 mix-blend-multiply transition-opacity duration-700 ease-out group-hover:opacity-0 group-focus-within:opacity-0"
+                    style={{ background: "var(--color-navy-900)" }}
                   />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/85 via-navy-950/10 to-transparent" />
 
-                  {(p.managing || p.chambers) && (
+                  {p.managing && (
                     <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-navy-950/60 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
                       <Award className="h-3.5 w-3.5" />
-                      {p.managing ? managingLabel : `Chambers · ${p.chambers}`}
+                      {managingLabel}
                     </span>
                   )}
 

@@ -34,7 +34,6 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
       name: p.name,
       role: info.role,
       photo: p.photo,
-      chambers: p.chambers,
       specialties: info.specialties,
       managing: p.managing,
     };
