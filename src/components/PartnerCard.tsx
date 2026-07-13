@@ -1,4 +1,5 @@
 import { initials } from "@/lib/site";
+import { Mail, Phone } from "./icons";
 
 type Props = {
   name: string;
@@ -7,6 +8,9 @@ type Props = {
   specialties: string[];
   specialtiesLabel: string;
   managing?: boolean;
+  email: string;
+  phoneDisplay: string;
+  phoneHref: string;
 };
 
 export default function PartnerCard({
@@ -16,6 +20,9 @@ export default function PartnerCard({
   specialties,
   specialtiesLabel,
   managing,
+  email,
+  phoneDisplay,
+  phoneHref,
 }: Props) {
   return (
     <div className="group relative flex h-full flex-col rounded-2xl border border-line bg-white p-7 transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card">
@@ -54,6 +61,22 @@ export default function PartnerCard({
           </li>
         ))}
       </ul>
+
+      <div className="hairline mt-6" />
+
+      <div className="mt-5 flex flex-col gap-2 text-[0.88rem]">
+        <a
+          href={`mailto:${email}`}
+          className="flex items-center gap-2.5 text-ink/75 transition-colors hover:text-navy"
+        >
+          <Mail className="h-4 w-4 shrink-0 text-azure" />
+          <span className="truncate">{email}</span>
+        </a>
+        <a href={phoneHref} className="flex items-center gap-2.5 text-ink/75 transition-colors hover:text-navy">
+          <Phone className="h-4 w-4 shrink-0 text-azure" />
+          {phoneDisplay}
+        </a>
+      </div>
     </div>
   );
 }

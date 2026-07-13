@@ -229,6 +229,8 @@ const es = {
         "Adquisición, para un conglomerado extranjero, de una fábrica de sanitarios y diversos activos en México.",
         "Financiamientos, refinanciamientos y reestructuras por más de $20,000 millones de pesos.",
         "Compraventa de sociedades y activos en más de 10 países —de Estados Unidos y Reino Unido a Australia y Malasia— en operaciones de USD 1M a 1,500M.",
+        "Representación de empresas desarrolladoras y administradoras de naves industriales, complejos y desarrollos turísticos, habitacionales y comerciales.",
+        "Adquisición, para un cliente, de un negocio de alimentos y bebidas listas para consumo con presencia en el noreste de México —de la debida diligencia a la negociación de los contratos de la operación.",
       ],
     },
     cta: {
@@ -265,7 +267,7 @@ const es = {
     info: {
       phoneLabel: "Teléfono",
       emailLabel: "Correo",
-      emailNote: "Confirmar correo público de la firma.",
+      emailNote: "Atención directa del Socio Director.",
       officesLabel: "Oficinas",
       linkedinLabel: "LinkedIn",
     },

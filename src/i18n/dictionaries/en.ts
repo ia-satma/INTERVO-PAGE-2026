@@ -231,6 +231,8 @@ const en: Dictionary = {
         "Acquisition, for a foreign conglomerate, of a sanitary-ware factory and various assets in Mexico.",
         "Financings, refinancings and restructurings for more than MXN 20 billion.",
         "Purchase and sale of companies and assets across 10+ countries —from the U.S. and the U.K. to Australia and Malaysia— in deals from USD 1M to 1.5B.",
+        "Representation of developers and operators of industrial facilities, complexes, and tourism, residential and commercial developments.",
+        "Acquisition, for a client, of a ready-to-eat food and beverage business with presence across northeastern Mexico —from due diligence through negotiating the deal's contracts.",
       ],
     },
     cta: {
@@ -267,7 +269,7 @@ const en: Dictionary = {
     info: {
       phoneLabel: "Phone",
       emailLabel: "Email",
-      emailNote: "Confirm the firm's public inbox.",
+      emailNote: "Handled directly by the Managing Partner.",
       officesLabel: "Offices",
       linkedinLabel: "LinkedIn",
     },

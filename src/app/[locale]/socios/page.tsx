@@ -68,6 +68,9 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
                     specialties={info.specialties}
                     specialtiesLabel={t.specialtiesLabel}
                     managing={p.managing}
+                    email={p.email}
+                    phoneDisplay={p.phoneDisplay}
+                    phoneHref={p.phoneHref}
                   />
                 </Reveal>
               );
