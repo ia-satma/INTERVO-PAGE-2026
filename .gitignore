@@ -36,3 +36,12 @@ Thumbs.db
 
 # vercel
 .vercel
+
+# client-provided brand kit source (not for the public repo)
+/02 - RGB (digital)/
+
+# local dev-environment workarounds (machine-specific, not portable)
+/.claude/dev-with-node-path.cmd
+/.claude/export-serve.cmd
+/.claude/scheduled_tasks.lock
+/.export-serve/
