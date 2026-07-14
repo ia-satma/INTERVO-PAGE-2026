@@ -88,19 +88,21 @@ export default function TeamWall({
                 type="button"
                 onClick={() => setActive(null)}
                 aria-pressed={active === null}
-                className={`link-underline font-display text-[0.9rem] font-semibold transition-colors ${
+                style={{ animationDelay: "0.05s" }}
+                className={`chip-anim link-underline font-display text-[0.9rem] font-semibold transition-colors ${
                   active === null ? "text-navy [background-size:100%_1px]" : "text-muted hover:text-navy"
                 }`}
               >
                 {filterAllLabel}
               </button>
-              {areas.map((area) => (
+              {areas.map((area, i) => (
                 <button
                   key={area}
                   type="button"
                   onClick={() => setActive(area)}
                   aria-pressed={active === area}
-                  className={`link-underline text-[0.9rem] transition-colors ${
+                  style={{ animationDelay: `${0.05 + Math.min(i + 1, 10) * 0.03}s` }}
+                  className={`chip-anim link-underline text-[0.9rem] transition-colors ${
                     active === area ? "text-navy [background-size:100%_1px]" : "text-muted hover:text-navy"
                   }`}
                 >

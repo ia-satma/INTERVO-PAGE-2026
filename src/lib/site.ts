@@ -152,11 +152,6 @@ export function getPartner(id: string): PartnerMeta | undefined {
   return PARTNERS.find((p) => p.id === id);
 }
 
-export function initials(name: string): string {
-  const parts = name.split(" ").filter(Boolean);
-  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
-}
-
 /** Featured practice areas (with their own copy blocks). */
 export const FEATURED_SERVICES = [
   "ma",
