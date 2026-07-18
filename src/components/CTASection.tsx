@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "./Reveal";
-import { BridgeMotif } from "./abstract";
 import { ArrowUpRight, Phone } from "./icons";
 import { localePath, CONTACT } from "@/lib/site";
 import { asset } from "@/lib/asset";
@@ -25,7 +24,6 @@ export default function CTASection({ locale, title, body, ctaLabel }: Props) {
         className="object-cover opacity-80"
       />
       <div className="absolute inset-0 bg-navy-950/40" />
-      <BridgeMotif className="pointer-events-none absolute left-1/2 top-1/2 w-[70%] -translate-x-1/2 -translate-y-1/2 text-white/[0.05]" />
       <div className="container-x section relative z-10 text-center">
         <Reveal>
           <h2 className="display-2 mx-auto max-w-3xl text-white">{title}</h2>

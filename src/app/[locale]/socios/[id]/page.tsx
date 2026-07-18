@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
-import { BridgeMotif } from "@/components/abstract";
 import { ArrowLeft, ArrowUpRight, Award, Mail, Phone, Linkedin } from "@/components/icons";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale, locales } from "@/i18n/config";
@@ -59,7 +58,6 @@ export default async function PartnerProfilePage({
   return (
     <>
       <section className="relative overflow-hidden border-b border-line bg-mist pb-16 pt-32 md:pb-20 md:pt-40">
-        <BridgeMotif className="pointer-events-none absolute -right-16 -top-6 hidden w-[34rem] text-navy/[0.06] md:block" />
         <div className="container-x relative">
           <Reveal>
             <Link

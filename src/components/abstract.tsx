@@ -7,30 +7,6 @@ export function Grain({ className = "" }: { className?: string }) {
 }
 
 /**
- * "Bridge / ∞" line motif derived from the brand isotype — a lemniscate that
- * literally draws "el puente entre los negocios y la ley".
- */
-export function BridgeMotif({
-  className = "",
-  strokeWidth = 1.25,
-}: {
-  className?: string;
-  strokeWidth?: number;
-}) {
-  return (
-    <svg viewBox="0 0 400 200" fill="none" className={className} aria-hidden>
-      <path
-        d="M64 100 C64 44 150 44 200 100 C250 156 336 156 336 100 C336 44 250 44 200 100 C150 156 64 156 64 100 Z"
-        stroke="currentColor"
-        strokeWidth={strokeWidth}
-        vectorEffect="non-scaling-stroke"
-      />
-      <circle cx="200" cy="100" r="2.4" fill="currentColor" />
-    </svg>
-  );
-}
-
-/**
  * Duotone marble/architecture texture — the firm's own photography rendered in
  * brand blues (grayscale + multiply navy + screen azure).
  */

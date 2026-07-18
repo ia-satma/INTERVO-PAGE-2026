@@ -10,7 +10,7 @@ import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
 import Counter from "@/components/motion/Counter";
 import { Stat } from "@/components/Stat";
-import { MarbleDuotone, BridgeMotif } from "@/components/abstract";
+import { MarbleDuotone } from "@/components/abstract";
 import { ArrowRight, ArrowUpRight } from "@/components/icons";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
@@ -110,7 +110,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-navy/25" />
-                <BridgeMotif className="pointer-events-none absolute -right-6 -top-6 w-32 text-white/10" />
                 <span className="relative font-serif text-2xl">{t.services.cta}</span>
                 <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-colors group-hover:bg-white group-hover:text-navy">
                   <ArrowUpRight className="h-5 w-5" />
@@ -175,7 +174,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         />
         <div className="absolute inset-0 bg-navy-950/40" />
         <MarbleDuotone src="/images/textures/marble-3.webp" className="absolute inset-0 opacity-20" />
-        <BridgeMotif className="pointer-events-none absolute left-1/2 top-1/2 w-[62%] -translate-x-1/2 -translate-y-1/2 text-white/[0.05]" />
         <div className="container-x section relative z-10 text-center">
           <Reveal>
             <h2 className="display-1 text-white">

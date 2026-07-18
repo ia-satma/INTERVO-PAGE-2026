@@ -7,8 +7,7 @@ const MASK = asset("/brand/isotype-white-trim.png");
 
 /** Giant, near-transparent isotype watermark for dark panels — the bold
  * "logo as background" treatment, dialed back to intervø's editorial
- * register (compare to BridgeMotif, its abstract line-art sibling).
- * Decorative only — never place over a photo of people. */
+ * register. Decorative only — never place over a photo of people. */
 export function IsotypeWatermark({ className = "" }: { className?: string }) {
   return (
     <div

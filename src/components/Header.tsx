@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 import LanguageToggle from "./LanguageToggle";
-import { MarbleDuotone, BridgeMotif } from "./abstract";
+import { MarbleDuotone } from "./abstract";
 import { Menu, Close, ArrowUpRight, Phone, Mail, Linkedin } from "./icons";
 import { NAV, localePath, CONTACT, SITE } from "@/lib/site";
 import type { Locale } from "@/i18n/config";
@@ -90,7 +90,6 @@ export default function Header({ locale, dict }: { locale: Locale; dict: Diction
         >
           <MarbleDuotone src="/images/textures/marble-1.webp" className="absolute inset-0 opacity-[0.14]" />
           <div className="glow-radial pointer-events-none absolute inset-0" />
-          <BridgeMotif className="pointer-events-none absolute -bottom-10 right-6 w-72 text-white/[0.05]" />
           <div className="relative flex h-full flex-col items-start justify-between p-12">
             <Logo variant="white" className="h-9 w-auto" />
             <div>

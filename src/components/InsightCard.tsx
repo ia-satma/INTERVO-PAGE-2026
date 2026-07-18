@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { BridgeMotif } from "./abstract";
 import { ArrowRight } from "./icons";
 import { asset } from "@/lib/asset";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -18,7 +17,6 @@ export default function InsightCard({ item, readMore }: { item: Insight; readMor
           className="object-cover opacity-80"
         />
         <div className="absolute inset-0 bg-navy-950/30" />
-        <BridgeMotif className="pointer-events-none absolute -right-8 -top-8 w-44 text-white/10" />
         <span className="tag absolute left-5 top-5 text-accent-soft">{item.category}</span>
       </div>
       <div className="flex flex-1 flex-col p-6">

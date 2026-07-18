@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { asset } from "@/lib/asset";
 import Reveal from "./Reveal";
-import { BridgeMotif } from "./abstract";
 
 type Props = {
   eyebrow: string;
@@ -21,7 +20,6 @@ export default function PageHeader({ eyebrow, title, subtitle }: Props) {
         className="object-cover opacity-70"
       />
       <div className="absolute inset-0 bg-mist/40" />
-      <BridgeMotif className="pointer-events-none absolute -right-16 -top-6 hidden w-[34rem] text-navy/[0.06] md:block" />
       <div className="fade-accent-top pointer-events-none absolute inset-x-0 bottom-0 h-24" />
       <div className="container-x relative">
         <Reveal>
