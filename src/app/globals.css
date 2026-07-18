@@ -6,7 +6,9 @@
    Pantone 3005 C  #0072AD  (bright azure)
    Pantone 2736 C  #0F4386  (deep navy)
    Ink             #101820
-   Accent (new)    #C6A15B  (champagne / brass — editorial)
+   Accent           #0A86CF (azure-bright, reused as the accent role — the
+                    earlier champagne/brass accent read as dated and was
+                    dropped in favor of staying inside the brand blues)
    ============================================================ */
 
 @theme {
@@ -20,10 +22,11 @@
   --color-azure: #0072ad;
   --color-azure-bright: #0a86cf;
 
-  /* Editorial accent */
-  --color-accent: #c6a15b;
-  --color-accent-soft: #dcc08a;
-  --color-accent-deep: #8a6c34; /* darkened from #a37e3c — 4.91:1 on white, passes WCAG AA */
+  /* Accent — an azure pop for kickers, tags, underlines, focus rings.
+     Same blue family as the brand backgrounds, not a separate hue. */
+  --color-accent: #0a86cf;
+  --color-accent-soft: #8fc6ea; /* pale, for text on dark navy panels */
+  --color-accent-deep: #0072ad; /* 5.2:1 on white, passes WCAG AA */
 
   /* Neutrals */
   --color-paper: #ffffff;
@@ -33,9 +36,12 @@
   --color-muted: #5c6b7d;
   --color-muted-2: #647380; /* darkened from #8695a6 — 4.88:1 on white, passes WCAG AA */
 
-  /* Fonts (wired from next/font) */
-  --font-serif: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
-  --font-display: var(--font-montserrat), "Segoe UI", system-ui, sans-serif;
+  /* Fonts (wired from next/font). --font-serif keeps its name for the
+     existing `font-serif` utility usages across components, but now
+     points at a modern grotesque (Bricolage Grotesque) instead of a
+     traditional serif — the old Fraunces/Montserrat pairing read dated. */
+  --font-serif: var(--font-bricolage), "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-body: var(--font-inter), system-ui, -apple-system, sans-serif;
 
   /* Radii */

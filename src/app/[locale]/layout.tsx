@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat, Inter, Fraunces } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import Header from "@/components/Header";
@@ -8,25 +8,18 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale, locales } from "@/i18n/config";
 import { SITE_URL, SITE } from "@/lib/site";
 
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  variable: "--font-montserrat",
-  display: "swap",
-  weight: ["500", "600", "700"],
-});
-
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
-const fraunces = Fraunces({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  variable: "--font-bricolage",
   display: "swap",
   weight: ["400", "500", "600"],
-  style: ["normal"],
 });
 
 export const dynamicParams = false;
@@ -85,7 +78,7 @@ export default async function LocaleLayout({
   const dict = getDictionary(locale);
 
   return (
-    <html lang={dict.htmlLang} className={`${montserrat.variable} ${inter.variable} ${fraunces.variable}`}>
+    <html lang={dict.htmlLang} className={`${inter.variable} ${bricolage.variable}`}>
       <body>
         <Header locale={locale} dict={dict} />
         <main>{children}</main>
