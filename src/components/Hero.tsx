@@ -9,13 +9,12 @@ import { asset } from "@/lib/asset";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 
-/** Thematic (no faces) imagery revealed through the intervø isotype — the
- * firm's own marble/stone: the visual world of corporate, real estate and
- * estate-planning practice. One per slide. */
+/** Brand-shapes imagery (no faces) revealed through the intervø isotype —
+ * one per slide, crossfading. */
 const SLIDE_IMAGES = [
-  "/images/textures/marble-2.webp",
-  "/images/textures/marble-1.webp",
-  "/images/textures/marble-3.webp",
+  "/images/textures/brand-shapes-navy-5.webp",
+  "/images/textures/brand-shapes-azure-2.webp",
+  "/images/textures/brand-shapes-navy-2.webp",
 ];
 const AUTO_MS = 6000;
 
@@ -64,9 +63,9 @@ export default function Hero({ locale, dict }: { locale: Locale; dict: Dictionar
       />
 
       {/* Giant intervø isotype (static) masking the crossfading firm imagery */}
-      <div className="pointer-events-none absolute right-[-16%] top-1/2 -translate-y-1/2 md:right-[-8%]">
+      <div className="pointer-events-none absolute right-[-20%] top-1/2 -translate-y-1/2 md:right-[-10%]">
         <div
-          className="relative h-[94vmin] w-[94vmin] max-h-[1000px] max-w-[1000px]"
+          className="relative h-[118vmin] w-[118vmin] max-h-[1260px] max-w-[1260px]"
           style={maskStyle}
         >
           {SLIDE_IMAGES.map((src, idx) => (
@@ -76,7 +75,7 @@ export default function Hero({ locale, dict }: { locale: Locale; dict: Dictionar
               alt=""
               fill
               priority={idx === 0}
-              sizes="94vmin"
+              sizes="118vmin"
               className={`object-cover transition-opacity duration-[1200ms] ease-out ${
                 idx === i ? "opacity-100" : "opacity-0"
               }`}
