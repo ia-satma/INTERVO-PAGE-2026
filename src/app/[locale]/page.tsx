@@ -100,8 +100,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <Reveal delay={0.1}>
               <Link
                 href={localePath(loc, "servicios")}
-                className="group relative flex h-full min-h-[13rem] flex-col justify-between overflow-hidden rounded-2xl bg-navy p-7 text-white transition-transform duration-500 hover:-translate-y-1"
+                className="group relative flex h-full min-h-[13rem] flex-col justify-between overflow-hidden rounded-2xl bg-azure p-7 text-white transition-transform duration-500 hover:-translate-y-1"
               >
+                <Image
+                  src={asset("/images/textures/brand-shapes-azure.webp")}
+                  alt=""
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-navy/25" />
                 <BridgeMotif className="pointer-events-none absolute -right-6 -top-6 w-32 text-white/10" />
                 <span className="relative font-serif text-2xl">{t.services.cta}</span>
                 <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-colors group-hover:bg-white group-hover:text-navy">
@@ -167,8 +175,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* Recognition + photo mosaic */}
-      <section className="section bg-mist">
-        <div className="container-x grid items-center gap-12 lg:grid-cols-2">
+      <section className="relative overflow-hidden bg-mist">
+        <Image
+          src={asset("/images/textures/brand-shapes-light-2.webp")}
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-mist/50" />
+        <div className="section container-x relative grid items-center gap-12 lg:grid-cols-2">
           <div>
             <SectionHeading eyebrow={t.recognition.eyebrow} title={t.recognition.title} />
             <p className="lead mt-6 text-muted">{t.recognition.lead}</p>

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import { asset } from "@/lib/asset";
 import PageHeader from "@/components/PageHeader";
 import SectionHeading from "@/components/SectionHeading";
 import ServiceCard from "@/components/ServiceCard";
@@ -53,8 +55,16 @@ export default async function ServiciosPage({ params }: { params: Promise<{ loca
       </section>
 
       {/* Other services */}
-      <section className="section bg-mist">
-        <div className="container-x">
+      <section className="relative overflow-hidden bg-mist">
+        <Image
+          src={asset("/images/textures/brand-shapes-light-2.webp")}
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-mist/50" />
+        <div className="section container-x relative">
           <SectionHeading eyebrow="+" title={t.otherHeading} subtitle={t.otherSubtitle} />
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {OTHER_SERVICES.map((id, i) => (
