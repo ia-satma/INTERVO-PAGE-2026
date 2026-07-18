@@ -77,7 +77,15 @@ export default async function FirmaPage({ params }: { params: Promise<{ locale: 
       <section className="section">
         <div className="container-x">
           <div className="relative overflow-hidden rounded-3xl bg-navy px-8 py-14 text-white md:px-14 md:py-16">
-            <div className="bg-grid pointer-events-none absolute inset-0 opacity-30" />
+            <Image
+              src={asset("/images/textures/brand-shapes-navy-2.webp")}
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 80rem"
+              className="object-cover opacity-80"
+            />
+            <div className="absolute inset-0 bg-navy/55" />
+            <div className="bg-grid pointer-events-none absolute inset-0 opacity-20" />
             <div className="relative grid items-center gap-10 lg:grid-cols-2">
               <SectionHeading eyebrow={t.recognition.eyebrow} title={t.recognition.title} subtitle={t.recognition.body} tone="light" />
               <div className="grid gap-4">

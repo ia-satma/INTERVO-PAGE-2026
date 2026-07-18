@@ -39,6 +39,7 @@ Thumbs.db
 
 # client-provided brand kit source (not for the public repo)
 /02 - RGB (digital)/
+/fondos/
 
 # local dev-environment workarounds (machine-specific, not portable)
 /.claude/dev-with-node-path.cmd

@@ -1,3 +1,5 @@
+import Image from "next/image";
+import { asset } from "@/lib/asset";
 import Reveal from "./Reveal";
 import { BridgeMotif } from "./abstract";
 
@@ -10,6 +12,15 @@ type Props = {
 export default function PageHeader({ eyebrow, title, subtitle }: Props) {
   return (
     <section className="relative overflow-hidden border-b border-line bg-mist pb-16 pt-36 md:pb-20 md:pt-44">
+      <Image
+        src={asset("/images/textures/brand-shapes-light.webp")}
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover opacity-70"
+      />
+      <div className="absolute inset-0 bg-mist/40" />
       <BridgeMotif className="pointer-events-none absolute -right-16 -top-6 hidden w-[34rem] text-navy/[0.06] md:block" />
       <div className="fade-accent-top pointer-events-none absolute inset-x-0 bottom-0 h-24" />
       <div className="container-x relative">

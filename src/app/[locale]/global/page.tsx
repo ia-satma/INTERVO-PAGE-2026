@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import { asset } from "@/lib/asset";
 import { IsotypeWatermark } from "@/components/IsotypeWatermark";
 import PageHeader from "@/components/PageHeader";
 import SectionHeading from "@/components/SectionHeading";
@@ -54,8 +56,16 @@ export default async function GlobalPage({ params }: { params: Promise<{ locale:
 
       {/* Reach — dark band */}
       <section className="relative overflow-hidden bg-navy-900 text-white">
-        <div className="bg-grid pointer-events-none absolute inset-0 opacity-25" />
-        <IsotypeWatermark className="-right-24 top-1/2 h-[38rem] w-[38rem] -translate-y-1/2 text-white/[0.05] md:-right-10" />
+        <Image
+          src={asset("/images/textures/brand-shapes-navy-1.webp")}
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover opacity-80"
+        />
+        <div className="absolute inset-0 bg-navy-950/45" />
+        <div className="bg-grid pointer-events-none absolute inset-0 opacity-20" />
+        <IsotypeWatermark className="-right-24 top-1/2 h-[38rem] w-[38rem] -translate-y-1/2 text-white/[0.06] md:-right-10" />
         <div className="container-x section relative">
           <div className="max-w-2xl">
             <span className="eyebrow !text-azure-bright">
