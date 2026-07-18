@@ -159,14 +159,11 @@
     background-size: 64px 64px;
   }
 
-  /* Conceptual gradient mesh in brand blues */
+  /* Dark navy base for panels that carry a real brand-shapes photo on top
+     (see IsotypeWatermark usages and the <Image> siblings of this class) —
+     solid fallback color only, no procedural gradient. */
   .mesh {
     background-color: var(--color-navy-950);
-    background-image:
-      radial-gradient(60% 55% at 15% 12%, rgb(10 134 207 / 0.55) 0%, transparent 60%),
-      radial-gradient(55% 60% at 88% 20%, rgb(15 67 134 / 0.85) 0%, transparent 62%),
-      radial-gradient(70% 70% at 75% 95%, rgb(10 118 184 / 0.45) 0%, transparent 65%),
-      radial-gradient(50% 50% at 40% 80%, rgb(6 22 39 / 0.9) 0%, transparent 70%);
   }
 
   /* Decorative radial glow — parametrizable via custom properties */

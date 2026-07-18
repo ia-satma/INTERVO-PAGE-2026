@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { GradientMesh } from "./abstract";
 import { ArrowUpRight } from "./icons";
 import { localePath } from "@/lib/site";
 import { asset } from "@/lib/asset";
@@ -55,7 +54,14 @@ export default function Hero({ locale, dict }: { locale: Locale; dict: Dictionar
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <GradientMesh className="absolute inset-0 opacity-70" grain={false} />
+      <Image
+        src={asset("/images/textures/brand-shapes-navy-4.webp")}
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover opacity-70"
+      />
 
       {/* Giant intervø isotype (static) masking the crossfading firm imagery */}
       <div className="pointer-events-none absolute right-[-16%] top-1/2 -translate-y-1/2 md:right-[-8%]">

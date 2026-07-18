@@ -123,6 +123,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* Global reach teaser */}
       <section className="mesh grain relative overflow-hidden text-white">
+        <Image
+          src={asset("/images/textures/brand-shapes-navy-1.webp")}
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover opacity-80"
+        />
+        <div className="absolute inset-0 bg-navy-950/40" />
         <MarbleDuotone src="/images/textures/marble-2.webp" className="absolute inset-0 opacity-20" />
         <div className="container-x section relative z-10">
           <div className="grid items-center gap-12 lg:grid-cols-2">
@@ -158,6 +166,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* Positioning — strikethrough statement */}
       <section className="mesh grain relative overflow-hidden text-white">
+        <Image
+          src={asset("/images/textures/brand-shapes-navy-2.webp")}
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover opacity-80"
+        />
+        <div className="absolute inset-0 bg-navy-950/40" />
         <MarbleDuotone src="/images/textures/marble-3.webp" className="absolute inset-0 opacity-20" />
         <BridgeMotif className="pointer-events-none absolute left-1/2 top-1/2 w-[62%] -translate-x-1/2 -translate-y-1/2 text-white/[0.05]" />
         <div className="container-x section relative z-10 text-center">

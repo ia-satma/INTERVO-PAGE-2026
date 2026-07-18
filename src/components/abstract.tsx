@@ -1,13 +1,6 @@
 import Image from "next/image";
 import { asset } from "@/lib/asset";
 
-/** Brand-blue conceptual gradient mesh (pure CSS). */
-export function GradientMesh({ className = "", grain = true }: { className?: string; grain?: boolean }) {
-  return (
-    <div className={`mesh ${grain ? "grain" : ""} ${className}`} aria-hidden />
-  );
-}
-
 /** Film-grain overlay for depth on dark panels. Parent must be positioned. */
 export function Grain({ className = "" }: { className?: string }) {
   return <div className={`grain pointer-events-none absolute inset-0 ${className}`} aria-hidden />;

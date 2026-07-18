@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { BridgeMotif } from "./abstract";
 import { ArrowRight } from "./icons";
+import { asset } from "@/lib/asset";
 import type { Dictionary } from "@/i18n/dictionaries";
 
 type Insight = Dictionary["insights"]["items"][number];
@@ -8,6 +10,14 @@ export default function InsightCard({ item, readMore }: { item: Insight; readMor
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card">
       <div className="mesh grain relative h-36 overflow-hidden">
+        <Image
+          src={asset("/images/textures/brand-shapes-navy-2.webp")}
+          alt=""
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover opacity-80"
+        />
+        <div className="absolute inset-0 bg-navy-950/30" />
         <BridgeMotif className="pointer-events-none absolute -right-8 -top-8 w-44 text-white/10" />
         <span className="tag absolute left-5 top-5 text-accent-soft">{item.category}</span>
       </div>
