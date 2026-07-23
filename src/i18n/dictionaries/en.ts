@@ -196,6 +196,16 @@ const en: Dictionary = {
       partners: "Partners",
       areas: "Practice areas",
     },
+    organization: {
+      eyebrow: "Organization",
+      title: "Team structure",
+      subtitle:
+        "intervø's current organization brings together partners, attorneys, interns and administration to serve each matter with clear responsibility.",
+      partners: "Partners",
+      lawyers: "Attorneys",
+      interns: "Interns",
+      administration: "Administration",
+    },
     profile: {
       back: "All attorneys",
       practiceLabel: "Practice areas",

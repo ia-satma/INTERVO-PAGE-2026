@@ -119,7 +119,7 @@ export const PARTNERS: PartnerMeta[] = [
   },
   {
     id: "luis",
-    name: "Luis Romero",
+    name: "Luis Gustavo Romero Villarreal",
     chambers: null,
     email: "lromero@intervo.legal",
     phoneDisplay: "+52 811 531 5893",
@@ -139,7 +139,7 @@ export const PARTNERS: PartnerMeta[] = [
   },
   {
     id: "faustino",
-    name: "Faustino Martínez",
+    name: "Faustino Martínez Zulueta",
     chambers: null,
     email: "fmartinez@intervo.legal",
     phoneDisplay: "+52 811 599 9025",
@@ -151,6 +151,28 @@ export const PARTNERS: PartnerMeta[] = [
 export function getPartner(id: string): PartnerMeta | undefined {
   return PARTNERS.find((p) => p.id === id);
 }
+
+export const ORGANIZATION = {
+  partners: [
+    "Carlos Marcos Iga",
+    "Alfredo García Villarreal",
+    "Faustino Martínez Zulueta",
+    "Jorge Andrés Garza Navarro",
+    "Luis Gustavo Romero Villarreal",
+  ],
+  lawyers: [
+    "Roberto Carlos Marcos Romero",
+    "Olivia Carolina Cisneros González",
+    "Erick David Ceballos Peña",
+    "Willy Andrés Morales Riosvelasco",
+  ],
+  interns: [
+    "Ana Sofía de los Santos Apodaca",
+    "Miguel Ángel Rosales Martínez",
+    "Paloma Angélica Portillo Reyes",
+  ],
+  administration: ["Karla Edith Reyes González"],
+} as const;
 
 /** Featured practice areas (with their own copy blocks). */
 export const FEATURED_SERVICES = [

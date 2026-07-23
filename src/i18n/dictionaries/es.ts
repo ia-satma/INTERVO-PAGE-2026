@@ -194,6 +194,16 @@ const es = {
       partners: "Socios",
       areas: "Áreas de práctica",
     },
+    organization: {
+      eyebrow: "Organigrama",
+      title: "Estructura del equipo",
+      subtitle:
+        "La organización actual de intervø integra socios, abogados, pasantes y administración para atender cada operación con una ruta clara de responsabilidad.",
+      partners: "Socios",
+      lawyers: "Abogados",
+      interns: "Pasantes",
+      administration: "Administración",
+    },
     profile: {
       back: "Todos los abogados",
       practiceLabel: "Áreas de práctica",

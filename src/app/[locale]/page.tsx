@@ -13,6 +13,12 @@ import { isLocale } from "@/i18n/config";
 import { localePath, FEATURED_SERVICES } from "@/lib/site";
 import { asset } from "@/lib/asset";
 
+const RECOGNIZED_PARTNERS = [
+  { name: "Carlos Marcos Iga", photo: "/images/team/carlos.webp" },
+  { name: "Alfredo García Villarreal", photo: "/images/team/alfredo.webp" },
+  { name: "Jorge Andrés Garza Navarro", photo: "/images/team/jorge.webp" },
+];
+
 export async function generateMetadata({
   params,
 }: {
@@ -126,8 +132,32 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <Reveal>
             <div className="h-full rounded-2xl border border-line bg-white p-8 shadow-card md:p-10">
               <SectionHeading eyebrow={t.recognition.eyebrow} title={t.recognition.title} />
+              <div className="mt-8 grid grid-cols-3 gap-3">
+                {RECOGNIZED_PARTNERS.map((partner, i) => (
+                  <Link
+                    key={partner.name}
+                    href={localePath(loc, `socios/${["carlos", "alfredo", "jorge"][i]}`)}
+                    className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-mist shadow-card"
+                    aria-label={partner.name}
+                  >
+                    <Image
+                      src={asset(partner.photo)}
+                      alt={partner.name}
+                      fill
+                      sizes="(min-width: 1024px) 13vw, 30vw"
+                      className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-950/95 via-navy-950/20 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-4">
+                      <span className="block font-serif text-[1.05rem] font-medium leading-[1.05] text-white md:text-xl">
+                        {partner.name}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
               <p className="mt-6 text-[1rem] leading-relaxed text-muted">{t.recognition.lead}</p>
-              <ul className="mt-8 space-y-3">
+              <ul className="sr-only">
                 {dict.firma.recognition.badges.map((b) => (
                   <li key={b.name} className="flex flex-wrap items-center gap-x-3 gap-y-2">
                     <ArrowRight className="h-4 w-4 shrink-0 text-accent" />
