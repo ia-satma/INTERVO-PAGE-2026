@@ -8,8 +8,9 @@ import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
 import { Stat } from "@/components/Stat";
 import { Globe } from "@/components/icons";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
+import { resolveNavigationLink } from "@/lib/cms/links";
 
 export async function generateMetadata({
   params,
@@ -17,18 +18,25 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = getDictionary(isLocale(locale) ? locale : "es");
+  const loc = isLocale(locale) ? locale : "es";
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   return {
     title: dict.meta.global.title,
     description: dict.meta.global.description,
-    alternates: { canonical: `/${locale}/global`, languages: { es: "/es/global", en: "/en/global" } },
+    alternates: {
+      canonical: resolveNavigationLink(siteConfig, loc, "global"),
+      languages: {
+        es: resolveNavigationLink(siteConfig, "es", "global"),
+        en: resolveNavigationLink(siteConfig, "en", "global"),
+      },
+    },
   };
 }
 
 export default async function GlobalPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
-  const dict = getDictionary(loc);
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   const t = dict.global;
 
   return (
@@ -57,7 +65,7 @@ export default async function GlobalPage({ params }: { params: Promise<{ locale:
       {/* Reach — dark band */}
       <section className="relative overflow-hidden bg-navy-900 text-white">
         <Image
-          src={asset("/images/textures/brand-shapes-navy-1.webp")}
+          src={asset(siteConfig.media.globalBackground)}
           alt=""
           fill
           sizes="100vw"
@@ -65,7 +73,7 @@ export default async function GlobalPage({ params }: { params: Promise<{ locale:
         />
         <div className="absolute inset-0 bg-navy-950/45" />
         <div className="bg-grid pointer-events-none absolute inset-0 opacity-20" />
-        <IsotypeWatermark className="-right-24 top-1/2 h-[38rem] w-[38rem] -translate-y-1/2 text-white/[0.06] md:-right-10" />
+        <IsotypeWatermark src={siteConfig.media.isotypeMask} className="-right-24 top-1/2 h-[38rem] w-[38rem] -translate-y-1/2 text-white/[0.06] md:-right-10" />
         <div className="container-x section relative">
           <div className="max-w-2xl">
             <span className="eyebrow !text-azure-bright">

@@ -7,9 +7,9 @@ import ServiceCard from "@/components/ServiceCard";
 import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
 import { ServiceIcon } from "@/components/icons";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
-import { FEATURED_SERVICES, OTHER_SERVICES } from "@/lib/site";
+import { resolveNavigationLink } from "@/lib/cms/links";
 
 export async function generateMetadata({
   params,
@@ -17,18 +17,25 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = getDictionary(isLocale(locale) ? locale : "es");
+  const loc = isLocale(locale) ? locale : "es";
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   return {
     title: dict.meta.servicios.title,
     description: dict.meta.servicios.description,
-    alternates: { canonical: `/${locale}/servicios`, languages: { es: "/es/servicios", en: "/en/servicios" } },
+    alternates: {
+      canonical: resolveNavigationLink(siteConfig, loc, "servicios"),
+      languages: {
+        es: resolveNavigationLink(siteConfig, "es", "servicios"),
+        en: resolveNavigationLink(siteConfig, "en", "servicios"),
+      },
+    },
   };
 }
 
 export default async function ServiciosPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
-  const dict = getDictionary(loc);
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   const t = dict.servicios;
 
   return (
@@ -40,7 +47,7 @@ export default async function ServiciosPage({ params }: { params: Promise<{ loca
         <div className="container-x">
           <SectionHeading eyebrow={t.featuredHeading} title={dict.home.services.title} />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURED_SERVICES.map((id, i) => (
+            {siteConfig.featuredServices.map((id, i) => (
               <Reveal key={id} delay={i * 0.05}>
                 <ServiceCard
                   id={id}
@@ -57,7 +64,7 @@ export default async function ServiciosPage({ params }: { params: Promise<{ loca
       {/* Other services */}
       <section className="relative overflow-hidden bg-mist">
         <Image
-          src={asset("/images/textures/brand-shapes-light-2.webp")}
+          src={asset(siteConfig.media.servicesBackground)}
           alt=""
           fill
           sizes="100vw"
@@ -67,7 +74,7 @@ export default async function ServiciosPage({ params }: { params: Promise<{ loca
         <div className="section container-x relative">
           <SectionHeading eyebrow="+" title={t.otherHeading} subtitle={t.otherSubtitle} />
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {OTHER_SERVICES.map((id, i) => (
+            {siteConfig.otherServices.map((id, i) => (
               <Reveal key={id} delay={i * 0.04} y={24}>
                 <div className="group relative flex min-h-[6.5rem] overflow-hidden rounded-xl bg-navy-950 px-5 py-5 shadow-card transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-soft">
                   <div className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy to-azure" />

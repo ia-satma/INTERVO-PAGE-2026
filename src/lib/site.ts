@@ -1,7 +1,8 @@
 import type { Locale } from "@/i18n/config";
 
 /** Canonical production URL (update when the domain/hosting is confirmed). */
-export const SITE_URL = "https://www.intervo.legal";
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.intervo.legal";
 
 export const SITE = {
   name: "intervø",
@@ -152,27 +153,38 @@ export function getPartner(id: string): PartnerMeta | undefined {
   return PARTNERS.find((p) => p.id === id);
 }
 
-export const ORGANIZATION = {
+export type OrganizationMember = {
+  id: string;
+  name: string;
+  photo?: string;
+};
+
+export const ORGANIZATION: {
+  partners: OrganizationMember[];
+  lawyers: OrganizationMember[];
+  interns: OrganizationMember[];
+  administration: OrganizationMember[];
+} = {
   partners: [
-    "Carlos Marcos Iga",
-    "Alfredo García Villarreal",
-    "Faustino Martínez Zulueta",
-    "Jorge Andrés Garza Navarro",
-    "Luis Gustavo Romero Villarreal",
+    { id: "carlos", name: "Carlos Marcos Iga", photo: "/images/team/carlos.webp" },
+    { id: "alfredo", name: "Alfredo García Villarreal", photo: "/images/team/alfredo.webp" },
+    { id: "faustino", name: "Faustino Martínez Zulueta", photo: "/images/team/faustino.webp" },
+    { id: "jorge", name: "Jorge Andrés Garza Navarro", photo: "/images/team/jorge.webp" },
+    { id: "luis", name: "Luis Gustavo Romero Villarreal", photo: "/images/team/luis.webp" },
   ],
   lawyers: [
-    "Roberto Carlos Marcos Romero",
-    "Olivia Carolina Cisneros González",
-    "Erick David Ceballos Peña",
-    "Willy Andrés Morales Riosvelasco",
+    { id: "roberto-carlos-marcos", name: "Roberto Carlos Marcos Romero" },
+    { id: "olivia-cisneros", name: "Olivia Carolina Cisneros González" },
+    { id: "erick-ceballos", name: "Erick David Ceballos Peña" },
+    { id: "willy-morales", name: "Willy Andrés Morales Riosvelasco" },
   ],
   interns: [
-    "Ana Sofía de los Santos Apodaca",
-    "Miguel Ángel Rosales Martínez",
-    "Paloma Angélica Portillo Reyes",
+    { id: "ana-sofia-de-los-santos", name: "Ana Sofía de los Santos Apodaca" },
+    { id: "miguel-angel-rosales", name: "Miguel Ángel Rosales Martínez" },
+    { id: "paloma-portillo", name: "Paloma Angélica Portillo Reyes" },
   ],
-  administration: ["Karla Edith Reyes González"],
-} as const;
+  administration: [{ id: "karla-reyes", name: "Karla Edith Reyes González" }],
+};
 
 /** Featured practice areas (with their own copy blocks). */
 export const FEATURED_SERVICES = [

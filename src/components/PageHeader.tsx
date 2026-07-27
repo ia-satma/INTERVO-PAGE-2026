@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { asset } from "@/lib/asset";
+import { getPublishedSiteConfig } from "@/lib/cms/repository";
 import Reveal from "./Reveal";
 
 type Props = {
@@ -8,11 +9,12 @@ type Props = {
   subtitle?: string;
 };
 
-export default function PageHeader({ eyebrow, title, subtitle }: Props) {
+export default async function PageHeader({ eyebrow, title, subtitle }: Props) {
+  const siteConfig = await getPublishedSiteConfig();
   return (
     <section className="relative overflow-hidden border-b border-line bg-mist pb-16 pt-36 md:pb-20 md:pt-44">
       <Image
-        src={asset("/images/textures/brand-shapes-light.webp")}
+        src={asset(siteConfig.media.pageHeaderBackground)}
         alt=""
         fill
         priority

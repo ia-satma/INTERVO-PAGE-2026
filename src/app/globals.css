@@ -40,9 +40,9 @@
      existing `font-serif` utility usages across components, but now
      points at a modern grotesque (Bricolage Grotesque) instead of a
      traditional serif — the old Fraunces/Montserrat pairing read dated. */
-  --font-serif: var(--font-bricolage), "Segoe UI", system-ui, sans-serif;
-  --font-display: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-body: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-serif: "Bricolage Grotesque Variable", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Inter Variable", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter Variable", system-ui, -apple-system, sans-serif;
 
   /* Radii */
   --radius-sm: 0.375rem;
@@ -288,9 +288,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .hero-anim, .chip-anim { animation: none !important; }
-  /* TeamWall: keep the grayscale→color reveal (it aids comprehension, no
-     movement) but drop the flex-grow expansion and photo zoom — real size
-     and position changes that reduced-motion users asked to avoid. */
-  .wall-tile:hover, .wall-tile:focus-within { flex-grow: 1 !important; }
+  /* TeamWall: keep the grayscale→color reveal (it aids comprehension) but
+     drop photo zoom — real size changes are disabled below on desktop. */
   .wall-tile-photo { transform: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 768px) {
+  .wall-tile:hover, .wall-tile:focus-within { width: 18rem !important; }
 }

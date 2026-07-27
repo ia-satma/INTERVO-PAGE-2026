@@ -3,8 +3,9 @@ import PageHeader from "@/components/PageHeader";
 import InsightCard from "@/components/InsightCard";
 import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
+import { resolveNavigationLink } from "@/lib/cms/links";
 
 export async function generateMetadata({
   params,
@@ -12,13 +13,17 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = getDictionary(isLocale(locale) ? locale : "es");
+  const loc = isLocale(locale) ? locale : "es";
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   return {
     title: dict.meta.publicaciones.title,
     description: dict.meta.publicaciones.description,
     alternates: {
-      canonical: `/${locale}/publicaciones`,
-      languages: { es: "/es/publicaciones", en: "/en/publicaciones" },
+      canonical: resolveNavigationLink(siteConfig, loc, "publicaciones"),
+      languages: {
+        es: resolveNavigationLink(siteConfig, "es", "publicaciones"),
+        en: resolveNavigationLink(siteConfig, "en", "publicaciones"),
+      },
     },
   };
 }
@@ -26,7 +31,7 @@ export async function generateMetadata({
 export default async function PublicacionesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
-  const dict = getDictionary(loc);
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   const t = dict.insights;
 
   return (
@@ -38,7 +43,7 @@ export default async function PublicacionesPage({ params }: { params: Promise<{ 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {t.items.map((item, i) => (
               <Reveal key={item.title} delay={(i % 3) * 0.06}>
-                <InsightCard item={item} readMore={t.readMore} />
+                <InsightCard item={item} readMore={t.readMore} backgroundImage={siteConfig.media.insightCardBackground} />
               </Reveal>
             ))}
           </div>

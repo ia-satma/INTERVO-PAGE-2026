@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import PageHeader from "@/components/PageHeader";
 import ContactForm from "@/components/ContactForm";
 import Reveal from "@/components/Reveal";
-import { Phone, Mail, Whatsapp, Linkedin, MapPin, ArrowUpRight } from "@/components/icons";
-import { getDictionary } from "@/i18n/dictionaries";
+import { Phone, Mail, Whatsapp, Linkedin, Globe, MapPin, ArrowUpRight } from "@/components/icons";
+import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
-import { CONTACT, OFFICES, SITE } from "@/lib/site";
+import { resolveNavigationLink, resolvePrivacyLink, visibleSocialLinks } from "@/lib/cms/links";
 
 export async function generateMetadata({
   params,
@@ -13,18 +13,25 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = getDictionary(isLocale(locale) ? locale : "es");
+  const loc = isLocale(locale) ? locale : "es";
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   return {
     title: dict.meta.contacto.title,
     description: dict.meta.contacto.description,
-    alternates: { canonical: `/${locale}/contacto`, languages: { es: "/es/contacto", en: "/en/contacto" } },
+    alternates: {
+      canonical: resolveNavigationLink(siteConfig, loc, "contacto"),
+      languages: {
+        es: resolveNavigationLink(siteConfig, "es", "contacto"),
+        en: resolveNavigationLink(siteConfig, "en", "contacto"),
+      },
+    },
   };
 }
 
 export default async function ContactoPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
-  const dict = getDictionary(loc);
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   const t = dict.contacto;
 
   const subjects = [
@@ -39,35 +46,48 @@ export default async function ContactoPage({ params }: { params: Promise<{ local
       <section className="section">
         <div className="container-x grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <ContactForm locale={loc} t={t.form} subjects={subjects} />
+            <ContactForm
+              locale={loc}
+              t={t.form}
+              subjects={subjects}
+              contactEmail={siteConfig.contact.email}
+              contactEmailHref={siteConfig.contact.emailHref}
+              privacyLabel={dict.privacy.title}
+              privacyHref={resolvePrivacyLink(siteConfig, loc)}
+            />
           </div>
 
           {/* Info */}
           <div className="lg:col-span-5">
             <div className="flex flex-col gap-3">
-              <a href={CONTACT.phoneHref} className="group flex items-center gap-4 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
+              <a href={siteConfig.contact.phoneHref} className="group flex items-center gap-4 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
                 <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-mist text-navy"><Phone className="h-5 w-5" /></span>
                 <span>
                   <span className="block text-xs uppercase tracking-wide text-muted-2">{t.info.phoneLabel}</span>
-                  <span className="font-display font-semibold text-ink">{CONTACT.phoneDisplay}</span>
+                  <span className="font-display font-semibold text-ink">{siteConfig.contact.phoneDisplay}</span>
                 </span>
               </a>
-              <a href={CONTACT.emailHref} className="group flex items-center gap-4 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
+              <a href={siteConfig.contact.emailHref} className="group flex items-center gap-4 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
                 <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-mist text-navy"><Mail className="h-5 w-5" /></span>
                 <span>
                   <span className="block text-xs uppercase tracking-wide text-muted-2">{t.info.emailLabel}</span>
-                  <span className="font-display font-semibold text-ink">{CONTACT.email}</span>
+                  <span className="font-display font-semibold text-ink">{siteConfig.contact.email}</span>
                 </span>
               </a>
-              <div className="flex gap-3">
-                <a href={CONTACT.whatsappHref} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center gap-3 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <a href={siteConfig.contact.whatsappHref} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center gap-3 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
                   <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-mist text-navy"><Whatsapp className="h-5 w-5" /></span>
-                  <span className="font-display font-semibold text-ink">WhatsApp</span>
+                  <span className="font-display font-semibold text-ink">{dict.actions.whatsapp}</span>
                 </a>
-                <a href={SITE.linkedin} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center gap-3 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-mist text-navy"><Linkedin className="h-5 w-5" /></span>
-                  <span className="font-display font-semibold text-ink">{t.info.linkedinLabel}</span>
-                </a>
+                {visibleSocialLinks(siteConfig).map((social) => {
+                  const SocialIcon = social.id.toLowerCase() === "linkedin" ? Linkedin : Globe;
+                  return (
+                    <a key={social.id} href={social.href} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center gap-3 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-mist text-navy"><SocialIcon className="h-5 w-5" /></span>
+                      <span className="font-display font-semibold text-ink">{social.label}</span>
+                    </a>
+                  );
+                })}
               </div>
               <p className="mt-1 text-[0.8rem] text-muted-2">{t.info.emailNote}</p>
             </div>
@@ -80,7 +100,7 @@ export default async function ContactoPage({ params }: { params: Promise<{ local
             {t.info.officesLabel}
           </h2>
           <div className="mt-5 grid gap-5 md:grid-cols-2">
-            {OFFICES.map((o) => (
+            {siteConfig.offices.map((o) => (
               <Reveal key={o.id}>
                 <div className="flex h-full flex-col rounded-2xl border border-line bg-white p-7">
                   <div className="flex items-center gap-3">

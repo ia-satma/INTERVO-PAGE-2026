@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "./icons";
-import { localePath } from "@/lib/site";
 import { asset } from "@/lib/asset";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
+import type { SiteConfig } from "@/lib/cms/types";
+import { resolveNavigationLink } from "@/lib/cms/links";
 
 /** Brand-shapes imagery (no faces) revealed through the intervø isotype —
  * one per slide, crossfading. */
@@ -18,21 +19,22 @@ const SLIDE_IMAGES = [
 ];
 const AUTO_MS = 6000;
 
-const MASK = asset("/brand/isotype-white.png");
-const maskStyle = {
-  WebkitMaskImage: `url(${MASK})`,
-  maskImage: `url(${MASK})`,
-  WebkitMaskRepeat: "no-repeat",
-  maskRepeat: "no-repeat",
-  WebkitMaskSize: "contain",
-  maskSize: "contain",
-  WebkitMaskPosition: "center",
-  maskPosition: "center",
-} as const;
-
-export default function Hero({ locale, dict }: { locale: Locale; dict: Dictionary }) {
+export default function Hero({ locale, dict, siteConfig }: { locale: Locale; dict: Dictionary; siteConfig: SiteConfig }) {
   const t = dict.home.hero;
+  const media = siteConfig.media;
   const slides = t.slides;
+  const slideImages = media.homeHero.length ? media.homeHero : SLIDE_IMAGES;
+  const mask = asset(media.isotypeWhite);
+  const maskStyle = {
+    WebkitMaskImage: `url(${mask})`,
+    maskImage: `url(${mask})`,
+    WebkitMaskRepeat: "no-repeat",
+    maskRepeat: "no-repeat",
+    WebkitMaskSize: "contain",
+    maskSize: "contain",
+    WebkitMaskPosition: "center",
+    maskPosition: "center",
+  } as const;
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -49,18 +51,30 @@ export default function Hero({ locale, dict }: { locale: Locale; dict: Dictionar
 
   return (
     <section
-      className="grain relative flex min-h-[100svh] items-center overflow-hidden bg-navy-950"
+      className="grain relative flex min-h-[100dvh] items-center overflow-hidden bg-navy-950"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <Image
-        src={asset("/images/textures/brand-shapes-navy-4.webp")}
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover opacity-70"
-      />
+      {media.heroVideo ? (
+        <video
+          src={media.heroVideo}
+          poster={media.heroPoster || undefined}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover opacity-70"
+        />
+      ) : (
+        <Image
+          src={asset(slideImages[0] ?? "/images/textures/brand-shapes-navy-4.webp")}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover opacity-70"
+        />
+      )}
 
       {/* Giant intervø isotype (static) masking the crossfading firm imagery */}
       <div className="pointer-events-none absolute right-[-20%] top-1/2 -translate-y-1/2 md:right-[-10%]">
@@ -68,9 +82,11 @@ export default function Hero({ locale, dict }: { locale: Locale; dict: Dictionar
           className="relative h-[118vmin] w-[118vmin] max-h-[1260px] max-w-[1260px]"
           style={maskStyle}
         >
-          {SLIDE_IMAGES.map((src, idx) => (
+          {slides.map((_, idx) => {
+            const src = slideImages[idx % slideImages.length] ?? SLIDE_IMAGES[idx % SLIDE_IMAGES.length];
+            return (
             <Image
-              key={src}
+              key={`${src}-${idx}`}
               src={asset(src)}
               alt=""
               fill
@@ -80,7 +96,8 @@ export default function Hero({ locale, dict }: { locale: Locale; dict: Dictionar
                 idx === i ? "opacity-100" : "opacity-0"
               }`}
             />
-          ))}
+            );
+          })}
           <div className="absolute inset-0 bg-gradient-to-br from-azure/25 via-transparent to-navy-950/60" />
         </div>
       </div>
@@ -103,11 +120,11 @@ export default function Hero({ locale, dict }: { locale: Locale; dict: Dictionar
           </h1>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <Link href={localePath(locale, "contacto")} className="btn btn-light !px-7 !py-3.5">
+            <Link href={resolveNavigationLink(siteConfig, locale, "contacto")} className="btn btn-light !px-7 !py-3.5">
               {t.ctaPrimary}
               <ArrowUpRight className="h-4 w-4" />
             </Link>
-            <Link href={localePath(locale, "servicios")} className="btn btn-outline-light !px-7 !py-3.5">
+            <Link href={resolveNavigationLink(siteConfig, locale, "servicios")} className="btn btn-outline-light !px-7 !py-3.5">
               {t.ctaSecondary}
             </Link>
           </div>

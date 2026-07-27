@@ -18,6 +18,15 @@ function detectLocale(request: NextRequest): string {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname.startsWith("/admin")) {
+    const publicAdminRoute = pathname === "/admin/login";
+    const hasSession = request.cookies.has("intervo_admin_session");
+    if (!publicAdminRoute && !hasSession) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+    return NextResponse.next();
+  }
+
   const hasLocale = (locales as readonly string[]).some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
   );

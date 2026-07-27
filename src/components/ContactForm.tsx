@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Check, ArrowUpRight } from "./icons";
-import { CONTACT, localePath } from "@/lib/site";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 
@@ -11,37 +10,42 @@ type Props = {
   locale: Locale;
   t: Dictionary["contacto"]["form"];
   subjects: string[];
+  contactEmail: string;
+  contactEmailHref: string;
+  privacyLabel: string;
+  privacyHref: string;
 };
 
-export default function ContactForm({ locale, t, subjects }: Props) {
-  const [status, setStatus] = useState<"idle" | "success">("idle");
+export default function ContactForm({ locale, t, subjects, contactEmail, contactEmailHref, privacyLabel, privacyHref }: Props) {
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [error, setError] = useState("");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
-    const name = String(data.get("name") ?? "");
-    const company = String(data.get("company") ?? "");
-    const email = String(data.get("email") ?? "");
-    const phone = String(data.get("phone") ?? "");
-    const subject = String(data.get("subject") ?? "");
-    const message = String(data.get("message") ?? "");
-
-    const mailSubject = `Contacto web — ${subject || name}`.trim();
-    const body = [
-      `Nombre: ${name}`,
-      company && `Empresa: ${company}`,
-      `Correo: ${email}`,
-      phone && `Teléfono: ${phone}`,
-      subject && `Área de interés: ${subject}`,
-      "",
-      message,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const mailto = `${CONTACT.emailHref}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
+    setStatus("submitting");
+    setError("");
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: data.get("name"),
+        company: data.get("company"),
+        email: data.get("email"),
+        phone: data.get("phone"),
+        subject: data.get("subject"),
+        message: data.get("message"),
+        website: data.get("website"),
+        locale,
+      }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      setError(payload.error || t.error);
+      setStatus("error");
+      return;
+    }
     setStatus("success");
     form.reset();
   }
@@ -57,8 +61,8 @@ export default function ContactForm({ locale, t, subjects }: Props) {
           <Check className="h-7 w-7" />
         </span>
         <p className="mt-6 max-w-md text-lg leading-relaxed text-ink">{t.success}</p>
-        <a href={CONTACT.emailHref} className="mt-6 inline-flex items-center gap-1.5 font-display font-semibold text-navy">
-          {CONTACT.email} <ArrowUpRight className="h-4 w-4" />
+        <a href={contactEmailHref} className="mt-6 inline-flex items-center gap-1.5 font-display font-semibold text-navy">
+          {contactEmail} <ArrowUpRight className="h-4 w-4" />
         </a>
       </div>
     );
@@ -66,6 +70,10 @@ export default function ContactForm({ locale, t, subjects }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="rounded-2xl border border-line bg-white p-6 shadow-soft md:p-8">
+      <div className="sr-only" aria-hidden="true">
+        <label htmlFor="website">Website</label>
+        <input id="website" name="website" tabIndex={-1} autoComplete="off" />
+      </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="name" className={label}>{t.name}</label>
@@ -98,19 +106,21 @@ export default function ContactForm({ locale, t, subjects }: Props) {
         </div>
       </div>
 
-      <button type="submit" className="btn btn-primary mt-6 w-full sm:w-auto !px-8 !py-3.5">
-        {t.submit}
+      {status === "error" && <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
+
+      <button type="submit" disabled={status === "submitting"} className="btn btn-primary mt-6 w-full sm:w-auto !px-8 !py-3.5 disabled:cursor-wait disabled:opacity-60">
+        {status === "submitting" ? t.sending : t.submit}
         <ArrowUpRight className="h-4 w-4" />
       </button>
 
       <p className="mt-4 text-[0.8rem] text-muted-2">
         {(() => {
-          const linkText = locale === "en" ? "Privacy Notice" : "Aviso de Privacidad";
+          const linkText = privacyLabel;
           const [before, after = ""] = t.privacy.split(linkText);
           return (
             <>
               {before}
-              <Link href={localePath(locale, "aviso-de-privacidad")} className="underline hover:text-navy">
+              <Link href={privacyHref} className="underline hover:text-navy">
                 {linkText}
               </Link>
               {after}

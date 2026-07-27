@@ -1,26 +1,14 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
+import "@fontsource-variable/inter";
+import "@fontsource-variable/bricolage-grotesque";
 import "../globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale, locales } from "@/i18n/config";
-import { SITE_URL, SITE } from "@/lib/site";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-  weight: ["400", "500", "600", "700"],
-});
-
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-bricolage",
-  display: "swap",
-  weight: ["400", "500", "600"],
-});
+import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
+import { SITE_URL } from "@/lib/site";
+import { resolveHomeLink } from "@/lib/cms/links";
 
 export const dynamicParams = false;
 
@@ -35,32 +23,36 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const dict = getDictionary(locale);
+  const dict = await getPublishedDictionary(locale);
+  const siteConfig = await getPublishedSiteConfig();
   const bp = process.env.EXPORT === "true" ? "/INTERVO-PAGE-2026" : "";
   return {
-    metadataBase: new URL(SITE_URL),
+    metadataBase: new URL(siteConfig.site.url || SITE_URL),
     title: {
       default: dict.meta.home.title,
       template: "%s",
     },
     description: dict.meta.home.description,
-    applicationName: SITE.name,
-    authors: [{ name: SITE.legalName }],
+    applicationName: siteConfig.site.name,
+    authors: [{ name: siteConfig.site.legalName }],
     alternates: {
-      canonical: `/${locale}`,
-      languages: { es: "/es", en: "/en" },
+      canonical: resolveHomeLink(siteConfig, locale),
+      languages: {
+        es: resolveHomeLink(siteConfig, "es"),
+        en: resolveHomeLink(siteConfig, "en"),
+      },
     },
     openGraph: {
       type: "website",
-      siteName: SITE.name,
+      siteName: siteConfig.site.name,
       locale: locale === "es" ? "es_MX" : "en_US",
       title: dict.meta.home.title,
       description: dict.meta.home.description,
-      url: `/${locale}`,
+      url: resolveHomeLink(siteConfig, locale),
     },
     icons: {
-      icon: `${bp}/brand/favicon.png`,
-      apple: `${bp}/brand/favicon.png`,
+      icon: `${bp}${siteConfig.media.favicon}`,
+      apple: `${bp}${siteConfig.media.favicon}`,
     },
     robots: { index: true, follow: true },
   };
@@ -75,14 +67,17 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const dict = getDictionary(locale);
+  const [dict, siteConfig] = await Promise.all([
+    getPublishedDictionary(locale),
+    getPublishedSiteConfig(),
+  ]);
 
   return (
-    <html lang={dict.htmlLang} className={`${inter.variable} ${bricolage.variable}`}>
+    <html lang={dict.htmlLang}>
       <body>
-        <Header locale={locale} dict={dict} />
+        <Header locale={locale} dict={dict} siteConfig={siteConfig} />
         <main>{children}</main>
-        <Footer locale={locale} dict={dict} />
+        <Footer locale={locale} dict={dict} siteConfig={siteConfig} />
       </body>
     </html>
   );

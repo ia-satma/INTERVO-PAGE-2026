@@ -5,12 +5,20 @@ import type { Dictionary } from "@/i18n/dictionaries";
 
 type Insight = Dictionary["insights"]["items"][number];
 
-export default function InsightCard({ item, readMore }: { item: Insight; readMore: string }) {
+export default function InsightCard({
+  item,
+  readMore,
+  backgroundImage = "/images/textures/brand-shapes-navy-2.webp",
+}: {
+  item: Insight;
+  readMore: string;
+  backgroundImage?: string;
+}) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card">
       <div className="mesh grain relative h-36 overflow-hidden">
         <Image
-          src={asset("/images/textures/brand-shapes-navy-2.webp")}
+          src={asset(backgroundImage)}
           alt=""
           fill
           sizes="(max-width: 768px) 100vw, 33vw"

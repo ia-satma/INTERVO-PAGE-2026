@@ -5,6 +5,7 @@ const en: Dictionary = {
   brand: {
     descriptor: "Legal and Business Consulting",
     tagline: "The bridge between business and the law.",
+    homeLabel: "intervø — home",
   },
   nav: {
     firma: "The Firm",
@@ -30,6 +31,8 @@ const en: Dictionary = {
   },
   header: {
     cta: "Contact us",
+    menu: "Menu",
+    close: "Close",
   },
   home: {
     hero: {
@@ -130,6 +133,7 @@ const en: Dictionary = {
     story: {
       eyebrow: "Who we are",
       title: "Law that understands business",
+      imageAlt: "The intervø team at its Monterrey office",
       body: [
         "intervø is a firm focused on legal and business advice, born from the integration of legal professionals with a common vision and objectives.",
         "We are a multidisciplinary team with broad experience and a deep commitment to advice grounded in value creation, transparency and trust.",
@@ -183,7 +187,7 @@ const en: Dictionary = {
     managingLabel: "Managing Partner",
     partnerLabel: "Partner",
     specialtiesLabel: "Focus areas",
-    note: "The order of the partners follows the firm's official materials.",
+    note: "The team order follows the firm's official organization chart.",
     viewProfile: "View profile",
     filter: {
       label: "Filter by practice area",
@@ -193,7 +197,7 @@ const en: Dictionary = {
     },
     otherPartners: "Other partners",
     stats: {
-      partners: "Partners",
+      partners: "Team members",
       areas: "Practice areas",
     },
     organization: {
@@ -346,6 +350,7 @@ const en: Dictionary = {
     rights: "All rights reserved.",
     privacy: "Privacy Notice",
     madeIn: "Monterrey, Mexico",
+    adminAccess: "Administration panel access",
   },
   services: {
     featured: {

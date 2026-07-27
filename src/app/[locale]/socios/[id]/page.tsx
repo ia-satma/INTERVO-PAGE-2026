@@ -5,12 +5,11 @@ import { notFound } from "next/navigation";
 import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
 import { ArrowLeft, ArrowUpRight, Award, Mail, Phone, Linkedin } from "@/components/icons";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale, locales } from "@/i18n/config";
-import { PARTNERS, getPartner, localePath, SITE } from "@/lib/site";
+import { PARTNERS } from "@/lib/site";
 import { asset } from "@/lib/asset";
-
-export const dynamicParams = false;
+import { resolveNavigationLink } from "@/lib/cms/links";
 
 export function generateStaticParams() {
   return PARTNERS.map((p) => ({ id: p.id }));
@@ -23,18 +22,19 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, id } = await params;
   const loc = isLocale(locale) ? locale : "es";
-  const dict = getDictionary(loc);
-  const partner = getPartner(id);
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
+  const partner = siteConfig.partners.find((item) => item.id === id && item.visible !== false);
   if (!partner) return {};
-  const info = dict.partners[id as keyof typeof dict.partners];
-  const title = `${partner.name} — ${info.role} · ${SITE.name}`;
+  const info = (dict.partners as Record<string, { role: string; specialties: string[]; bio: string }>)[id];
+  if (!info) return {};
+  const title = `${partner.name} — ${info.role} · ${siteConfig.site.name}`;
   const description = info.bio;
   return {
     title,
     description,
     alternates: {
-      canonical: `/${locale}/socios/${id}`,
-      languages: Object.fromEntries(locales.map((l) => [l, `/${l}/socios/${id}`])),
+      canonical: resolveNavigationLink(siteConfig, loc, "socios", id),
+      languages: Object.fromEntries(locales.map((l) => [l, resolveNavigationLink(siteConfig, l, "socios", id)])),
     },
   };
 }
@@ -46,14 +46,20 @@ export default async function PartnerProfilePage({
 }) {
   const { locale, id } = await params;
   const loc = isLocale(locale) ? locale : "es";
-  const dict = getDictionary(loc);
-  const partner = getPartner(id);
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
+  const partner = siteConfig.partners.find((item) => item.id === id && item.visible !== false);
   if (!partner) notFound();
 
-  const info = dict.partners[id as keyof typeof dict.partners];
+  const profiles = dict.partners as Record<string, { role: string; specialties: string[]; bio: string }>;
+  const info = profiles[id] ?? {
+    role: partner.managing ? dict.socios.managingLabel : dict.socios.partnerLabel,
+    specialties: [],
+    bio: "",
+  };
   const t = dict.socios;
-  const others = PARTNERS.filter((p) => p.id !== id);
-  const index = PARTNERS.findIndex((p) => p.id === id) + 1;
+  const visiblePartners = siteConfig.partners.filter((item) => item.visible !== false);
+  const others = visiblePartners.filter((p) => p.id !== id);
+  const index = visiblePartners.findIndex((p) => p.id === id) + 1;
 
   return (
     <>
@@ -61,7 +67,7 @@ export default async function PartnerProfilePage({
         <div className="container-x relative">
           <Reveal>
             <Link
-              href={localePath(loc, "socios")}
+              href={resolveNavigationLink(siteConfig, loc, "socios")}
               className="inline-flex items-center gap-2 font-display text-sm font-semibold text-muted transition-colors hover:text-navy"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -165,11 +171,15 @@ export default async function PartnerProfilePage({
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {others.map((p) => {
-                const oInfo = dict.partners[p.id as keyof typeof dict.partners];
+                const oInfo = profiles[p.id] ?? {
+                  role: p.managing ? t.managingLabel : t.partnerLabel,
+                  specialties: [],
+                  bio: "",
+                };
                 return (
                   <Link
                     key={p.id}
-                    href={localePath(loc, `socios/${p.id}`)}
+                    href={resolveNavigationLink(siteConfig, loc, "socios", p.id)}
                     className="group flex items-center gap-3.5 rounded-xl border border-line bg-white p-3.5 transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card"
                   >
                     <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-mist">

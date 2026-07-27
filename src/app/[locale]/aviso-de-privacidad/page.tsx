@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import PageHeader from "@/components/PageHeader";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
+import { resolvePrivacyLink } from "@/lib/cms/links";
 
 export async function generateMetadata({
   params,
@@ -9,14 +10,18 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = getDictionary(isLocale(locale) ? locale : "es");
+  const loc = isLocale(locale) ? locale : "es";
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   return {
     title: dict.meta.privacy.title,
     description: dict.meta.privacy.description,
     robots: { index: false, follow: true },
     alternates: {
-      canonical: `/${locale}/aviso-de-privacidad`,
-      languages: { es: "/es/aviso-de-privacidad", en: "/en/aviso-de-privacidad" },
+      canonical: resolvePrivacyLink(siteConfig, loc),
+      languages: {
+        es: resolvePrivacyLink(siteConfig, "es"),
+        en: resolvePrivacyLink(siteConfig, "en"),
+      },
     },
   };
 }
@@ -24,7 +29,7 @@ export async function generateMetadata({
 export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
-  const dict = getDictionary(loc);
+  const dict = await getPublishedDictionary(loc);
   const t = dict.privacy;
 
   return (

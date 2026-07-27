@@ -3,6 +3,7 @@ const es = {
   brand: {
     descriptor: "Consultoría Legal y de Negocios",
     tagline: "El puente entre los negocios y la ley.",
+    homeLabel: "intervø — inicio",
   },
   nav: {
     firma: "La Firma",
@@ -28,6 +29,8 @@ const es = {
   },
   header: {
     cta: "Contáctanos",
+    menu: "Menú",
+    close: "Cerrar",
   },
   home: {
     hero: {
@@ -128,6 +131,7 @@ const es = {
     story: {
       eyebrow: "Quiénes somos",
       title: "Derecho que entiende de negocios",
+      imageAlt: "Equipo de intervø en su oficina de Monterrey",
       body: [
         "intervø es una firma enfocada en la asesoría legal y de negocios, fruto de la integración de profesionales del derecho con visión y objetivos en común.",
         "Nos conforma un equipo multidisciplinario con amplia experiencia y profundo compromiso con proveer asesoría basada en la creación de valor, la transparencia y la confianza.",
@@ -181,7 +185,7 @@ const es = {
     managingLabel: "Socio Director",
     partnerLabel: "Socio",
     specialtiesLabel: "Especialidad",
-    note: "La disposición de los socios corresponde al material oficial de la firma.",
+    note: "El orden del equipo corresponde al organigrama oficial de la firma.",
     viewProfile: "Ver perfil",
     filter: {
       label: "Filtrar por área de práctica",
@@ -191,7 +195,7 @@ const es = {
     },
     otherPartners: "Otros socios",
     stats: {
-      partners: "Socios",
+      partners: "Integrantes",
       areas: "Áreas de práctica",
     },
     organization: {
@@ -344,6 +348,7 @@ const es = {
     rights: "Todos los derechos reservados.",
     privacy: "Aviso de Privacidad",
     madeIn: "Monterrey, México",
+    adminAccess: "Acceso al panel de administración",
   },
   services: {
     featured: {

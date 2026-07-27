@@ -93,7 +93,7 @@ const Chip = (p: IconProps) => (
 const Plane = (p: IconProps) => (
   <Base {...p}><path d="M10 3.5c.6-.6 1.6-.6 2 .3l1.6 6 4.6 2.7c1 .6 1 2 0 2.3l-4.8 1.3-2 4.3c-.4.8-1.6.6-1.7-.3l-.6-4-3.4-1.7c-.8-.4-.7-1.6.2-1.8l4-1L10 3.5Z" /></Base>
 );
-const Lock = (p: IconProps) => (
+export const Lock = (p: IconProps) => (
   <Base {...p}><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2" /></Base>
 );
 const Gavel = (p: IconProps) => (

@@ -12,12 +12,13 @@ firma boutique de asesoría legal y de negocios con sede en Monterrey.
 - **Next.js 16** (App Router, React 19) — SSR/SSG + SEO
 - **TypeScript 5.9**
 - **Tailwind CSS v4** (configuración CSS-first, tokens de marca en `globals.css`)
-- **Tipografía editorial**: Fraunces (serif display) + Montserrat (UI) + Inter (cuerpo), vía `next/font`
+- **Tipografía**: Bricolage Grotesque + Inter, autohospedadas con Fontsource
 - **Motion**: Framer Motion (reveals) + **GSAP + ScrollTrigger** (hero cinemático, contadores, parallax), todo con fallback `prefers-reduced-motion`
 - **Imaginería conceptual** (dirección editorial estilo Woods Rogers, adaptada): gradient-mesh, grano, motivo puente/∞ y **texturas de mármol en duotono** de la foto propia de la firma (`public/images/textures/`)
 - **Directorio de Abogados**: grid de socios con foto real + perfil individual por abogado (`/socios/[id]`) — bio, áreas de práctica, contacto directo
 - Internacionalización propia (ES/EN) vía segmento `[locale]` + `proxy` de detección de idioma
-- Sin dependencias de backend: el formulario de contacto usa `mailto:` (ver TODO)
+- **CMS full-stack:** PostgreSQL + Drizzle, App Storage, roles, MFA, borradores, publicación y versiones
+- El formulario de contacto guarda solicitudes en el panel y puede notificar por Resend
 - `sharp` como dependencia para el optimizador de imágenes de Next (necesaria para `npm run dev`/`npm start`
   locales; el export estático a GitHub Pages usa `images.unoptimized`, así que no la necesita en producción)
 
@@ -30,8 +31,13 @@ firma boutique de asesoría legal y de negocios con sede en Monterrey.
 
 ```bash
 npm install
+npm run db:push
+npm run db:seed
 npm run dev       # http://localhost:3000  → redirige a /es
 ```
+
+El sitio público funciona con los defaults versionados si `DATABASE_URL` no existe. El panel
+requiere PostgreSQL y un owner creado por el seed. Consulta [CMS-DEPLOY.md](./CMS-DEPLOY.md).
 
 ## Producción
 
@@ -85,9 +91,9 @@ Tipografía: **Montserrat** (display, en línea con el wordmark) + **Inter** (cu
 
 ## Contenido editable
 
-- **Copy:** `src/i18n/dictionaries/es.ts` y `en.ts` (misma estructura; TypeScript valida la paridad).
-- **Contacto / oficinas / socios:** `src/lib/site.ts`.
-- **Imágenes:** `public/images/` y `public/brand/`.
+El panel vive en `/admin`. Permite editar ES/EN, navegación, SEO, oficinas, equipo, servicios,
+publicaciones, privacidad, imágenes, videos y páginas modulares. Los diccionarios y `site.ts`
+son el seed/fallback, no el flujo editorial cotidiano.
 
 ## TODO antes de lanzar
 
@@ -95,9 +101,8 @@ Tipografía: **Montserrat** (display, en línea con el wordmark) + **Inter** (cu
       presentación). No existe un inbox genérico `info@`/`contacto@`; cada socio tiene su propio
       correo (`inicial+apellido@intervo.legal`). El contacto general del sitio usa el del Socio
       Director (`agarcia@intervo.legal`) y cada `PartnerCard` en Socios muestra su correo/tel. directo.
-- [ ] **Formulario de contacto:** hoy abre el cliente de correo del usuario (`mailto:`).
-      Para recibir mensajes directo en un inbox/CRM, conectar un endpoint
-      (p. ej. Resend, Formspree, o una Route Handler `/api/contact`) en `src/components/ContactForm.tsx`.
+- [x] **Formulario de contacto:** guarda solicitudes en PostgreSQL y las muestra en `/admin/submissions`;
+      Resend es opcional para notificaciones.
 - [ ] **Publicaciones / Insights:** los 3 artículos son contenido de muestra (en `dictionaries/{es,en}.ts`,
       bloque `insights.items`). La firma debe proveer las publicaciones reales; hoy las tarjetas no enlazan
       a páginas de detalle (se puede añadir `[slug]` cuando exista contenido).
@@ -118,8 +123,8 @@ Tipografía: **Montserrat** (display, en línea con el wordmark) + **Inter** (cu
 
 ## Despliegue
 
-Compatible con Vercel (recomendado para Next.js), o cualquier host con soporte Node.
-El middleware de i18n requiere runtime (no es export estático puro).
+La producción full-stack está preparada para Replit Autoscale con Replit Database y App Storage.
+El procedimiento completo, variables y checklist están en [CMS-DEPLOY.md](./CMS-DEPLOY.md).
 
 **GitHub Pages (actual):** export estático vía `EXPORT=true npm run build` (ver
 `.github/workflows/deploy-pages.yml`), con `images.unoptimized` — las imágenes se sirven tal cual,

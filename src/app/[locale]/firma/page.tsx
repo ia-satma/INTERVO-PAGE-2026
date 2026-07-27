@@ -6,8 +6,9 @@ import SectionHeading from "@/components/SectionHeading";
 import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
 import ValueCard from "@/components/ValueCard";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
+import { resolveNavigationLink } from "@/lib/cms/links";
 
 export async function generateMetadata({
   params,
@@ -15,18 +16,25 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = getDictionary(isLocale(locale) ? locale : "es");
+  const loc = isLocale(locale) ? locale : "es";
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   return {
     title: dict.meta.firma.title,
     description: dict.meta.firma.description,
-    alternates: { canonical: `/${locale}/firma`, languages: { es: "/es/firma", en: "/en/firma" } },
+    alternates: {
+      canonical: resolveNavigationLink(siteConfig, loc, "firma"),
+      languages: {
+        es: resolveNavigationLink(siteConfig, "es", "firma"),
+        en: resolveNavigationLink(siteConfig, "en", "firma"),
+      },
+    },
   };
 }
 
 export default async function FirmaPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
-  const dict = getDictionary(loc);
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   const t = dict.firma;
 
   return (
@@ -47,8 +55,8 @@ export default async function FirmaPage({ params }: { params: Promise<{ locale: 
           <Reveal>
             <div className="overflow-hidden rounded-2xl shadow-card">
               <Image
-                src={asset("/images/boardroom-wide.webp")}
-                alt="Equipo de intervø en su oficina de Monterrey"
+                src={asset(siteConfig.media.firmImage)}
+                alt={t.story.imageAlt}
                 width={1100}
                 height={760}
                 className="h-full w-full object-cover"
@@ -78,7 +86,7 @@ export default async function FirmaPage({ params }: { params: Promise<{ locale: 
         <div className="container-x">
           <div className="relative overflow-hidden rounded-3xl bg-navy px-8 py-14 text-white md:px-14 md:py-16">
             <Image
-              src={asset("/images/textures/brand-shapes-navy-2.webp")}
+              src={asset(siteConfig.media.firmRecognitionBackground)}
               alt=""
               fill
               sizes="(max-width: 1024px) 100vw, 80rem"

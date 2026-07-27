@@ -1,0 +1,701 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import {
+  ArrowDown,
+  ArrowSquareOut,
+  ArrowUp,
+  Check,
+  CloudArrowUp,
+  FloppyDisk,
+  ImageSquare,
+  Plus,
+  Trash,
+  Users,
+  WarningCircle,
+} from "@phosphor-icons/react";
+import { csrfHeaders } from "@/lib/client/csrf";
+import MediaPickerDialog from "./MediaPickerDialog";
+
+type JsonRecord = Record<string, unknown>;
+type OrganizationMember = { id: string; name: string; photo?: string };
+type Organization = {
+  partners: OrganizationMember[];
+  lawyers: OrganizationMember[];
+  interns: OrganizationMember[];
+  administration: OrganizationMember[];
+};
+type Partner = {
+  id: string;
+  name: string;
+  roleEs: string;
+  roleEn: string;
+  specialtiesEs: string[];
+  specialtiesEn: string[];
+  bioEs: string;
+  bioEn: string;
+  chambers: string;
+  managing: boolean;
+  visible: boolean;
+  email: string;
+  phoneDisplay: string;
+  phoneHref: string;
+  photo: string;
+  linkedin: string;
+};
+type CmsDocument = {
+  key: string;
+  data: JsonRecord;
+  version: number;
+};
+type GroupKey = "lawyers" | "interns" | "administration";
+
+const groupLabels: Record<GroupKey, string> = {
+  lawyers: "Abogados",
+  interns: "Pasantes",
+  administration: "Administración",
+};
+
+const inputClass =
+  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm leading-relaxed text-slate-900 outline-none transition-[border-color,box-shadow] focus:border-sky-700 focus:ring-2 focus:ring-sky-700/15";
+
+function clone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function record(value: unknown): JsonRecord {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonRecord) : {};
+}
+
+function list(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function text(value: unknown, fallback = "") {
+  return typeof value === "string" ? value : fallback;
+}
+
+function slugify(value: string) {
+  return (
+    value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "nuevo-integrante"
+  );
+}
+
+function uniqueId(name: string, used: string[]) {
+  const base = slugify(name);
+  if (!used.includes(base)) return base;
+  let index = 2;
+  while (used.includes(`${base}-${index}`)) index += 1;
+  return `${base}-${index}`;
+}
+
+function buildPartners(siteDocument: CmsDocument, navigationDocument: CmsDocument): Partner[] {
+  const site = record(siteDocument.data);
+  const navEs = record(record(navigationDocument.data).es);
+  const navEn = record(record(navigationDocument.data).en);
+  const profilesEs = record(navEs.partners);
+  const profilesEn = record(navEn.partners);
+
+  return list(site.partners).map((value) => {
+    const partner = record(value);
+    const id = text(partner.id);
+    const es = record(profilesEs[id]);
+    const en = record(profilesEn[id]);
+    return {
+      id,
+      name: text(partner.name, "Nuevo abogado"),
+      roleEs: text(es.role, "Socio"),
+      roleEn: text(en.role, "Partner"),
+      specialtiesEs: list(es.specialties).map((item) => text(item)).filter(Boolean),
+      specialtiesEn: list(en.specialties).map((item) => text(item)).filter(Boolean),
+      bioEs: text(es.bio),
+      bioEn: text(en.bio),
+      chambers: text(partner.chambers),
+      managing: Boolean(partner.managing),
+      visible: partner.visible !== false,
+      email: text(partner.email),
+      phoneDisplay: text(partner.phoneDisplay),
+      phoneHref: text(partner.phoneHref),
+      photo: text(partner.photo),
+      linkedin: text(partner.linkedin),
+    };
+  });
+}
+
+function buildOrganization(siteDocument: CmsDocument): Organization {
+  const source = record(record(siteDocument.data).organization);
+  const normalize = (key: keyof Organization) =>
+    list(source[key]).map((value) => {
+      const member = record(value);
+      return { id: text(member.id), name: text(member.name), photo: text(member.photo) || undefined };
+    });
+  return {
+    partners: normalize("partners"),
+    lawyers: normalize("lawyers"),
+    interns: normalize("interns"),
+    administration: normalize("administration"),
+  };
+}
+
+function PhotoField({ value, name, onChange }: { value: string; name: string; onChange: (value: string) => void }) {
+  const [picker, setPicker] = useState(false);
+  return (
+    <div className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[112px_1fr] sm:items-center">
+      <div className="relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-white">
+        {value ? (
+          <Image src={value} alt={name} fill unoptimized className="object-cover object-top" />
+        ) : (
+          <span className="grid h-full w-full place-items-center text-slate-300">
+            <ImageSquare size={32} />
+          </span>
+        )}
+      </div>
+      <div>
+        <p className="text-xs font-semibold text-slate-700">Fotografía</p>
+        <p className="mt-1 break-all text-xs text-slate-500">{value || "Sin fotografía asignada"}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setPicker(true)}
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#0072ad]"
+          >
+            <ImageSquare size={17} /> Subir o elegir imagen
+          </button>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="min-h-10 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 hover:border-rose-300 hover:text-rose-700"
+            >
+              Quitar
+            </button>
+          )}
+        </div>
+      </div>
+      <MediaPickerDialog open={picker} kind="image" onClose={() => setPicker(false)} onSelect={onChange} allowUpload />
+    </div>
+  );
+}
+
+function CompactPhotoField({ value, name, onChange }: { value: string; name: string; onChange: (value: string) => void }) {
+  const [picker, setPicker] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setPicker(true)}
+        aria-label={`Cambiar fotografía de ${name}`}
+        className="relative h-[72px] w-[72px] overflow-hidden rounded-xl border border-slate-200 bg-slate-100 text-slate-400 hover:border-sky-600"
+      >
+        {value ? (
+          <Image src={value} alt="" fill unoptimized className="object-cover object-top" />
+        ) : (
+          <span className="grid h-full w-full place-items-center"><ImageSquare size={24} /></span>
+        )}
+      </button>
+      <MediaPickerDialog open={picker} kind="image" onClose={() => setPicker(false)} onSelect={onChange} allowUpload />
+    </>
+  );
+}
+
+function StringList({
+  label,
+  values,
+  onChange,
+}: {
+  label: string;
+  values: string[];
+  onChange: (values: string[]) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-semibold text-slate-700">{label}</label>
+        <button
+          type="button"
+          onClick={() => onChange([...values, ""])}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 hover:text-sky-900"
+        >
+          <Plus size={14} weight="bold" /> Añadir área
+        </button>
+      </div>
+      <div className="space-y-2">
+        {values.length === 0 && (
+          <button
+            type="button"
+            onClick={() => onChange([""])}
+            className="w-full rounded-xl border border-dashed border-slate-300 px-4 py-5 text-sm text-slate-500 hover:border-sky-600 hover:text-sky-800"
+          >
+            Añadir la primera área de práctica
+          </button>
+        )}
+        {values.map((value, index) => (
+          <div key={index} className="flex gap-2">
+            <input
+              value={value}
+              onChange={(event) => onChange(values.map((item, itemIndex) => (itemIndex === index ? event.target.value : item)))}
+              className={inputClass}
+            />
+            <button
+              type="button"
+              aria-label="Eliminar área"
+              onClick={() => onChange(values.filter((_, itemIndex) => itemIndex !== index))}
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-slate-200 text-rose-600 hover:bg-rose-50"
+            >
+              <Trash size={16} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function TeamManager({
+  siteDocument,
+  navigationDocument,
+  canPublish,
+}: {
+  siteDocument: CmsDocument;
+  navigationDocument: CmsDocument;
+  canPublish: boolean;
+}) {
+  const initialPartners = useMemo(() => buildPartners(siteDocument, navigationDocument), [siteDocument, navigationDocument]);
+  const initialOrganization = useMemo(() => buildOrganization(siteDocument), [siteDocument]);
+  const [partners, setPartners] = useState<Partner[]>(() => clone(initialPartners));
+  const [organization, setOrganization] = useState<Organization>(() => clone(initialOrganization));
+  const [savedPartners, setSavedPartners] = useState<Partner[]>(() => clone(initialPartners));
+  const [savedOrganization, setSavedOrganization] = useState<Organization>(() => clone(initialOrganization));
+  const [selectedId, setSelectedId] = useState(initialPartners[0]?.id ?? "");
+  const [group, setGroup] = useState<GroupKey>("lawyers");
+  const [pending, setPending] = useState<"save" | "publish" | "">("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const selected = partners.find((partner) => partner.id === selectedId);
+  const dirty =
+    JSON.stringify(partners) !== JSON.stringify(savedPartners) ||
+    JSON.stringify(organization) !== JSON.stringify(savedOrganization);
+
+  function updatePartner(changes: Partial<Partner>) {
+    setPartners((current) =>
+      current.map((partner) => (partner.id === selectedId ? { ...partner, ...changes } : partner)),
+    );
+  }
+
+  function addPartner() {
+    const id = uniqueId("nuevo-abogado", partners.map((partner) => partner.id));
+    const next: Partner = {
+      id,
+      name: "Nuevo abogado",
+      roleEs: "Socio",
+      roleEn: "Partner",
+      specialtiesEs: [],
+      specialtiesEn: [],
+      bioEs: "",
+      bioEn: "",
+      chambers: "",
+      managing: false,
+      visible: true,
+      email: "",
+      phoneDisplay: "",
+      phoneHref: "",
+      photo: "",
+      linkedin: "",
+    };
+    setPartners((current) => [...current, next]);
+    setSelectedId(id);
+  }
+
+  function removePartner() {
+    if (!selected || !window.confirm(`¿Eliminar a “${selected.name}” del equipo? Se conservarán las versiones publicadas anteriores.`)) return;
+    const remaining = partners.filter((partner) => partner.id !== selected.id);
+    setPartners(remaining);
+    setSelectedId(remaining[0]?.id ?? "");
+  }
+
+  function movePartner(direction: -1 | 1) {
+    const index = partners.findIndex((partner) => partner.id === selectedId);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= partners.length) return;
+    const next = [...partners];
+    [next[index], next[target]] = [next[target], next[index]];
+    setPartners(next);
+  }
+
+  function addMember(targetGroup: GroupKey) {
+    const id = uniqueId(`nuevo-${targetGroup}`, [
+      ...organization.lawyers,
+      ...organization.interns,
+      ...organization.administration,
+    ].map((member) => member.id));
+    setOrganization((current) => ({
+      ...current,
+      [targetGroup]: [...current[targetGroup], { id, name: "Nuevo integrante" }],
+    }));
+  }
+
+  function updateMember(targetGroup: GroupKey, index: number, changes: Partial<OrganizationMember>) {
+    setOrganization((current) => ({
+      ...current,
+      [targetGroup]: current[targetGroup].map((member, memberIndex) =>
+        memberIndex === index ? { ...member, ...changes } : member,
+      ),
+    }));
+  }
+
+  function moveMember(targetGroup: GroupKey, index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= organization[targetGroup].length) return;
+    const next = [...organization[targetGroup]];
+    [next[index], next[target]] = [next[target], next[index]];
+    setOrganization((current) => ({ ...current, [targetGroup]: next }));
+  }
+
+  async function putDocument(key: string, data: JsonRecord) {
+    const response = await fetch(`/api/admin/documents/${key}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...csrfHeaders() },
+      body: JSON.stringify({ data }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || `No se pudo guardar ${key}.`);
+  }
+
+  async function save() {
+    setPending("save");
+    setMessage("");
+    setError("");
+    try {
+      const siteData = clone(siteDocument.data);
+      const navData = clone(navigationDocument.data);
+      const publicPartners = partners.map((partner) => ({
+        id: partner.id,
+        name: partner.name.trim(),
+        chambers: partner.chambers.trim() || null,
+        managing: partner.managing || undefined,
+        visible: partner.visible,
+        email: partner.email.trim(),
+        phoneDisplay: partner.phoneDisplay.trim(),
+        phoneHref: partner.phoneHref.trim() || (partner.phoneDisplay ? `tel:${partner.phoneDisplay.replace(/[^\d+]/g, "")}` : ""),
+        photo: partner.photo,
+        linkedin: partner.linkedin.trim() || undefined,
+      }));
+      siteData.partners = publicPartners;
+      siteData.organization = {
+        ...organization,
+        partners: publicPartners.map((partner) => ({
+          id: partner.id,
+          name: partner.name,
+          photo: partner.photo || undefined,
+        })),
+      };
+
+      const esData = record(navData.es);
+      const enData = record(navData.en);
+      navData.es = {
+        ...esData,
+        partners: Object.fromEntries(
+          partners.map((partner) => [
+            partner.id,
+            {
+              role: partner.roleEs.trim(),
+              specialties: partner.specialtiesEs.map((item) => item.trim()).filter(Boolean),
+              bio: partner.bioEs.trim(),
+            },
+          ]),
+        ),
+      };
+      navData.en = {
+        ...enData,
+        partners: Object.fromEntries(
+          partners.map((partner) => [
+            partner.id,
+            {
+              role: partner.roleEn.trim(),
+              specialties: partner.specialtiesEn.map((item) => item.trim()).filter(Boolean),
+              bio: partner.bioEn.trim(),
+            },
+          ]),
+        ),
+      };
+
+      await putDocument("site-config", siteData);
+      await putDocument("navegacion-seo", navData);
+      setSavedPartners(clone(partners));
+      setSavedOrganization(clone(organization));
+      setMessage("Equipo guardado como borrador. La web pública aún no cambió.");
+      return true;
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "No se pudo guardar el equipo.");
+      return false;
+    } finally {
+      setPending("");
+    }
+  }
+
+  async function publish() {
+    if (!(await save())) return;
+    if (!window.confirm("¿Publicar ahora todos los cambios del equipo en español e inglés?")) return;
+    setPending("publish");
+    setMessage("");
+    setError("");
+    try {
+      for (const key of ["site-config", "navegacion-seo"]) {
+        const response = await fetch(`/api/admin/documents/${key}/publish`, {
+          method: "POST",
+          headers: csrfHeaders(),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || `No se pudo publicar ${key}.`);
+      }
+      setMessage("Equipo publicado. Las fichas, el organigrama y las fotografías ya están actualizados.");
+    } catch (publishError) {
+      setError(publishError instanceof Error ? publishError.message : "No se pudo publicar el equipo.");
+    } finally {
+      setPending("");
+    }
+  }
+
+  return (
+    <>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="flex items-center gap-3">
+          <span className={`h-2.5 w-2.5 rounded-full ${dirty ? "bg-amber-500" : "bg-emerald-500"}`} />
+          <div>
+            <p className="text-sm font-semibold text-slate-800">{dirty ? "Cambios sin guardar" : "Equipo cargado"}</p>
+            <p className="text-xs text-slate-500">
+              {partners.length} socio{partners.length === 1 ? "" : "s"} ·{" "}
+              {organization.lawyers.length + organization.interns.length + organization.administration.length} integrantes adicionales
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/admin/content/equipo"
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300"
+          >
+            Editar textos de la página <ArrowSquareOut size={15} />
+          </Link>
+          <button
+            type="button"
+            onClick={() => void save()}
+            disabled={!dirty || Boolean(pending)}
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400"
+          >
+            <FloppyDisk size={16} /> {pending === "save" ? "Guardando…" : "Guardar borrador"}
+          </button>
+          {canPublish && (
+            <button
+              type="button"
+              onClick={() => void publish()}
+              disabled={Boolean(pending)}
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50"
+            >
+              <CloudArrowUp size={16} /> {pending === "publish" ? "Publicando…" : "Publicar equipo"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {message && (
+        <p className="mb-5 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <Check size={18} weight="bold" /> {message}
+        </p>
+      )}
+      {error && (
+        <p className="mb-5 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+          <WarningCircle size={18} /> {error}
+        </p>
+      )}
+
+      <div className="grid items-start gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <aside className="overflow-hidden rounded-2xl border border-slate-200 bg-white xl:sticky xl:top-24">
+          <div className="flex items-center justify-between border-b border-slate-200 p-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Perfiles públicos</p>
+              <h2 className="mt-1 text-lg font-semibold">Socios y abogados</h2>
+            </div>
+            <button
+              type="button"
+              onClick={addPartner}
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-[#0f4386] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0072ad]"
+            >
+              <Plus size={15} weight="bold" /> Añadir
+            </button>
+          </div>
+          <div className="max-h-[64dvh] overflow-y-auto p-2">
+            {partners.map((partner, index) => (
+              <button
+                key={partner.id}
+                type="button"
+                onClick={() => setSelectedId(partner.id)}
+                className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors ${
+                  selectedId === partner.id ? "bg-sky-50 text-sky-950" : "hover:bg-slate-50"
+                }`}
+              >
+                <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                  {partner.photo ? (
+                    <Image src={partner.photo} alt="" fill unoptimized className="object-cover object-top" />
+                  ) : (
+                    <span className="grid h-full w-full place-items-center text-slate-400"><Users size={20} /></span>
+                  )}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">{partner.name}</span>
+                  <span className="mt-0.5 block truncate text-xs text-slate-500">
+                    {partner.roleEs || "Sin puesto"} · {partner.visible ? "Visible" : "Oculto"}
+                  </span>
+                </span>
+                <span className="font-mono text-[0.65rem] text-slate-400">{String(index + 1).padStart(2, "0")}</span>
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 md:p-7">
+          {!selected ? (
+            <div className="grid min-h-96 place-items-center text-center">
+              <div>
+                <Users size={40} className="mx-auto text-slate-300" />
+                <p className="mt-4 font-semibold text-slate-700">Añade el primer perfil del equipo</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="mb-6 flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-5">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Ficha individual</p>
+                  <h2 className="mt-1 text-2xl font-semibold tracking-tight">{selected.name}</h2>
+                  <p className="mt-1 font-mono text-xs text-slate-400">/{selected.id}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button type="button" onClick={() => movePartner(-1)} aria-label="Subir en el orden" className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"><ArrowUp size={17} /></button>
+                  <button type="button" onClick={() => movePartner(1)} aria-label="Bajar en el orden" className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"><ArrowDown size={17} /></button>
+                  <button type="button" onClick={removePartner} aria-label="Eliminar abogado" className="grid h-10 w-10 place-items-center rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50"><Trash size={17} /></button>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <PhotoField value={selected.photo} name={selected.name} onChange={(photo) => updatePartner({ photo })} />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">
+                    Nombre completo
+                    <input
+                      value={selected.name}
+                      onChange={(event) => updatePartner({ name: event.target.value })}
+                      onBlur={() => {
+                        if (selected.id.startsWith("nuevo-")) {
+                          const nextId = uniqueId(selected.name, partners.filter((partner) => partner.id !== selected.id).map((partner) => partner.id));
+                          setPartners((current) => current.map((partner) => partner.id === selected.id ? { ...partner, id: nextId } : partner));
+                          setSelectedId(nextId);
+                        }
+                      }}
+                      className={inputClass}
+                    />
+                  </label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">
+                    Identificador URL
+                    <input value={selected.id} onChange={(event) => {
+                      const nextId = slugify(event.target.value);
+                      setPartners((current) => current.map((partner) => partner.id === selected.id ? { ...partner, id: nextId } : partner));
+                      setSelectedId(nextId);
+                    }} className={inputClass} />
+                  </label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">
+                    Puesto en español
+                    <input value={selected.roleEs} onChange={(event) => updatePartner({ roleEs: event.target.value })} className={inputClass} />
+                  </label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">
+                    Puesto en inglés
+                    <input value={selected.roleEn} onChange={(event) => updatePartner({ roleEn: event.target.value })} className={inputClass} />
+                  </label>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <StringList label="Áreas de práctica — Español" values={selected.specialtiesEs} onChange={(specialtiesEs) => updatePartner({ specialtiesEs })} />
+                  <StringList label="Practice areas — English" values={selected.specialtiesEn} onChange={(specialtiesEn) => updatePartner({ specialtiesEn })} />
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">
+                    Biografía — Español
+                    <textarea rows={8} value={selected.bioEs} onChange={(event) => updatePartner({ bioEs: event.target.value })} className={inputClass} />
+                  </label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">
+                    Biography — English
+                    <textarea rows={8} value={selected.bioEn} onChange={(event) => updatePartner({ bioEn: event.target.value })} className={inputClass} />
+                  </label>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">Correo<input type="email" value={selected.email} onChange={(event) => updatePartner({ email: event.target.value })} className={inputClass} /></label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">Teléfono visible<input value={selected.phoneDisplay} onChange={(event) => updatePartner({ phoneDisplay: event.target.value })} className={inputClass} /></label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">Enlace telefónico<input value={selected.phoneHref} onChange={(event) => updatePartner({ phoneHref: event.target.value })} placeholder="tel:+5281…" className={inputClass} /></label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">LinkedIn<input value={selected.linkedin} onChange={(event) => updatePartner({ linkedin: event.target.value })} className={inputClass} /></label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">Reconocimiento Chambers<input value={selected.chambers} onChange={(event) => updatePartner({ chambers: event.target.value })} placeholder="Band 2, Up and Coming…" className={inputClass} /></label>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+                    <span><span className="block text-sm font-semibold">Visible en el sitio</span><span className="text-xs text-slate-500">Ocultar conserva el perfil en el borrador.</span></span>
+                    <input type="checkbox" checked={selected.visible} onChange={(event) => updatePartner({ visible: event.target.checked })} className="h-5 w-5 accent-sky-700" />
+                  </label>
+                  <label className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+                    <span><span className="block text-sm font-semibold">Socio Director</span><span className="text-xs text-slate-500">Activa el distintivo principal.</span></span>
+                    <input type="checkbox" checked={selected.managing} onChange={(event) => updatePartner({ managing: event.target.checked })} className="h-5 w-5 accent-sky-700" />
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
+        </section>
+      </div>
+
+      <section className="mt-7 rounded-2xl border border-slate-200 bg-white p-5 md:p-7">
+        <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Organigrama</p>
+            <h2 className="mt-1 text-2xl font-semibold tracking-tight">Equipo adicional</h2>
+            <p className="mt-1 text-sm text-slate-500">Abogados, pasantes y administración pueden llevar fotografía o mostrarse con iniciales.</p>
+          </div>
+          <div className="flex rounded-xl bg-slate-100 p-1">
+            {(Object.keys(groupLabels) as GroupKey[]).map((key) => (
+              <button key={key} type="button" onClick={() => setGroup(key)} className={`rounded-lg px-3 py-2 text-xs font-semibold ${group === key ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}>
+                {groupLabels[key]} ({organization[key].length})
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          {organization[group].map((member, index) => (
+            <div key={`${member.id}-${index}`} className="grid gap-3 rounded-xl border border-slate-200 p-4 md:grid-cols-[72px_1fr_auto] md:items-center">
+              <CompactPhotoField value={member.photo ?? ""} name={member.name} onChange={(photo) => updateMember(group, index, { photo: photo || undefined })} />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="space-y-2 text-xs font-semibold text-slate-700">Nombre<input value={member.name} onChange={(event) => updateMember(group, index, { name: event.target.value })} className={inputClass} /></label>
+                <label className="space-y-2 text-xs font-semibold text-slate-700">Identificador<input value={member.id} onChange={(event) => updateMember(group, index, { id: slugify(event.target.value) })} className={inputClass} /></label>
+              </div>
+              <div className="flex items-center justify-end gap-1">
+                <button type="button" onClick={() => moveMember(group, index, -1)} aria-label="Subir" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200"><ArrowUp size={15} /></button>
+                <button type="button" onClick={() => moveMember(group, index, 1)} aria-label="Bajar" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200"><ArrowDown size={15} /></button>
+                <button type="button" onClick={() => setOrganization((current) => ({ ...current, [group]: current[group].filter((_, memberIndex) => memberIndex !== index) }))} aria-label="Eliminar" className="grid h-9 w-9 place-items-center rounded-lg border border-rose-200 text-rose-700"><Trash size={15} /></button>
+              </div>
+            </div>
+          ))}
+          <button type="button" onClick={() => addMember(group)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 text-sm font-semibold text-slate-600 hover:border-sky-600 hover:text-sky-800">
+            <Plus size={17} weight="bold" /> Añadir a {groupLabels[group]}
+          </button>
+        </div>
+      </section>
+    </>
+  );
+}

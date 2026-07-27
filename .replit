@@ -1,0 +1,11 @@
+run = "npm run dev"
+entrypoint = "package.json"
+
+[deployment]
+build = "npm run build"
+run = "npm run start"
+deploymentTarget = "autoscale"
+
+[[ports]]
+localPort = 3000
+externalPort = 80

@@ -8,16 +8,12 @@ import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
 import Counter from "@/components/motion/Counter";
 import { ArrowRight, ArrowUpRight } from "@/components/icons";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
-import { localePath, FEATURED_SERVICES } from "@/lib/site";
 import { asset } from "@/lib/asset";
+import { resolveHomeLink, resolveNavigationLink } from "@/lib/cms/links";
 
-const RECOGNIZED_PARTNERS = [
-  { name: "Carlos Marcos Iga", photo: "/images/team/carlos.webp" },
-  { name: "Alfredo García Villarreal", photo: "/images/team/alfredo.webp" },
-  { name: "Jorge Andrés Garza Navarro", photo: "/images/team/jorge.webp" },
-];
+const RECOGNIZED_PARTNER_IDS = ["carlos", "alfredo", "jorge"];
 
 export async function generateMetadata({
   params,
@@ -25,23 +21,33 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = getDictionary(isLocale(locale) ? locale : "es");
+  const loc = isLocale(locale) ? locale : "es";
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   return {
     title: dict.meta.home.title,
     description: dict.meta.home.description,
-    alternates: { canonical: `/${locale}`, languages: { es: "/es", en: "/en" } },
+    alternates: {
+      canonical: resolveHomeLink(siteConfig, loc),
+      languages: {
+        es: resolveHomeLink(siteConfig, "es"),
+        en: resolveHomeLink(siteConfig, "en"),
+      },
+    },
   };
 }
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
-  const dict = getDictionary(loc);
+  const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   const t = dict.home;
+  const recognizedPartners = siteConfig.partners.filter(
+    (partner) => partner.visible !== false && RECOGNIZED_PARTNER_IDS.includes(partner.id),
+  );
 
   return (
     <>
-      <Hero locale={loc} dict={dict} />
+      <Hero locale={loc} dict={dict} siteConfig={siteConfig} />
 
       <div className="container-x relative z-10 -mt-14 md:-mt-20">
         <Reveal>
@@ -67,7 +73,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
             <h2 className="display-2 mx-auto mt-6 max-w-4xl">{t.brandStatement.title}</h2>
             <p className="lead mx-auto mt-7 max-w-2xl text-muted">{t.brandStatement.body}</p>
-            <Link href={localePath(loc, "firma")} className="btn btn-primary mt-9 !px-7 !py-3.5">
+            <Link href={resolveNavigationLink(siteConfig, loc, "firma")} className="btn btn-primary mt-9 !px-7 !py-3.5">
               {t.brandStatement.cta}
               <ArrowUpRight className="h-4 w-4" />
             </Link>
@@ -79,14 +85,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="container-x">
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
             <SectionHeading eyebrow={t.services.eyebrow} title={t.services.title} subtitle={t.services.subtitle} />
-            <Link href={localePath(loc, "servicios")} className="btn btn-ghost shrink-0 !px-5 !py-2.5 text-[0.85rem]">
+            <Link href={resolveNavigationLink(siteConfig, loc, "servicios")} className="btn btn-ghost shrink-0 !px-5 !py-2.5 text-[0.85rem]">
               {t.services.cta}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {FEATURED_SERVICES.slice(0, 3).map((id, i) => (
+            {siteConfig.featuredServices.slice(0, 3).map((id, i) => (
               <Reveal key={id} delay={i * 0.05}>
                 <ServiceCard
                   id={id}
@@ -98,7 +104,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             ))}
             <Reveal delay={0.15}>
               <Link
-                href={localePath(loc, "servicios")}
+                href={resolveNavigationLink(siteConfig, loc, "servicios")}
                 className="group relative flex h-full min-h-[21rem] overflow-hidden rounded-2xl bg-navy-950 shadow-card transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-soft"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy to-azure" />
@@ -121,7 +127,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       <section className="relative overflow-hidden bg-mist">
         <Image
-          src={asset("/images/textures/brand-shapes-light-2.webp")}
+          src={asset(siteConfig.media.homeServicesBackground)}
           alt=""
           fill
           sizes="100vw"
@@ -133,10 +139,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="h-full rounded-2xl border border-line bg-white p-8 shadow-card md:p-10">
               <SectionHeading eyebrow={t.recognition.eyebrow} title={t.recognition.title} />
               <div className="mt-8 grid grid-cols-3 gap-3">
-                {RECOGNIZED_PARTNERS.map((partner, i) => (
+                {recognizedPartners.map((partner) => (
                   <Link
                     key={partner.name}
-                    href={localePath(loc, `socios/${["carlos", "alfredo", "jorge"][i]}`)}
+                    href={resolveNavigationLink(siteConfig, loc, "socios", partner.id)}
                     className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-mist shadow-card"
                     aria-label={partner.name}
                   >
@@ -168,7 +174,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </li>
                 ))}
               </ul>
-              <Link href={localePath(loc, "socios")} className="btn btn-primary mt-9 w-fit !px-7 !py-3.5">
+              <Link href={resolveNavigationLink(siteConfig, loc, "socios")} className="btn btn-primary mt-9 w-fit !px-7 !py-3.5">
                 {t.recognition.cta}
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
@@ -178,7 +184,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <Reveal delay={0.06}>
             <div className="relative h-full overflow-hidden rounded-2xl bg-navy-950 p-8 text-white shadow-card md:p-10">
               <Image
-                src={asset("/images/textures/brand-shapes-navy-1.webp")}
+                src={asset(siteConfig.media.homeRecognitionBackground)}
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
@@ -198,7 +204,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     </div>
                   ))}
                 </div>
-                <Link href={localePath(loc, "global")} className="btn btn-light mt-9 !px-6 !py-3">
+                <Link href={resolveNavigationLink(siteConfig, loc, "global")} className="btn btn-light mt-9 !px-6 !py-3">
                   {t.global.cta}
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
