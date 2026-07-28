@@ -41,9 +41,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   const t = dict.home;
-  const recognizedPartners = siteConfig.partners.filter(
-    (partner) => partner.visible !== false && RECOGNIZED_PARTNER_IDS.includes(partner.id),
-  );
+  const recognizedPartners = RECOGNIZED_PARTNER_IDS.flatMap((id) => {
+    const partner = siteConfig.partners.find((item) => item.visible !== false && item.id === id);
+    return partner ? [partner] : [];
+  });
+  const recognizedCountLabel = loc === "es" ? "Socios reconocidos" : "Recognized partners";
 
   return (
     <>
@@ -136,33 +138,82 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="absolute inset-0 bg-mist/50" />
         <div className="container-x relative grid gap-6 py-20 md:py-24 lg:grid-cols-2">
           <Reveal>
-            <div className="h-full rounded-2xl border border-line bg-white p-8 shadow-card md:p-10">
-              <SectionHeading eyebrow={t.recognition.eyebrow} title={t.recognition.title} />
-              <div className="mt-8 grid grid-cols-3 gap-3">
-                {recognizedPartners.map((partner) => (
+            <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+              <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-br from-navy-950 via-navy to-azure" />
+              <div className="absolute inset-x-0 top-0 h-72 bg-grid opacity-45" />
+              <div className="relative p-5 md:p-7">
+                <div className="rounded-[1.15rem] border border-white/15 bg-white/10 p-2 shadow-soft backdrop-blur-sm">
                   <Link
-                    key={partner.name}
-                    href={resolveNavigationLink(siteConfig, loc, "socios", partner.id)}
-                    className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-mist shadow-card"
-                    aria-label={partner.name}
+                    href={resolveNavigationLink(siteConfig, loc, "socios", recognizedPartners[0]?.id)}
+                    className="group relative block aspect-[16/11] overflow-hidden rounded-xl bg-navy-950"
+                    aria-label={recognizedPartners[0]?.name}
                   >
-                    <Image
-                      src={asset(partner.photo)}
-                      alt={partner.name}
-                      fill
-                      sizes="(min-width: 1024px) 13vw, 30vw"
-                      className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-950/95 via-navy-950/20 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-4">
-                      <span className="block font-serif text-[1.05rem] font-medium leading-[1.05] text-white md:text-xl">
-                        {partner.name}
+                    {recognizedPartners[0] && (
+                      <Image
+                        src={asset(recognizedPartners[0].photo)}
+                        alt={recognizedPartners[0].name}
+                        fill
+                        sizes="(min-width: 1024px) 36vw, 100vw"
+                        className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/28 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5">
+                      <span className="max-w-[14rem] font-serif text-2xl font-medium leading-none text-white md:text-3xl">
+                        {recognizedPartners[0]?.name}
                       </span>
+                      <ArrowUpRight className="h-5 w-5 shrink-0 text-white/80 transition-transform duration-500 group-hover:-translate-y-1 group-hover:translate-x-1" />
                     </div>
                   </Link>
-                ))}
+                </div>
+
+                <div className="-mt-6 ml-auto grid w-[88%] grid-cols-2 gap-3 md:w-[82%]">
+                  {recognizedPartners.slice(1).map((partner, index) => (
+                    <Link
+                      key={partner.name}
+                      href={resolveNavigationLink(siteConfig, loc, "socios", partner.id)}
+                      className={`group relative aspect-[4/5] overflow-hidden rounded-xl bg-navy-950 shadow-card ring-4 ring-white ${index === 1 ? "mt-8" : ""}`}
+                      aria-label={partner.name}
+                    >
+                      <Image
+                        src={asset(partner.photo)}
+                        alt={partner.name}
+                        fill
+                        sizes="(min-width: 1024px) 16vw, 44vw"
+                        className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-navy-950/96 via-navy-950/25 to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 p-4">
+                        <span className="block font-serif text-xl font-medium leading-none text-white md:text-2xl">
+                          {partner.name}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="mt-8 grid gap-7 border-t border-line pt-8 md:grid-cols-[0.72fr_1fr] md:items-start">
+                  <div>
+                    <span className="eyebrow">{t.recognition.eyebrow}</span>
+                    <div className="mt-5 flex items-end gap-3">
+                      <span className="font-serif text-6xl leading-none text-navy">03</span>
+                      <span className="pb-2 text-xs font-semibold uppercase tracking-[0.22em] text-muted">
+                        {recognizedCountLabel}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-3xl leading-[1.02] text-ink md:text-4xl">
+                      {t.recognition.title}
+                    </h2>
+                    <p className="mt-5 text-[1rem] leading-relaxed text-muted">{t.recognition.lead}</p>
+                    <Link href={resolveNavigationLink(siteConfig, loc, "socios")} className="btn btn-primary mt-7 w-fit !px-7 !py-3.5">
+                      {t.recognition.cta}
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
               </div>
-              <p className="mt-6 text-[1rem] leading-relaxed text-muted">{t.recognition.lead}</p>
               <ul className="sr-only">
                 {dict.firma.recognition.badges.map((b) => (
                   <li key={b.name} className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -174,10 +225,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </li>
                 ))}
               </ul>
-              <Link href={resolveNavigationLink(siteConfig, loc, "socios")} className="btn btn-primary mt-9 w-fit !px-7 !py-3.5">
-                {t.recognition.cta}
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
             </div>
           </Reveal>
 
