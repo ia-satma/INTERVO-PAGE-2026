@@ -78,7 +78,7 @@ export default async function ModularPage({ params }: { params: Promise<{ locale
           );
         }
         if (section.type === "video") {
-          return <section key={index} className="section bg-mist"><div className="container-x"><Reveal><h2 className="display-2 max-w-3xl">{section.title}</h2><p className="lead mt-5 max-w-2xl text-muted">{section.body}</p>{section.video && <video src={section.video} poster={section.poster || undefined} controls playsInline className="mt-9 aspect-video w-full rounded-2xl bg-navy-950 object-cover shadow-card" />}</Reveal></div></section>;
+          return <section key={index} className="section bg-mist"><div className="container-x"><Reveal><h2 className="display-2 max-w-3xl">{section.title}</h2><p className="lead mt-5 max-w-2xl text-muted">{section.body}</p>{section.video && <video src={section.video} poster={section.poster || undefined} controls playsInline preload="metadata" className="mt-9 aspect-video w-full rounded-2xl bg-navy-950 object-cover shadow-card" />}</Reveal></div></section>;
         }
         if (section.type === "stats") {
           return <section key={index} className="section bg-navy-950 text-white"><div className="container-x"><h2 className="display-2 text-white">{section.title}</h2><div className="mt-10 grid gap-px overflow-hidden rounded-2xl bg-white/15 sm:grid-cols-2 lg:grid-cols-4">{section.items?.map((item, itemIndex) => <div key={itemIndex} className="bg-navy-950 p-7"><p className="font-serif text-4xl text-white">{item.value}</p><p className="mt-2 text-sm text-white/65">{item.label}</p></div>)}</div></div></section>;

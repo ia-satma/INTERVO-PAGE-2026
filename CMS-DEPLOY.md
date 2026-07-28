@@ -17,8 +17,8 @@
 2. Abrir **Database** y crear/conectar las bases Development y Production.
 3. Abrir **App Storage**, crear un bucket y asociarlo con la aplicación.
 4. Crear Secrets a partir de `.env.example`:
-   - `SESSION_SECRET`: valor aleatorio de al menos 32 caracteres.
-   - `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_PASSWORD`, `ADMIN_BOOTSTRAP_NAME`.
+   - `SESSION_SECRET`: valor aleatorio único de al menos 32 caracteres; usa uno distinto en Development y Production.
+   - `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_PASSWORD` (frase única de 16+ caracteres), `ADMIN_BOOTSTRAP_NAME`.
    - `CONTACT_NOTIFICATION_EMAIL`.
    - Opcionales: `RESEND_API_KEY`, `OPENAI_API_KEY`, `OPENAI_TRANSLATION_MODEL`.
 5. Ejecutar:
@@ -29,7 +29,8 @@
    npm run db:seed
    ```
 
-6. Iniciar la app, entrar a `/admin` y activar MFA con una aplicación TOTP.
+6. Eliminar `ADMIN_BOOTSTRAP_PASSWORD` de Secrets después de crear el owner. El seed es idempotente y no lo vuelve a necesitar.
+7. Iniciar la app, entrar a `/admin` y activar MFA con una aplicación TOTP.
 
 ## 3. Producción
 
@@ -38,7 +39,7 @@
 3. Replicar los Secrets necesarios en producción.
 4. Ejecutar las migraciones contra la base de producción antes del primer corte.
 5. Publicar y verificar:
-   - `GET /api/health` devuelve `database: "ok"`.
+   - `GET /api/health` devuelve HTTP `200`, `ok: true` y `database: "ok"`.
    - El owner entra, activa MFA y puede guardar un borrador.
    - El borrador no cambia la URL pública.
    - La vista protegida muestra el borrador.
@@ -55,6 +56,11 @@
 - Dueño y Administrador requieren MFA. Editor no puede publicar ni gestionar usuarios.
 - Las cookies de sesión son HttpOnly, Secure en producción y SameSite Strict.
 - Login y formulario tienen rate limit; todas las mutaciones del panel requieren CSRF.
+- El rate limit se guarda en PostgreSQL y se comparte entre instancias Autoscale.
+- Las respuestas usan CSP, HSTS, protección anti-frame, `nosniff` y políticas restrictivas del navegador.
+- No reutilices la contraseña temporal usada durante desarrollo. Antes de publicar, crea una frase nueva,
+  activa MFA y elimina el Secret de bootstrap.
+- Ejecuta `npm audit` antes de cada publicación y aplica primero las actualizaciones en una URL de prueba.
 
 ## 5. Operación editorial
 

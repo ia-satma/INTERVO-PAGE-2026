@@ -3,6 +3,7 @@ import "server-only";
 import type { NextRequest } from "next/server";
 import { getDb } from "@/lib/db";
 import { auditLogs } from "@/lib/db/schema";
+import { getClientIp, getUserAgent } from "./request";
 
 export async function writeAudit(
   request: NextRequest,
@@ -23,8 +24,8 @@ export async function writeAudit(
       resource: event.resource,
       resourceId: event.resourceId,
       metadata: event.metadata ?? {},
-      ip: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
-      userAgent: request.headers.get("user-agent"),
+      ip: getClientIp(request),
+      userAgent: getUserAgent(request),
     });
   } catch (error) {
     console.error("No se pudo escribir audit log", error);

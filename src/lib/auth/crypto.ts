@@ -10,6 +10,10 @@ export function randomToken(bytes = 32): string {
   return randomBytes(bytes).toString("base64url");
 }
 
+export function hasSecureSessionSecret() {
+  return Boolean(process.env.SESSION_SECRET && process.env.SESSION_SECRET.length >= 32);
+}
+
 function encryptionKey(): Buffer {
   const secret = process.env.SESSION_SECRET;
   if (!secret || secret.length < 32) throw new Error("SESSION_SECRET debe contener al menos 32 caracteres.");

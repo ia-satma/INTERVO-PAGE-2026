@@ -192,9 +192,20 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.5;
-    mix-blend-mode: overlay;
+    opacity: 0.1;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .reveal-motion {
+    opacity: 0;
+    transform: translate3d(0, var(--reveal-y, 32px), 0);
+    transition:
+      opacity 0.65s var(--ease-out-expo) var(--reveal-delay, 0s),
+      transform 0.65s var(--ease-out-expo) var(--reveal-delay, 0s);
+  }
+  .reveal-motion.reveal-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 
   .link-underline {
@@ -277,6 +288,11 @@
   to { opacity: 1; transform: translateY(0); }
 }
 .hero-anim { animation: heroTextIn 0.9s var(--ease-out-expo) both; }
+@keyframes heroImageIn {
+  from { opacity: 0; transform: scale(1.015); }
+  to { opacity: 1; transform: scale(1); }
+}
+.hero-image-in { animation: heroImageIn 0.8s var(--ease-out-expo) both; }
 
 /* Small staggered cascade — filter chips, tag rows, anything that should
    trickle in as a group rather than pop all at once. */
@@ -287,12 +303,13 @@
 .chip-anim { animation: chipIn 0.6s var(--ease-out-expo) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-anim, .chip-anim { animation: none !important; }
+  .hero-anim, .hero-image-in, .chip-anim { animation: none !important; }
+  .reveal-motion {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
   /* TeamWall: keep the grayscale→color reveal (it aids comprehension) but
      drop photo zoom — real size changes are disabled below on desktop. */
   .wall-tile-photo { transform: none !important; }
-}
-
-@media (prefers-reduced-motion: reduce) and (min-width: 768px) {
-  .wall-tile:hover, .wall-tile:focus-within { width: 18rem !important; }
 }

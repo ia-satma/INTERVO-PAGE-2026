@@ -20,11 +20,13 @@ import {
   Phone,
   ShieldCheck,
   ShareNetwork,
+  SignIn,
   SignOut,
   SlidersHorizontal,
   Users,
 } from "@phosphor-icons/react";
 import type { AdminSessionUser } from "@/lib/cms/types";
+import { csrfHeaders } from "@/lib/client/csrf";
 
 const contentNav = [
   { href: "/admin/content/home", label: "Portada", icon: House },
@@ -53,11 +55,12 @@ export default function AdminShell({ user, children }: { user: AdminSessionUser;
     ...contentNav,
     ...configNav,
     ...(user.permissions.includes("users:manage") ? [{ href: "/admin/users", label: "Usuarios", icon: LockKey }] : []),
+    ...(user.permissions.includes("audit:read") ? [{ href: "/admin/login-history", label: "Accesos", icon: SignIn }] : []),
     ...(user.permissions.includes("audit:read") ? [{ href: "/admin/audit", label: "Auditoría", icon: MagnifyingGlass }] : []),
   ];
 
   async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch("/api/auth/logout", { method: "POST", headers: csrfHeaders() });
     router.replace("/admin/login");
     router.refresh();
   }
@@ -93,6 +96,7 @@ export default function AdminShell({ user, children }: { user: AdminSessionUser;
           <p className="mt-7 px-6 pb-2 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-slate-500">Operación</p>
           {configNav.map(navItem)}
           {user.permissions.includes("users:manage") && navItem({ href: "/admin/users", label: "Usuarios", icon: LockKey })}
+          {user.permissions.includes("audit:read") && navItem({ href: "/admin/login-history", label: "Accesos", icon: SignIn })}
           {user.permissions.includes("audit:read") && navItem({ href: "/admin/audit", label: "Auditoría", icon: MagnifyingGlass })}
         </nav>
         <div className="border-t border-white/10 p-4">

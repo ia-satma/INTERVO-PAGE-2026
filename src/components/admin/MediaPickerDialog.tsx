@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Check, CloudArrowUp, Images, MagnifyingGlass, WarningCircle, X } from "@phosphor-icons/react";
 import { csrfHeaders } from "@/lib/client/csrf";
+import { buildChangeSet } from "@/lib/client/change-set";
+import ChangeReviewDialog from "./ChangeReviewDialog";
 
 type Item = {
   id: string;
@@ -34,14 +36,18 @@ export default function MediaPickerDialog({
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
 
-  async function upload(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  function reviewUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    setUploadFile(event.target.files?.[0] ?? null);
+  }
+
+  async function upload() {
+    if (!uploadFile) return;
     setUploading(true);
     setUploadError("");
     const data = new FormData();
-    data.set("file", file);
+    data.set("file", uploadFile);
     const response = await fetch("/api/admin/media", {
       method: "POST",
       headers: csrfHeaders(),
@@ -49,6 +55,7 @@ export default function MediaPickerDialog({
     });
     const payload = await response.json().catch(() => ({}));
     setUploading(false);
+    setUploadFile(null);
     if (inputRef.current) inputRef.current.value = "";
     if (!response.ok) {
       setUploadError(payload.error || "No se pudo subir el archivo.");
@@ -105,7 +112,7 @@ export default function MediaPickerDialog({
                   type="file"
                   disabled={uploading}
                   accept={kind === "video" ? "video/mp4,video/webm,video/quicktime" : "image/jpeg,image/png,image/webp,image/avif"}
-                  onChange={upload}
+                  onChange={reviewUpload}
                   className="sr-only"
                 />
               </label>
@@ -134,7 +141,7 @@ export default function MediaPickerDialog({
                   className={`group overflow-hidden rounded-xl border text-left transition-[border-color,box-shadow,transform] active:translate-y-px ${selected?.id === item.id ? "border-sky-700 ring-2 ring-sky-700/15" : "border-slate-200 hover:border-slate-300"}`}
                 >
                   <div className="relative aspect-[4/3] bg-slate-100">
-                    {item.kind === "image" ? <Image src={item.url} alt={item.altEs || item.name} fill unoptimized className="object-cover" /> : <video src={item.url} muted className="h-full w-full object-cover" />}
+                    {item.kind === "image" ? <Image src={item.url} alt={item.altEs || item.name} fill unoptimized className="object-cover" /> : <video src={item.url} muted preload="none" className="h-full w-full object-cover" />}
                     {selected?.id === item.id && <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-sky-700 text-white"><Check size={16} weight="bold" /></span>}
                   </div>
                   <div className="p-3">
@@ -157,6 +164,24 @@ export default function MediaPickerDialog({
           </button>
         </div>
       </div>
+      <ChangeReviewDialog
+        open={Boolean(uploadFile)}
+        title="Subir un medio nuevo"
+        description="Revisa el archivo antes de incorporarlo a la biblioteca."
+        changes={buildChangeSet({}, uploadFile ? {
+          name: uploadFile.name,
+          type: uploadFile.type,
+          size: `${(uploadFile.size / 1024 / 1024).toFixed(2)} MB`,
+        } : {})}
+        confirmLabel="Subir archivo"
+        pending={uploading}
+        tone="publish"
+        onCancel={() => {
+          setUploadFile(null);
+          if (inputRef.current) inputRef.current.value = "";
+        }}
+        onConfirm={upload}
+      />
     </div>
   );
 }

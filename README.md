@@ -13,7 +13,7 @@ firma boutique de asesoría legal y de negocios con sede en Monterrey.
 - **TypeScript 5.9**
 - **Tailwind CSS v4** (configuración CSS-first, tokens de marca en `globals.css`)
 - **Tipografía**: Bricolage Grotesque + Inter, autohospedadas con Fontsource
-- **Motion**: Framer Motion (reveals) + **GSAP + ScrollTrigger** (hero cinemático, contadores, parallax), todo con fallback `prefers-reduced-motion`
+- **Motion ligero**: CSS, IntersectionObserver y requestAnimationFrame, sin librerías pesadas y con fallback `prefers-reduced-motion`
 - **Imaginería conceptual** (dirección editorial estilo Woods Rogers, adaptada): gradient-mesh, grano, motivo puente/∞ y **texturas de mármol en duotono** de la foto propia de la firma (`public/images/textures/`)
 - **Directorio de Abogados**: grid de socios con foto real + perfil individual por abogado (`/socios/[id]`) — bio, áreas de práctica, contacto directo
 - Internacionalización propia (ES/EN) vía segmento `[locale]` + `proxy` de detección de idioma

@@ -14,7 +14,7 @@ export default function MfaSetup() {
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
-    fetch("/api/auth/mfa").then((response) => response.json()).then((payload) => {
+    fetch("/api/auth/mfa", { method: "PUT", headers: csrfHeaders() }).then((response) => response.json()).then((payload) => {
       setSecret(payload.secret ?? "");
       setUri(payload.uri ?? "");
       if (payload.error) setError(payload.error);

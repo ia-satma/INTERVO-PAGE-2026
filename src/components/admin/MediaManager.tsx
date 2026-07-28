@@ -15,6 +15,8 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { csrfHeaders } from "@/lib/client/csrf";
+import { buildChangeSet } from "@/lib/client/change-set";
+import ChangeReviewDialog from "./ChangeReviewDialog";
 
 type Media = {
   id: string;
@@ -41,6 +43,9 @@ export default function MediaManager() {
   const [notice, setNotice] = useState("");
   const [editing, setEditing] = useState<Media | null>(null);
   const [savingMetadata, setSavingMetadata] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [archiveTarget, setArchiveTarget] = useState<Media | null>(null);
+  const [metadataProposal, setMetadataProposal] = useState<{ id: string; name: string; altEs: string; altEn: string; posterUrl: string | null } | null>(null);
 
   async function load() {
     setState("loading");
@@ -58,54 +63,65 @@ export default function MediaManager() {
     [items, kind, query],
   );
 
-  async function upload(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  function reviewUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    setUploadFile(event.target.files?.[0] ?? null);
+  }
+
+  async function upload() {
+    if (!uploadFile) return;
     setUploading(true); setError(""); setNotice("");
     const data = new FormData();
-    data.set("file", file);
+    data.set("file", uploadFile);
     const response = await fetch("/api/admin/media", { method: "POST", headers: csrfHeaders(), body: data });
     const payload = await response.json().catch(() => ({}));
     setUploading(false);
+    setUploadFile(null);
     if (inputRef.current) inputRef.current.value = "";
     if (!response.ok) return setError(payload.error || "No se pudo subir el archivo.");
     setNotice("Archivo subido y disponible en la biblioteca.");
     await load();
   }
 
-  async function remove(item: Media) {
-    if (item.virtual || !window.confirm(`¿Archivar “${item.name}”?`)) return;
+  async function remove() {
+    if (!archiveTarget || archiveTarget.virtual) return;
     const response = await fetch("/api/admin/media", {
       method: "DELETE",
       headers: { "Content-Type": "application/json", ...csrfHeaders() },
-      body: JSON.stringify({ id: item.id }),
+      body: JSON.stringify({ id: archiveTarget.id }),
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) return setError(payload.error || "No se pudo eliminar.");
-    setItems((current) => current.filter((candidate) => candidate.id !== item.id));
+    setItems((current) => current.filter((candidate) => candidate.id !== archiveTarget.id));
+    setArchiveTarget(null);
   }
 
-  async function saveMetadata(event: React.FormEvent<HTMLFormElement>) {
+  function reviewMetadata(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!editing || editing.id.startsWith("virtual:")) return;
+    const form = new FormData(event.currentTarget);
+    setMetadataProposal({
+      id: editing.id,
+      name: String(form.get("name") || ""),
+      altEs: String(form.get("altEs") || ""),
+      altEn: String(form.get("altEn") || ""),
+      posterUrl: editing.kind === "video" ? String(form.get("posterUrl") || "") || null : null,
+    });
+  }
+
+  async function saveMetadata() {
+    if (!editing || !metadataProposal) return;
     setSavingMetadata(true);
     setError("");
-    const form = new FormData(event.currentTarget);
     const response = await fetch("/api/admin/media", {
       method: "PATCH",
       headers: { "Content-Type": "application/json", ...csrfHeaders() },
-      body: JSON.stringify({
-        id: editing.id,
-        name: form.get("name"),
-        altEs: form.get("altEs"),
-        altEn: form.get("altEn"),
-        posterUrl: editing.kind === "video" ? form.get("posterUrl") || null : null,
-      }),
+      body: JSON.stringify(metadataProposal),
     });
     const payload = await response.json().catch(() => ({}));
     setSavingMetadata(false);
     if (!response.ok) return setError(payload.error || "No se pudieron guardar los metadatos.");
     setItems((current) => current.map((item) => item.id === editing.id ? { ...item, ...payload.item, virtual: item.virtual } : item));
+    setMetadataProposal(null);
     setEditing(null);
     setNotice("Nombre y textos alternativos actualizados.");
   }
@@ -126,7 +142,7 @@ export default function MediaManager() {
         </div>
         <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0f4386] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0072ad] active:translate-y-px">
           <CloudArrowUp size={19} /> {uploading ? "Subiendo…" : "Subir archivo"}
-          <input ref={inputRef} type="file" onChange={upload} disabled={uploading} accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm,video/quicktime" className="sr-only" />
+          <input ref={inputRef} type="file" onChange={reviewUpload} disabled={uploading} accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm,video/quicktime" className="sr-only" />
         </label>
       </div>
       <p className="mb-5 text-xs text-slate-500">Imágenes hasta 20 MB. Videos MP4, WebM o MOV hasta 200 MB. Los recursos en uso no se pueden eliminar.</p>
@@ -140,7 +156,7 @@ export default function MediaManager() {
           {filtered.map((item) => (
             <article key={item.id} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white">
               <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-                {item.kind === "image" ? <Image src={item.url} alt={item.altEs || item.name} fill unoptimized className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" /> : <video src={item.url} muted controls={false} className="h-full w-full object-cover" />}
+                {item.kind === "image" ? <Image src={item.url} alt={item.altEs || item.name} fill unoptimized className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" /> : <video src={item.url} muted controls={false} preload="none" className="h-full w-full object-cover" />}
                 <span className="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-md bg-slate-950/75 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
                   {item.kind === "image" ? <FileImage size={13} /> : <FilmStrip size={13} />} {item.kind}
                 </span>
@@ -159,7 +175,7 @@ export default function MediaManager() {
                       <DownloadSimple size={16} />
                     </a>
                     {!item.id.startsWith("virtual:") && <button onClick={() => setEditing(item)} aria-label="Editar metadatos" className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition-colors hover:bg-sky-50 hover:text-sky-700"><PencilSimple size={16} /></button>}
-                    {!item.virtual && <button onClick={() => remove(item)} aria-label="Eliminar" className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-700"><Trash size={16} /></button>}
+                    {!item.virtual && <button onClick={() => setArchiveTarget(item)} aria-label="Eliminar" className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-700"><Trash size={16} /></button>}
                   </div>
                 </div>
                 {(item.altEs || item.altEn) && <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-slate-500">{item.altEs || item.altEn}</p>}
@@ -170,7 +186,7 @@ export default function MediaManager() {
       )}
       {editing && (
         <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
-          <form onSubmit={saveMetadata} className="w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-white shadow-[0_30px_80px_-30px_rgba(7,29,54,0.7)]">
+          <form onSubmit={reviewMetadata} className="w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-white shadow-[0_30px_80px_-30px_rgba(7,29,54,0.7)]">
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Metadatos del medio</p>
@@ -180,7 +196,7 @@ export default function MediaManager() {
             </div>
             <div className="grid gap-5 p-5 md:grid-cols-[180px_1fr]">
               <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-100">
-                {editing.kind === "image" ? <Image src={editing.url} alt="" fill unoptimized className="object-cover" /> : <video src={editing.url} muted controls className="h-full w-full object-cover" />}
+                {editing.kind === "image" ? <Image src={editing.url} alt="" fill unoptimized className="object-cover" /> : <video src={editing.url} muted controls preload="metadata" className="h-full w-full object-cover" />}
               </div>
               <div className="space-y-4">
                 <label className="block space-y-2 text-xs font-semibold text-slate-700">
@@ -210,6 +226,48 @@ export default function MediaManager() {
           </form>
         </div>
       )}
+      <ChangeReviewDialog
+        open={Boolean(uploadFile)}
+        title="Subir archivo a la biblioteca"
+        description="Comprueba el nombre, tipo y tamaño antes de iniciar la carga."
+        changes={buildChangeSet({}, uploadFile ? {
+          name: uploadFile.name,
+          type: uploadFile.type,
+          size: `${(uploadFile.size / 1024 / 1024).toFixed(2)} MB`,
+        } : {})}
+        confirmLabel="Subir archivo"
+        pending={uploading}
+        tone="publish"
+        onCancel={() => {
+          setUploadFile(null);
+          if (inputRef.current) inputRef.current.value = "";
+        }}
+        onConfirm={upload}
+      />
+      <ChangeReviewDialog
+        open={Boolean(archiveTarget)}
+        eyebrow="Archivar medio"
+        title={`Archivar ${archiveTarget?.name ?? ""}`}
+        description="El archivo dejará de estar disponible en la biblioteca. Los recursos todavía utilizados por el sitio están protegidos por el servidor."
+        changes={buildChangeSet({ status: "Disponible" }, { status: "Archivado" })}
+        confirmLabel="Archivar archivo"
+        tone="danger"
+        onCancel={() => setArchiveTarget(null)}
+        onConfirm={remove}
+      />
+      <ChangeReviewDialog
+        open={Boolean(metadataProposal)}
+        title="Guardar metadatos del medio"
+        description="Revisa el nombre y los textos alternativos bilingües antes de guardarlos."
+        changes={buildChangeSet(
+          editing ? { name: editing.name, altEs: editing.altEs ?? "", altEn: editing.altEn ?? "", posterUrl: editing.posterUrl ?? null } : {},
+          metadataProposal ?? {},
+        )}
+        confirmLabel="Guardar metadatos"
+        pending={savingMetadata}
+        onCancel={() => setMetadataProposal(null)}
+        onConfirm={saveMetadata}
+      />
     </>
   );
 }

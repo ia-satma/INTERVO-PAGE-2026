@@ -3,7 +3,7 @@ import { z } from "zod";
 import { writeAudit } from "@/lib/auth/audit";
 import { apiError, requirePermission } from "@/lib/auth/session";
 import { getCmsDocument, saveDocumentDraft } from "@/lib/cms/repository";
-import { validateSiteConfigLinks } from "@/lib/cms/links";
+import { validateEditableDocumentLinks, validateSiteConfigLinks } from "@/lib/cms/links";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ key: string }> }) {
   try {
@@ -22,6 +22,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const context = await requirePermission(request, "content:write", { csrf: true });
     const { key } = await params;
     const input = z.object({ data: z.record(z.string(), z.unknown()) }).parse(await request.json());
+    const genericLinkErrors = validateEditableDocumentLinks(input.data);
+    if (genericLinkErrors.length) {
+      return NextResponse.json({ error: genericLinkErrors[0], details: genericLinkErrors }, { status: 400 });
+    }
     if (key === "site-config") {
       const linkErrors = validateSiteConfigLinks(input.data);
       if (linkErrors.length) {

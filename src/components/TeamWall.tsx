@@ -144,8 +144,7 @@ export default function TeamWall({
                         sizes="(max-width: 767px) 82vw, 18rem"
                       />
                       <div
-                        className="pointer-events-none absolute inset-0 mix-blend-multiply transition-opacity duration-700 ease-[var(--ease-out-expo)] group-hover:opacity-0 group-focus-within:opacity-0"
-                        style={{ background: "var(--color-navy-900)" }}
+                        className="pointer-events-none absolute inset-0 bg-navy-950/65 transition-opacity duration-500 ease-[var(--ease-out-expo)] group-hover:opacity-0 group-focus-within:opacity-0"
                       />
                     </>
                   ) : (
@@ -170,7 +169,7 @@ export default function TeamWall({
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent" />
 
                   {p.managing && (
-                    <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-navy-950/60 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
+                    <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-navy-950/80 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-wide text-white">
                       <Award className="h-3.5 w-3.5" />
                       {managingLabel}
                     </span>
@@ -211,7 +210,7 @@ export default function TeamWall({
               return (
                 <div
                   key={p.id}
-                  className="wall-tile group relative h-full w-[82vw] shrink-0 snap-center overflow-hidden transition-[width] duration-500 ease-[var(--ease-out-expo)] md:w-72 md:hover:w-[34rem] md:focus-within:w-[34rem]"
+                  className="wall-tile group relative h-full w-[82vw] shrink-0 snap-center overflow-hidden md:w-[clamp(16rem,22vw,21rem)]"
                 >
                   {p.href ? (
                     <Link href={p.href} className="absolute inset-0 block overflow-hidden focus-visible:z-10">

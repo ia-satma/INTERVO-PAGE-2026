@@ -151,6 +151,17 @@ export const auditLogs = pgTable(
   (table) => [index("audit_logs_created_idx").on(table.createdAt), index("audit_logs_user_idx").on(table.userId)],
 );
 
+export const rateLimitCounters = pgTable(
+  "rate_limit_counters",
+  {
+    keyHash: text("key_hash").primaryKey(),
+    count: integer("count").notNull().default(1),
+    resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("rate_limit_counters_reset_idx").on(table.resetAt)],
+);
+
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type CmsDocumentRow = typeof cmsDocuments.$inferSelect;
 export type MediaItem = typeof mediaItems.$inferSelect;

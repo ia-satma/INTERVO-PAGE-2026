@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       .object({
         name: z.string().trim().min(2).max(120),
         email: z.string().email().transform((value) => value.trim().toLowerCase()),
-        password: z.string().min(12).max(256),
+        password: z.string().min(16).max(256),
         role: z.enum(["owner", "admin", "editor"]),
       })
       .parse(await request.json());

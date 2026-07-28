@@ -4,20 +4,29 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, WarningCircle } from "@phosphor-icons/react";
 import { csrfHeaders } from "@/lib/client/csrf";
+import { buildChangeSet } from "@/lib/client/change-set";
+import ChangeReviewDialog from "./ChangeReviewDialog";
 
 export default function CreatePageButton() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [proposal, setProposal] = useState<Record<string, string> | null>(null);
 
-  async function create(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setPending(true); setError("");
+  function reviewCreate(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     const data = new FormData(event.currentTarget);
+    setProposal(Object.fromEntries(data) as Record<string, string>);
+  }
+
+  async function create() {
+    if (!proposal) return;
+    setPending(true); setError("");
     const response = await fetch("/api/admin/documents", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...csrfHeaders() },
-      body: JSON.stringify(Object.fromEntries(data)),
+      body: JSON.stringify(proposal),
     });
     const payload = await response.json().catch(() => ({}));
     setPending(false);
@@ -33,7 +42,7 @@ export default function CreatePageButton() {
       </button>
       {open && (
         <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm">
-          <form onSubmit={create} className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+          <form onSubmit={reviewCreate} className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Plantilla modular</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight">Crear página</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-600">Se crearán los campos ES/EN y los bloques aprobados. Podrás ocultar, duplicar o reordenar su contenido.</p>
@@ -46,6 +55,17 @@ export default function CreatePageButton() {
           </form>
         </div>
       )}
+      <ChangeReviewDialog
+        open={Boolean(proposal)}
+        title="Crear una página nueva"
+        description="Revisa el título y la URL antes de generar el nuevo borrador bilingüe."
+        changes={buildChangeSet({}, proposal ?? {})}
+        confirmLabel="Crear página"
+        pending={pending}
+        tone="publish"
+        onCancel={() => setProposal(null)}
+        onConfirm={create}
+      />
     </>
   );
 }

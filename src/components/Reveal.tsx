@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 type RevealProps = {
@@ -11,43 +11,54 @@ type RevealProps = {
   once?: boolean;
 };
 
+const revealSettings = new WeakMap<Element, { once: boolean }>();
+let sharedObserver: IntersectionObserver | null = null;
+
+function getObserver() {
+  if (!sharedObserver) {
+    sharedObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const settings = revealSettings.get(entry.target);
+          if (entry.isIntersecting) {
+            entry.target.classList.add("reveal-visible");
+            if (settings?.once) {
+              sharedObserver?.unobserve(entry.target);
+              revealSettings.delete(entry.target);
+            }
+          } else if (!settings?.once) {
+            entry.target.classList.remove("reveal-visible");
+          }
+        }
+      },
+      { rootMargin: "0px 0px -12% 0px" },
+    );
+  }
+  return sharedObserver;
+}
+
 /** Fade + rise on scroll into view. Plain IntersectionObserver + CSS transition —
  * no animation library — since this is the only scroll-reveal need on the site. */
 export default function Reveal({ children, className, delay = 0, y = 32, once = true }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [armed, setArmed] = useState(false);
-  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisible(true);
-      return;
-    }
-    setArmed(true);
     const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          if (once) io.disconnect();
-        } else if (!once) {
-          setVisible(false);
-        }
-      },
-      { rootMargin: "0px 0px -12% 0px" }
-    );
-    io.observe(el);
-    return () => io.disconnect();
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    el.classList.add("reveal-motion");
+    revealSettings.set(el, { once });
+    const frame = requestAnimationFrame(() => getObserver().observe(el));
+    return () => {
+      cancelAnimationFrame(frame);
+      sharedObserver?.unobserve(el);
+      revealSettings.delete(el);
+    };
   }, [once]);
 
-  const style: CSSProperties | undefined = armed
-    ? {
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0) scale(1)" : `translateY(${y}px) scale(0.97)`,
-        transition: `opacity 0.85s var(--ease-out-expo) ${delay}s, transform 0.85s var(--ease-out-expo) ${delay}s`,
-      }
-    : undefined;
+  const style = {
+    "--reveal-delay": `${delay}s`,
+    "--reveal-y": `${y}px`,
+  } as CSSProperties;
 
   return (
     <div ref={ref} className={className} style={style}>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { initGsap, prefersReduced } from "./gsap";
 
 /**
  * Animates the numeric portion of a value string from 0 → target when scrolled
@@ -15,7 +14,7 @@ export default function Counter({ value, className }: { value: string; className
     const el = ref.current;
     if (!el) return;
     const match = value.match(/^(\D*)([\d.,]+)(.*)$/s);
-    if (!match || prefersReduced()) {
+    if (!match || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       el.textContent = value;
       return;
     }
@@ -23,34 +22,43 @@ export default function Counter({ value, className }: { value: string; className
     const hasComma = numStr.includes(",");
     const decimals = numStr.includes(".") ? numStr.split(".")[1].length : 0;
     const target = parseFloat(numStr.replace(/,/g, ""));
+    const formatter = hasComma
+      ? new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        })
+      : null;
 
     const fmt = (n: number) => {
       const rounded = decimals ? n.toFixed(decimals) : String(Math.round(n));
-      const grouped = hasComma
-        ? Number(rounded).toLocaleString("en-US", {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals,
-          })
-        : rounded;
+      const grouped = formatter ? formatter.format(Number(rounded)) : rounded;
       return `${prefix}${grouped}${suffix}`;
     };
 
-    const { gsap } = initGsap();
-    const state = { n: 0 };
-    el.textContent = fmt(0);
-    const tween = gsap.to(state, {
-      n: target,
-      duration: 1.7,
-      ease: "power2.out",
-      onUpdate: () => {
-        el.textContent = fmt(state.n);
+    let frame = 0;
+    let started = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || started) return;
+        started = true;
+        const start = performance.now();
+        el.textContent = fmt(0);
+        const tick = (now: number) => {
+          const progress = Math.min(1, (now - start) / 1200);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = fmt(target * eased);
+          if (progress < 1) frame = requestAnimationFrame(tick);
+        };
+        frame = requestAnimationFrame(tick);
+        observer.disconnect();
       },
-      scrollTrigger: { trigger: el, start: "top 88%", once: true },
-    });
+      { rootMargin: "0px 0px -12% 0px" },
+    );
+    observer.observe(el);
 
     return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
+      observer.disconnect();
+      cancelAnimationFrame(frame);
     };
   }, [value]);
 

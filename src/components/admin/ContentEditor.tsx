@@ -19,6 +19,8 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { csrfHeaders } from "@/lib/client/csrf";
+import { buildChangeSet } from "@/lib/client/change-set";
+import ChangeReviewDialog from "./ChangeReviewDialog";
 import MediaPickerDialog from "./MediaPickerDialog";
 
 type Json = null | string | number | boolean | Json[] | { [key: string]: Json };
@@ -124,7 +126,7 @@ function JsonField({
         {typeof value === "string" && isMediaKey(fieldKey) && stringValue && (
           <div className="relative aspect-[16/7] overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
             {/video/i.test(fieldKey) ? (
-              <video src={stringValue} muted controls className="h-full w-full object-cover" />
+              <video src={stringValue} muted controls preload="metadata" className="h-full w-full object-cover" />
             ) : (
               <Image src={stringValue} alt="" fill unoptimized className="object-cover" />
             )}
@@ -212,14 +214,20 @@ function setPath(root: Json, path: string, value: string): Json {
 export default function ContentEditor({ document, canPublish }: { document: DocumentData; canPublish: boolean }) {
   const [data, setData] = useState<Record<string, Json>>(() => clone(document.data));
   const [saved, setSaved] = useState<Record<string, Json>>(() => clone(document.data));
+  const [publishedData, setPublishedData] = useState<Record<string, Json>>(() => clone(document.published));
   const [pending, setPending] = useState<"save" | "publish" | "translate" | "">("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [confirm, setConfirm] = useState<"save" | "publish" | null>(null);
-  const [versions, setVersions] = useState<{ id: string; version: number; createdAt: string }[] | null>(null);
+  const [versions, setVersions] = useState<{ id: string; version: number; snapshot: Record<string, Json>; createdAt: string }[] | null>(null);
+  const [restoreTarget, setRestoreTarget] = useState<{ id: string; version: number; snapshot: Record<string, Json> } | null>(null);
   const dirty = useMemo(() => JSON.stringify(data) !== JSON.stringify(saved), [data, saved]);
+  const reviewChanges = useMemo(
+    () => buildChangeSet(confirm === "publish" ? publishedData : saved, data),
+    [confirm, data, publishedData, saved],
+  );
   const localized = data.es && data.en && typeof data.es === "object" && typeof data.en === "object";
-  async function save() {
+  async function save(closeReview = true) {
     setPending("save"); setError(""); setMessage("");
     const response = await fetch(`/api/admin/documents/${document.key}`, {
       method: "PUT",
@@ -234,17 +242,18 @@ export default function ContentEditor({ document, canPublish }: { document: Docu
     }
     setSaved(clone(data));
     setMessage("Borrador guardado. El sitio público todavía no cambió.");
-    setConfirm(null);
+    if (closeReview) setConfirm(null);
     return true;
   }
 
   async function publish() {
-    if (dirty && !(await save())) return;
+    if (dirty && !(await save(false))) return;
     setPending("publish"); setError(""); setMessage("");
     const response = await fetch(`/api/admin/documents/${document.key}/publish`, { method: "POST", headers: csrfHeaders() });
     const payload = await response.json().catch(() => ({}));
     setPending(""); setConfirm(null);
     if (!response.ok) return setError(payload.error || "No se pudo publicar.");
+    setPublishedData(clone(data));
     setMessage(`Versión ${payload.document.version} publicada correctamente.`);
   }
 
@@ -273,14 +282,16 @@ export default function ContentEditor({ document, canPublish }: { document: Docu
   }
 
   async function restore(versionId: string) {
-    if (!window.confirm("¿Restaurar esta versión como nuevo borrador? La versión pública no cambiará hasta que publiques.")) return;
+    setPending("save");
     const response = await fetch(`/api/admin/documents/${document.key}/versions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...csrfHeaders() },
       body: JSON.stringify({ versionId }),
     });
     const payload = await response.json().catch(() => ({}));
+    setPending("");
     if (!response.ok) return setError(payload.error || "No se pudo restaurar.");
+    setRestoreTarget(null);
     window.location.reload();
   }
 
@@ -327,24 +338,35 @@ export default function ContentEditor({ document, canPublish }: { document: Docu
           <div className="flex items-center justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Historial</p><h2 className="mt-1 text-2xl font-semibold tracking-tight">Versiones publicadas</h2></div><button onClick={() => setVersions(null)} className="grid h-10 w-10 place-items-center rounded-lg hover:bg-slate-100"><X size={19} /></button></div>
           <div className="mt-7 divide-y divide-slate-200 border-y border-slate-200">
             {versions.length === 0 && <p className="py-10 text-center text-sm text-slate-500">Todavía no hay versiones anteriores.</p>}
-            {versions.map((version) => <div key={version.id} className="flex items-center justify-between gap-3 py-4"><div><p className="text-sm font-semibold">Versión {version.version}</p><p className="mt-1 text-xs text-slate-500">{new Date(version.createdAt).toLocaleString("es-MX")}</p></div><button onClick={() => restore(version.id)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:border-sky-700 hover:text-sky-800">Restaurar</button></div>)}
+            {versions.map((version) => <div key={version.id} className="flex items-center justify-between gap-3 py-4"><div><p className="text-sm font-semibold">Versión {version.version}</p><p className="mt-1 text-xs text-slate-500">{new Date(version.createdAt).toLocaleString("es-MX")}</p></div><button onClick={() => setRestoreTarget(version)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:border-sky-700 hover:text-sky-800">Restaurar</button></div>)}
           </div>
         </aside>
       )}
 
-      {confirm && (
-        <div className="fixed inset-0 z-[110] grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-white/15 bg-white p-6 shadow-[0_30px_80px_-30px_rgba(7,29,54,0.65)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Confirmar publicación</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{confirm === "publish" ? `¿Publicar los cambios de ${document.label}?` : `¿Guardar el borrador de ${document.label}?`}</h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-600">{confirm === "publish" ? "El borrador reemplazará la versión visible en español e inglés. La versión anterior quedará disponible en el historial." : "Los cambios quedarán guardados para revisión y todavía no aparecerán en el sitio público."}</p>
-            <div className="mt-6 flex justify-end gap-2">
-              <button onClick={() => setConfirm(null)} className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100">Cancelar</button>
-              <button onClick={confirm === "publish" ? publish : save} disabled={Boolean(pending)} className="inline-flex items-center gap-2 rounded-lg bg-[#0f4386] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50">{confirm === "publish" ? <CloudArrowUp size={17} /> : <FloppyDisk size={17} />} {pending ? "Procesando…" : confirm === "publish" ? "Publicar ahora" : "Guardar borrador"}</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ChangeReviewDialog
+        open={Boolean(confirm)}
+        title={confirm === "publish" ? `Publicar ${document.label}` : `Guardar borrador de ${document.label}`}
+        description={confirm === "publish" ? "Revisa lo que cambiará en el sitio público. La versión anterior quedará disponible en el historial." : "Revisa cada diferencia. El borrador todavía no aparecerá en el sitio público."}
+        changes={reviewChanges}
+        confirmLabel={confirm === "publish" ? "Publicar ahora" : "Guardar borrador"}
+        pending={Boolean(pending)}
+        tone={confirm === "publish" ? "publish" : "save"}
+        emptyMessage="No hay diferencias de contenido; la publicación únicamente generará una nueva versión."
+        onCancel={() => setConfirm(null)}
+        onConfirm={confirm === "publish" ? publish : () => save()}
+      />
+      <ChangeReviewDialog
+        open={Boolean(restoreTarget)}
+        eyebrow="Restaurar versión"
+        title={`Restaurar versión ${restoreTarget?.version ?? ""}`}
+        description="Estos campos reemplazarán el borrador actual. El sitio público no cambiará hasta que publiques."
+        changes={buildChangeSet(data, restoreTarget?.snapshot ?? data)}
+        confirmLabel="Restaurar como borrador"
+        pending={pending === "save"}
+        tone="danger"
+        onCancel={() => setRestoreTarget(null)}
+        onConfirm={() => restoreTarget ? restore(restoreTarget.id) : undefined}
+      />
     </>
   );
 }

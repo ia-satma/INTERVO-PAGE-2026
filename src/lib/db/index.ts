@@ -7,10 +7,11 @@ import * as schema from "./schema";
 let database: PostgresJsDatabase<typeof schema> | null | undefined;
 
 export function hasDatabase(): boolean {
-  return Boolean(process.env.DATABASE_URL);
+  return Boolean(process.env.DATABASE_URL) && process.env.INTERVO_SKIP_DB_DURING_BUILD !== "true";
 }
 
 export function getDb(): PostgresJsDatabase<typeof schema> | null {
+  if (process.env.INTERVO_SKIP_DB_DURING_BUILD === "true") return null;
   if (database !== undefined) return database;
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {

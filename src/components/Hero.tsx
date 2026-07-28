@@ -5,10 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "./icons";
 import { asset } from "@/lib/asset";
-import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import type { SiteConfig } from "@/lib/cms/types";
-import { resolveNavigationLink } from "@/lib/cms/links";
 
 /** Brand-shapes imagery (no faces) revealed through the intervø isotype —
  * one per slide, crossfading. */
@@ -19,9 +16,19 @@ const SLIDE_IMAGES = [
 ];
 const AUTO_MS = 6000;
 
-export default function Hero({ locale, dict, siteConfig }: { locale: Locale; dict: Dictionary; siteConfig: SiteConfig }) {
-  const t = dict.home.hero;
-  const media = siteConfig.media;
+type Props = {
+  content: Dictionary["home"]["hero"];
+  media: {
+    homeHero: string[];
+    isotypeWhite: string;
+    heroVideo: string;
+    heroPoster: string;
+  };
+  primaryHref: string;
+  secondaryHref: string;
+};
+
+export default function Hero({ content: t, media, primaryHref, secondaryHref }: Props) {
   const slides = t.slides;
   const slideImages = media.homeHero.length ? media.homeHero : SLIDE_IMAGES;
   const mask = asset(media.isotypeWhite);
@@ -63,6 +70,7 @@ export default function Hero({ locale, dict, siteConfig }: { locale: Locale; dic
           muted
           loop
           playsInline
+          preload="metadata"
           className="absolute inset-0 h-full w-full object-cover opacity-70"
         />
       ) : (
@@ -82,22 +90,15 @@ export default function Hero({ locale, dict, siteConfig }: { locale: Locale; dic
           className="relative h-[118vmin] w-[118vmin] max-h-[1260px] max-w-[1260px]"
           style={maskStyle}
         >
-          {slides.map((_, idx) => {
-            const src = slideImages[idx % slideImages.length] ?? SLIDE_IMAGES[idx % SLIDE_IMAGES.length];
-            return (
-            <Image
-              key={`${src}-${idx}`}
-              src={asset(src)}
-              alt=""
-              fill
-              priority={idx === 0}
-              sizes="118vmin"
-              className={`object-cover transition-opacity duration-[1200ms] ease-out ${
-                idx === i ? "opacity-100" : "opacity-0"
-              }`}
-            />
-            );
-          })}
+          <Image
+            key={`${slideImages[i % slideImages.length]}-${i}`}
+            src={asset(slideImages[i % slideImages.length] ?? SLIDE_IMAGES[i % SLIDE_IMAGES.length])}
+            alt=""
+            fill
+            priority={i === 0}
+            sizes="118vmin"
+            className="hero-image-in object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-br from-azure/25 via-transparent to-navy-950/60" />
         </div>
       </div>
@@ -120,11 +121,11 @@ export default function Hero({ locale, dict, siteConfig }: { locale: Locale; dic
           </h1>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <Link href={resolveNavigationLink(siteConfig, locale, "contacto")} className="btn btn-light !px-7 !py-3.5">
+            <Link href={primaryHref} className="btn btn-light !px-7 !py-3.5">
               {t.ctaPrimary}
               <ArrowUpRight className="h-4 w-4" />
             </Link>
-            <Link href={resolveNavigationLink(siteConfig, locale, "servicios")} className="btn btn-outline-light !px-7 !py-3.5">
+            <Link href={secondaryHref} className="btn btn-outline-light !px-7 !py-3.5">
               {t.ctaSecondary}
             </Link>
           </div>

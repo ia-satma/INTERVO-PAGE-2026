@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -16,6 +16,8 @@ import {
 } from "@phosphor-icons/react";
 import type { SiteConfig } from "@/lib/cms/types";
 import { csrfHeaders } from "@/lib/client/csrf";
+import { buildChangeSet } from "@/lib/client/change-set";
+import ChangeReviewDialog from "./ChangeReviewDialog";
 import MediaPickerDialog from "./MediaPickerDialog";
 
 type JsonRecord = Record<string, unknown>;
@@ -66,7 +68,7 @@ function AssignmentCard({
           kind === "image" ? (
             <Image src={value} alt="" fill unoptimized className="object-cover" />
           ) : (
-            <video src={value} muted controls className="h-full w-full object-cover" />
+            <video src={value} muted controls preload="metadata" className="h-full w-full object-cover" />
           )
         ) : (
           <span className="grid h-full w-full place-items-center text-slate-300">
@@ -110,16 +112,21 @@ export default function MediaAssignments({
   const [pending, setPending] = useState<"save" | "publish" | "">("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [review, setReview] = useState<"save" | "publish" | null>(null);
 
   const media = data.media as SiteConfig["media"];
   const savedMedia = savedData.media as SiteConfig["media"];
   const dirty = JSON.stringify(media) !== JSON.stringify(savedMedia);
+  const reviewChanges = useMemo(
+    () => review ? buildChangeSet(savedMedia, media) : [],
+    [media, review, savedMedia],
+  );
 
   function updateMedia(changes: Partial<SiteConfig["media"]>) {
     setData((current) => ({ ...current, media: { ...(current.media as SiteConfig["media"]), ...changes } }));
   }
 
-  async function save() {
+  async function save(closeReview = true) {
     setPending("save");
     setMessage("");
     setError("");
@@ -136,12 +143,12 @@ export default function MediaAssignments({
     }
     setSavedData(clone(data));
     setMessage("Asignaciones guardadas como borrador.");
+    if (closeReview) setReview(null);
     return true;
   }
 
   async function publish() {
-    if (!(await save())) return;
-    if (!window.confirm("¿Publicar ahora todas las nuevas imágenes y videos del sitio?")) return;
+    if (dirty && !(await save(false))) return;
     setPending("publish");
     const response = await fetch("/api/admin/documents/site-config/publish", {
       method: "POST",
@@ -151,6 +158,7 @@ export default function MediaAssignments({
     setPending("");
     if (!response.ok) return setError(payload.error || "No se pudieron publicar los medios.");
     setMessage("Medios publicados correctamente en todo el sitio.");
+    setReview(null);
   }
 
   function addHeroImage() {
@@ -168,11 +176,11 @@ export default function MediaAssignments({
           </div>
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={() => void save()} disabled={!dirty || Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400">
+          <button type="button" onClick={() => setReview("save")} disabled={!dirty || Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400">
             <FloppyDisk size={16} /> {pending === "save" ? "Guardando…" : "Guardar borrador"}
           </button>
           {canPublish && (
-            <button type="button" onClick={() => void publish()} disabled={Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50">
+            <button type="button" onClick={() => setReview("publish")} disabled={Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50">
               <CloudArrowUp size={16} /> {pending === "publish" ? "Publicando…" : "Publicar medios"}
             </button>
           )}
@@ -181,6 +189,17 @@ export default function MediaAssignments({
 
       {message && <p className="mb-5 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"><Check size={18} weight="bold" /> {message}</p>}
       {error && <p className="mb-5 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"><WarningCircle size={18} /> {error}</p>}
+      <ChangeReviewDialog
+        open={Boolean(review)}
+        title={review === "publish" ? "Publicar imágenes y videos" : "Guardar asignaciones de medios"}
+        description={review === "publish" ? "Comprueba cada archivo que cambiará en el sitio público antes de publicar." : "Revisa las posiciones modificadas antes de guardar el borrador."}
+        changes={reviewChanges}
+        confirmLabel={review === "publish" ? "Publicar medios" : "Guardar borrador"}
+        pending={Boolean(pending)}
+        tone={review === "publish" ? "publish" : "save"}
+        onCancel={() => setReview(null)}
+        onConfirm={review === "publish" ? publish : () => save()}
+      />
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 md:p-7">
         <div className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 pb-5">

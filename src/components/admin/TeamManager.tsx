@@ -17,6 +17,8 @@ import {
   WarningCircle,
 } from "@phosphor-icons/react";
 import { csrfHeaders } from "@/lib/client/csrf";
+import { buildChangeSet } from "@/lib/client/change-set";
+import ChangeReviewDialog from "./ChangeReviewDialog";
 import MediaPickerDialog from "./MediaPickerDialog";
 
 type JsonRecord = Record<string, unknown>;
@@ -278,11 +280,20 @@ export default function TeamManager({
   const [pending, setPending] = useState<"save" | "publish" | "">("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [review, setReview] = useState<"save" | "publish" | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<Partner | null>(null);
 
   const selected = partners.find((partner) => partner.id === selectedId);
   const dirty =
     JSON.stringify(partners) !== JSON.stringify(savedPartners) ||
     JSON.stringify(organization) !== JSON.stringify(savedOrganization);
+  const reviewChanges = useMemo(
+    () => review ? buildChangeSet(
+      { partners: savedPartners, organization: savedOrganization },
+      { partners, organization },
+    ) : [],
+    [organization, partners, review, savedOrganization, savedPartners],
+  );
 
   function updatePartner(changes: Partial<Partner>) {
     setPartners((current) =>
@@ -315,10 +326,11 @@ export default function TeamManager({
   }
 
   function removePartner() {
-    if (!selected || !window.confirm(`¿Eliminar a “${selected.name}” del equipo? Se conservarán las versiones publicadas anteriores.`)) return;
-    const remaining = partners.filter((partner) => partner.id !== selected.id);
+    if (!removeTarget) return;
+    const remaining = partners.filter((partner) => partner.id !== removeTarget.id);
     setPartners(remaining);
     setSelectedId(remaining[0]?.id ?? "");
+    setRemoveTarget(null);
   }
 
   function movePartner(direction: -1 | 1) {
@@ -369,7 +381,7 @@ export default function TeamManager({
     if (!response.ok) throw new Error(payload.error || `No se pudo guardar ${key}.`);
   }
 
-  async function save() {
+  async function save(closeReview = true) {
     setPending("save");
     setMessage("");
     setError("");
@@ -432,6 +444,7 @@ export default function TeamManager({
       setSavedPartners(clone(partners));
       setSavedOrganization(clone(organization));
       setMessage("Equipo guardado como borrador. La web pública aún no cambió.");
+      if (closeReview) setReview(null);
       return true;
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "No se pudo guardar el equipo.");
@@ -442,8 +455,7 @@ export default function TeamManager({
   }
 
   async function publish() {
-    if (!(await save())) return;
-    if (!window.confirm("¿Publicar ahora todos los cambios del equipo en español e inglés?")) return;
+    if (dirty && !(await save(false))) return;
     setPending("publish");
     setMessage("");
     setError("");
@@ -457,6 +469,7 @@ export default function TeamManager({
         if (!response.ok) throw new Error(payload.error || `No se pudo publicar ${key}.`);
       }
       setMessage("Equipo publicado. Las fichas, el organigrama y las fotografías ya están actualizados.");
+      setReview(null);
     } catch (publishError) {
       setError(publishError instanceof Error ? publishError.message : "No se pudo publicar el equipo.");
     } finally {
@@ -486,7 +499,7 @@ export default function TeamManager({
           </Link>
           <button
             type="button"
-            onClick={() => void save()}
+            onClick={() => setReview("save")}
             disabled={!dirty || Boolean(pending)}
             className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400"
           >
@@ -495,7 +508,7 @@ export default function TeamManager({
           {canPublish && (
             <button
               type="button"
-              onClick={() => void publish()}
+              onClick={() => setReview("publish")}
               disabled={Boolean(pending)}
               className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50"
             >
@@ -515,6 +528,28 @@ export default function TeamManager({
           <WarningCircle size={18} /> {error}
         </p>
       )}
+      <ChangeReviewDialog
+        open={Boolean(review)}
+        title={review === "publish" ? "Publicar equipo y organigrama" : "Guardar cambios del equipo"}
+        description={review === "publish" ? "Revisa personas, cargos, fotografías, orden y perfiles bilingües antes de hacerlos públicos." : "Comprueba todas las diferencias antes de guardar el borrador del equipo."}
+        changes={reviewChanges}
+        confirmLabel={review === "publish" ? "Publicar equipo" : "Guardar borrador"}
+        pending={Boolean(pending)}
+        tone={review === "publish" ? "publish" : "save"}
+        onCancel={() => setReview(null)}
+        onConfirm={review === "publish" ? publish : () => save()}
+      />
+      <ChangeReviewDialog
+        open={Boolean(removeTarget)}
+        eyebrow="Retirar persona"
+        title={`Quitar a ${removeTarget?.name ?? ""}`}
+        description="La persona se quitará del borrador actual. Podrás revisar nuevamente esta eliminación al guardar."
+        changes={removeTarget ? buildChangeSet({ [removeTarget.id]: removeTarget }, {}) : []}
+        confirmLabel="Quitar del borrador"
+        tone="danger"
+        onCancel={() => setRemoveTarget(null)}
+        onConfirm={removePartner}
+      />
 
       <div className="grid items-start gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
         <aside className="overflow-hidden rounded-2xl border border-slate-200 bg-white xl:sticky xl:top-24">
@@ -579,7 +614,7 @@ export default function TeamManager({
                 <div className="flex items-center gap-1">
                   <button type="button" onClick={() => movePartner(-1)} aria-label="Subir en el orden" className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"><ArrowUp size={17} /></button>
                   <button type="button" onClick={() => movePartner(1)} aria-label="Bajar en el orden" className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"><ArrowDown size={17} /></button>
-                  <button type="button" onClick={removePartner} aria-label="Eliminar abogado" className="grid h-10 w-10 place-items-center rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50"><Trash size={17} /></button>
+                  <button type="button" onClick={() => selected && setRemoveTarget(selected)} aria-label="Eliminar abogado" className="grid h-10 w-10 place-items-center rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50"><Trash size={17} /></button>
                 </div>
               </div>
 

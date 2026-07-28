@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { DEFAULT_SITE_CONFIG } from "./defaults";
 import {
+  isSafeEditableHref,
   resolveHomeLink,
   resolveNavigationLink,
   resolvePrivacyLink,
+  validateEditableDocumentLinks,
   validateSiteConfigLinks,
   visibleSocialLinks,
 } from "./links";
@@ -21,6 +23,18 @@ test("los destinos editables alimentan navegación, perfiles y enlaces auxiliare
   assert.equal(resolvePrivacyLink(config, "en"), "/en/privacy-notice");
   assert.equal(resolveNavigationLink(config, "es", "socios"), "/es/abogados");
   assert.equal(resolveNavigationLink(config, "es", "socios", "alfredo"), "/es/abogados/alfredo");
+});
+
+test("los enlaces de cualquier documento bloquean protocolos ejecutables", () => {
+  assert.equal(isSafeEditableHref("/es/contacto"), true);
+  assert.equal(isSafeEditableHref("mailto:contacto@intervo.legal"), true);
+  assert.equal(isSafeEditableHref("javascript:alert(1)"), false);
+  assert.match(
+    validateEditableDocumentLinks({
+      es: { sections: [{ type: "cta", href: "javascript:alert(1)" }] },
+    }).join(" "),
+    /enlace no permitido/,
+  );
 });
 
 test("las redes visibles se filtran y los protocolos peligrosos se rechazan", () => {

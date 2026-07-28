@@ -15,6 +15,8 @@ import {
 } from "@phosphor-icons/react";
 import type { SiteConfig } from "@/lib/cms/types";
 import { csrfHeaders } from "@/lib/client/csrf";
+import { buildChangeSet } from "@/lib/client/change-set";
+import ChangeReviewDialog from "./ChangeReviewDialog";
 
 type JsonRecord = Record<string, unknown>;
 type NavigationItem = SiteConfig["navigation"][number];
@@ -102,6 +104,7 @@ export default function LinksManager({
   const [pending, setPending] = useState<"save" | "publish" | "">("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [review, setReview] = useState<"save" | "publish" | null>(null);
 
   const navigation = data.navigation as NavigationItem[];
   const utility = data.utilityLinks as SiteConfig["utilityLinks"];
@@ -110,6 +113,10 @@ export default function LinksManager({
   const offices = data.offices as SiteConfig["offices"];
   const site = data.site as SiteConfig["site"];
   const dirty = JSON.stringify(data) !== JSON.stringify(savedData);
+  const reviewChanges = useMemo(
+    () => review ? buildChangeSet(savedData, data) : [],
+    [data, review, savedData],
+  );
 
   function updateNavigation(index: number, changes: Partial<NavigationItem>) {
     setData((current) => ({
@@ -152,7 +159,7 @@ export default function LinksManager({
     }));
   }
 
-  async function save() {
+  async function save(closeReview = true) {
     setPending("save");
     setMessage("");
     setError("");
@@ -180,12 +187,12 @@ export default function LinksManager({
     setData(clone(payloadData));
     setSavedData(clone(payloadData));
     setMessage("Enlaces guardados como borrador.");
+    if (closeReview) setReview(null);
     return true;
   }
 
   async function publish() {
-    if (!(await save())) return;
-    if (!window.confirm("¿Publicar ahora estos destinos, redes y datos de contacto en todo el sitio?")) return;
+    if (dirty && !(await save(false))) return;
     setPending("publish");
     const response = await fetch("/api/admin/documents/site-config/publish", {
       method: "POST",
@@ -198,6 +205,7 @@ export default function LinksManager({
       return;
     }
     setMessage("Enlaces y redes publicados correctamente.");
+    setReview(null);
   }
 
   return (
@@ -217,7 +225,7 @@ export default function LinksManager({
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => void save()}
+            onClick={() => setReview("save")}
             disabled={!dirty || Boolean(pending)}
             className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400"
           >
@@ -226,7 +234,7 @@ export default function LinksManager({
           {canPublish && (
             <button
               type="button"
-              onClick={() => void publish()}
+              onClick={() => setReview("publish")}
               disabled={Boolean(pending)}
               className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50"
             >
@@ -241,6 +249,17 @@ export default function LinksManager({
           <Check size={18} weight="bold" /> {message}
         </p>
       )}
+      <ChangeReviewDialog
+        open={Boolean(review)}
+        title={review === "publish" ? "Publicar enlaces, redes y contacto" : "Guardar cambios de enlaces"}
+        description={review === "publish" ? "Revisa los destinos que quedarán visibles en todo el sitio antes de publicarlos." : "Revisa los campos modificados antes de guardarlos como borrador."}
+        changes={reviewChanges}
+        confirmLabel={review === "publish" ? "Publicar enlaces" : "Guardar borrador"}
+        pending={Boolean(pending)}
+        tone={review === "publish" ? "publish" : "save"}
+        onCancel={() => setReview(null)}
+        onConfirm={review === "publish" ? publish : () => save()}
+      />
       {error && (
         <p className="mb-5 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
           <WarningCircle size={18} /> {error}

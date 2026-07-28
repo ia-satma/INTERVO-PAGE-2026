@@ -3,36 +3,45 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { locales, type Locale } from "@/i18n/config";
-import type { SiteConfig } from "@/lib/cms/types";
-import { resolveHomeLink, resolveNavigationLink, resolvePrivacyLink } from "@/lib/cms/links";
+
+export type LanguageRoutes = {
+  home: Record<Locale, string>;
+  privacy: Record<Locale, string>;
+  navigation: Array<{
+    key: string;
+    href: Record<Locale, string>;
+  }>;
+};
 
 type Props = {
   locale: Locale;
   tone?: "light" | "dark";
   className?: string;
-  siteConfig?: SiteConfig;
+  routes?: LanguageRoutes;
 };
 
-export default function LanguageToggle({ locale, tone = "dark", className = "", siteConfig }: Props) {
+export default function LanguageToggle({ locale, tone = "dark", className = "", routes }: Props) {
   const pathname = usePathname();
 
   function pathFor(target: Locale) {
-    if (siteConfig) {
-      const currentHome = resolveHomeLink(siteConfig, locale);
+    if (routes) {
+      const currentHome = routes.home[locale];
       if (pathname === currentHome || pathname === `${currentHome}/`) {
-        return resolveHomeLink(siteConfig, target);
+        return routes.home[target];
       }
 
-      const currentPrivacy = resolvePrivacyLink(siteConfig, locale);
+      const currentPrivacy = routes.privacy[locale];
       if (pathname === currentPrivacy || pathname === `${currentPrivacy}/`) {
-        return resolvePrivacyLink(siteConfig, target);
+        return routes.privacy[target];
       }
 
-      for (const item of siteConfig.navigation) {
-        const currentBase = resolveNavigationLink(siteConfig, locale, item.key);
+      for (const item of routes.navigation) {
+        const currentBase = item.href[locale];
         if (pathname === currentBase || pathname.startsWith(`${currentBase.replace(/\/+$/, "")}/`)) {
           const suffix = pathname.slice(currentBase.replace(/\/+$/, "").length).replace(/^\/+/, "");
-          return resolveNavigationLink(siteConfig, target, item.key, suffix);
+          return suffix
+            ? `${item.href[target].replace(/\/+$/, "")}/${suffix}`
+            : item.href[target];
         }
       }
     }

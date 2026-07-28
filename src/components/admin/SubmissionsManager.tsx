@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowSquareOut, CheckCircle, Clock, EnvelopeOpen, WarningCircle } from "@phosphor-icons/react";
 import { csrfHeaders } from "@/lib/client/csrf";
+import { buildChangeSet } from "@/lib/client/change-set";
+import ChangeReviewDialog from "./ChangeReviewDialog";
 
 type Submission = {
   id: string;
@@ -25,6 +27,8 @@ export default function SubmissionsManager() {
   const [selected, setSelected] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
+  const [proposal, setProposal] = useState<{ id: string; status: Submission["status"]; notes: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/contact-submissions").then(async (response) => {
@@ -40,16 +44,20 @@ export default function SubmissionsManager() {
     closed: items.filter((item) => item.status === "closed"),
   }), [items]);
 
-  async function update(id: string, status: Submission["status"], notes?: string) {
-    const response = await fetch(`/api/admin/contact-submissions/${id}`, {
+  async function update() {
+    if (!proposal) return;
+    setPending(true);
+    const response = await fetch(`/api/admin/contact-submissions/${proposal.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json", ...csrfHeaders() },
-      body: JSON.stringify({ status, notes }),
+      body: JSON.stringify({ status: proposal.status, notes: proposal.notes }),
     });
     const payload = await response.json();
+    setPending(false);
     if (!response.ok) return setError(payload.error);
-    setItems((current) => current.map((item) => item.id === id ? payload.submission : item));
+    setItems((current) => current.map((item) => item.id === proposal.id ? payload.submission : item));
     setSelected(payload.submission);
+    setProposal(null);
   }
 
   if (loading) return <div className="space-y-3">{Array.from({ length: 5 }).map((_, index) => <div key={index} className="h-20 animate-pulse rounded-xl bg-slate-200" />)}</div>;
@@ -87,12 +95,25 @@ export default function SubmissionsManager() {
             <label className="mt-5 block text-xs font-semibold text-slate-700">Notas internas</label>
             <textarea id={`notes-${selected.id}`} defaultValue={selected.notes || ""} rows={4} className="mt-2 w-full rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-sky-700 focus:ring-2 focus:ring-sky-700/15" />
             <div className="mt-4 grid grid-cols-2 gap-2">
-              <button onClick={() => update(selected.id, "in_progress", (document.getElementById(`notes-${selected.id}`) as HTMLTextAreaElement)?.value)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs font-semibold text-amber-800"><Clock size={16} /> Seguimiento</button>
-              <button onClick={() => update(selected.id, "closed", (document.getElementById(`notes-${selected.id}`) as HTMLTextAreaElement)?.value)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-3 py-2.5 text-xs font-semibold text-white"><CheckCircle size={16} /> Cerrar</button>
+              <button onClick={() => setProposal({ id: selected.id, status: "in_progress", notes: (document.getElementById(`notes-${selected.id}`) as HTMLTextAreaElement)?.value ?? "" })} className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs font-semibold text-amber-800"><Clock size={16} /> Seguimiento</button>
+              <button onClick={() => setProposal({ id: selected.id, status: "closed", notes: (document.getElementById(`notes-${selected.id}`) as HTMLTextAreaElement)?.value ?? "" })} className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-3 py-2.5 text-xs font-semibold text-white"><CheckCircle size={16} /> Cerrar</button>
             </div>
           </div>
         ) : <div className="grid min-h-72 place-items-center rounded-2xl border border-dashed border-slate-300 bg-white text-center text-sm text-slate-500">Selecciona una solicitud para ver sus detalles.</div>}
       </aside>
+      <ChangeReviewDialog
+        open={Boolean(proposal)}
+        title="Actualizar solicitud de contacto"
+        description="Revisa el nuevo estado y las notas internas antes de guardar el seguimiento."
+        changes={buildChangeSet(
+          { status: selected?.status, notes: selected?.notes ?? "" },
+          { status: proposal?.status, notes: proposal?.notes ?? "" },
+        )}
+        confirmLabel="Guardar seguimiento"
+        pending={pending}
+        onCancel={() => setProposal(null)}
+        onConfirm={update}
+      />
     </div>
   );
 }

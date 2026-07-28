@@ -52,7 +52,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
-      <Hero locale={loc} dict={dict} siteConfig={siteConfig} />
+      <Hero
+        content={t.hero}
+        media={{
+          homeHero: siteConfig.media.homeHero,
+          isotypeWhite: siteConfig.media.isotypeWhite,
+          heroVideo: siteConfig.media.heroVideo,
+          heroPoster: siteConfig.media.heroPoster,
+        }}
+        primaryHref={resolveNavigationLink(siteConfig, loc, "contacto")}
+        secondaryHref={resolveNavigationLink(siteConfig, loc, "servicios")}
+      />
 
       <div className="container-x relative z-10 -mt-14 md:-mt-20">
         <Reveal>

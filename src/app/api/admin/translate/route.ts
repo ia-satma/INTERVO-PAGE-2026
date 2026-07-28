@@ -10,6 +10,10 @@ export async function POST(request: NextRequest) {
   try {
     await requirePermission(request, "content:write", { csrf: true });
     const input = schema.parse(await request.json());
+    const entries = Object.entries(input.fields);
+    if (entries.length > 100 || entries.reduce((total, [, value]) => total + value.length, 0) > 100_000) {
+      return NextResponse.json({ error: "La solicitud de traducción es demasiado grande." }, { status: 413 });
+    }
     if (!process.env.OPENAI_API_KEY) return NextResponse.json({ error: "OPENAI_API_KEY no está configurada." }, { status: 503 });
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
@@ -30,7 +34,13 @@ export async function POST(request: NextRequest) {
     if (!response.ok) return NextResponse.json({ error: "El servicio de traducción no respondió correctamente." }, { status: 502 });
     const payload = await response.json();
     const output = payload.output_text || payload.output?.flatMap((item: { content?: { text?: string }[] }) => item.content ?? []).map((item: { text?: string }) => item.text).join("");
-    return NextResponse.json({ fields: JSON.parse(output) });
+    const translated = schema.shape.fields.parse(JSON.parse(output));
+    const expectedKeys = Object.keys(input.fields).sort();
+    const receivedKeys = Object.keys(translated).sort();
+    if (expectedKeys.length !== receivedKeys.length || expectedKeys.some((key, index) => key !== receivedKeys[index])) {
+      return NextResponse.json({ error: "La traducción devolvió una estructura inesperada." }, { status: 502 });
+    }
+    return NextResponse.json({ fields: translated });
   } catch (error) {
     return apiError(error);
   }

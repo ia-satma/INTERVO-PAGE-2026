@@ -3,6 +3,8 @@ import { localePath } from "@/lib/site";
 import type { SiteConfig } from "./types";
 
 const absoluteWebPattern = /^https?:\/\//i;
+const safeMailPattern = /^mailto:[^\s@?]+@[^\s@?]+(?:\?[^\r\n]*)?$/i;
+const safePhonePattern = /^tel:\+?[0-9().\-\s]{5,40}$/i;
 
 export function isSafeNavigableHref(href: string) {
   const value = href.trim();
@@ -11,6 +13,16 @@ export function isSafeNavigableHref(href: string) {
 
 export function isSafeExternalHref(href: string) {
   return absoluteWebPattern.test(href.trim());
+}
+
+export function isSafeEditableHref(href: string) {
+  const value = href.trim();
+  return (
+    !value ||
+    isSafeNavigableHref(value) ||
+    safeMailPattern.test(value) ||
+    safePhonePattern.test(value)
+  );
 }
 
 function withSuffix(base: string, suffix?: string) {
@@ -96,5 +108,45 @@ export function validateSiteConfigLinks(data: Record<string, unknown>) {
     }
     checkExternal(config.contact.whatsappHref, "WhatsApp");
   }
+  return errors;
+}
+
+const editableLinkKeys = new Set([
+  "href",
+  "hrefes",
+  "hrefen",
+  "linkedin",
+  "mapshref",
+  "whatsapphref",
+  "phonehref",
+  "emailhref",
+  "url",
+  "posterurl",
+]);
+
+export function validateEditableDocumentLinks(data: Record<string, unknown>) {
+  const errors: string[] = [];
+
+  const visit = (value: unknown, path: string) => {
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => visit(item, `${path}[${index}]`));
+      return;
+    }
+    if (!value || typeof value !== "object") return;
+    for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+      const childPath = path ? `${path}.${key}` : key;
+      if (
+        typeof child === "string" &&
+        (editableLinkKeys.has(key.toLowerCase()) || key.toLowerCase().endsWith("href")) &&
+        !isSafeEditableHref(child)
+      ) {
+        errors.push(`${childPath} contiene un enlace no permitido. Usa una ruta interna, HTTP/HTTPS, mailto: o tel:.`);
+      } else {
+        visit(child, childPath);
+      }
+    }
+  };
+
+  visit(data, "");
   return errors;
 }

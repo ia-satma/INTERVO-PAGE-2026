@@ -1,6 +1,7 @@
 import "server-only";
 
 import { and, desc, eq } from "drizzle-orm";
+import { cache } from "react";
 import { getDb } from "@/lib/db";
 import { cmsDocuments, cmsVersions } from "@/lib/db/schema";
 import es from "@/i18n/dictionaries/es";
@@ -68,35 +69,39 @@ export async function getCmsDocument(key: string, mode: "draft" | "published" = 
 }
 
 export async function listCmsDocuments() {
+  const defaults = () => CMS_DOCUMENTS.map((definition) => ({
+    id: `default:${definition.key}`,
+    key: definition.key,
+    label: definition.label,
+    group: definition.group,
+    description: definition.description,
+    status: "published" as const,
+    version: 1,
+    updatedAt: null,
+    publishedAt: null,
+  }));
   const db = getDb();
-  if (!db) {
-    return CMS_DOCUMENTS.map((definition) => ({
-      id: `default:${definition.key}`,
-      key: definition.key,
-      label: definition.label,
-      group: definition.group,
-      description: definition.description,
-      status: "published" as const,
-      version: 1,
-      updatedAt: null,
-      publishedAt: null,
-    }));
+  if (!db) return defaults();
+  try {
+    await ensureCmsDocuments();
+    return await db
+      .select({
+        id: cmsDocuments.id,
+        key: cmsDocuments.key,
+        label: cmsDocuments.label,
+        group: cmsDocuments.group,
+        description: cmsDocuments.description,
+        status: cmsDocuments.status,
+        version: cmsDocuments.version,
+        updatedAt: cmsDocuments.updatedAt,
+        publishedAt: cmsDocuments.publishedAt,
+      })
+      .from(cmsDocuments)
+      .orderBy(cmsDocuments.group, cmsDocuments.label);
+  } catch (error) {
+    console.warn("Lista CMS no disponible; se usarán los documentos iniciales.", error instanceof Error ? error.message : error);
+    return defaults();
   }
-  await ensureCmsDocuments();
-  return db
-    .select({
-      id: cmsDocuments.id,
-      key: cmsDocuments.key,
-      label: cmsDocuments.label,
-      group: cmsDocuments.group,
-      description: cmsDocuments.description,
-      status: cmsDocuments.status,
-      version: cmsDocuments.version,
-      updatedAt: cmsDocuments.updatedAt,
-      publishedAt: cmsDocuments.publishedAt,
-    })
-    .from(cmsDocuments)
-    .orderBy(cmsDocuments.group, cmsDocuments.label);
 }
 
 export async function saveDocumentDraft(key: string, data: RecordValue, userId: string) {
@@ -183,21 +188,25 @@ export async function restoreDocumentVersion(key: string, versionId: string, use
   return saveDocumentDraft(key, version.snapshot, userId);
 }
 
-export async function getPublishedDictionary(locale: Locale): Promise<Dictionary> {
+export const getPublishedDictionary = cache(async (locale: Locale): Promise<Dictionary> => {
   let dictionary = structuredClone(locale === "es" ? es : en) as Dictionary;
   const db = getDb();
   const publishedByKey = new Map<string, RecordValue>();
 
   if (db) {
-    const rows = await db
-      .select({
-        key: cmsDocuments.key,
-        published: cmsDocuments.published,
-      })
-      .from(cmsDocuments);
+    try {
+      const rows = await db
+        .select({
+          key: cmsDocuments.key,
+          published: cmsDocuments.published,
+        })
+        .from(cmsDocuments);
 
-    for (const row of rows) {
-      publishedByKey.set(row.key, row.published);
+      for (const row of rows) {
+        publishedByKey.set(row.key, row.published);
+      }
+    } catch (error) {
+      console.warn("CMS no disponible durante la lectura pública; se usará el contenido inicial.", error instanceof Error ? error.message : error);
     }
   }
 
@@ -216,15 +225,20 @@ export async function getPublishedDictionary(locale: Locale): Promise<Dictionary
     }
   }
   return dictionary;
-}
+});
 
-export async function getPublishedSiteConfig(): Promise<SiteConfig> {
+export const getPublishedSiteConfig = cache(async (): Promise<SiteConfig> => {
   const db = getDb();
   if (!db) return DEFAULT_SITE_CONFIG;
-  const [document] = await db
-    .select({ published: cmsDocuments.published })
-    .from(cmsDocuments)
-    .where(eq(cmsDocuments.key, "site-config"))
-    .limit(1);
-  return deepMerge(DEFAULT_SITE_CONFIG, document?.published ?? {});
-}
+  try {
+    const [document] = await db
+      .select({ published: cmsDocuments.published })
+      .from(cmsDocuments)
+      .where(eq(cmsDocuments.key, "site-config"))
+      .limit(1);
+    return deepMerge(DEFAULT_SITE_CONFIG, document?.published ?? {});
+  } catch (error) {
+    console.warn("Configuración CMS no disponible; se usará la configuración inicial.", error instanceof Error ? error.message : error);
+    return DEFAULT_SITE_CONFIG;
+  }
+});

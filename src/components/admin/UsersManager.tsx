@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Check, Plus, ShieldCheck, UserCircle, WarningCircle } from "@phosphor-icons/react";
 import { csrfHeaders } from "@/lib/client/csrf";
+import { buildChangeSet } from "@/lib/client/change-set";
+import ChangeReviewDialog from "./ChangeReviewDialog";
 
 type User = { id: string; name: string; email: string; role: "owner" | "admin" | "editor"; isActive: boolean; mfaEnabled: boolean; createdAt: string };
 
@@ -12,6 +14,8 @@ export default function UsersManager() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
+  const [pending, setPending] = useState(false);
+  const [proposal, setProposal] = useState<Record<string, string> | null>(null);
 
   async function load() {
     const response = await fetch("/api/admin/users");
@@ -22,17 +26,25 @@ export default function UsersManager() {
   }
   useEffect(() => { void load(); }, []);
 
-  async function create(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setError(""); setNotice("");
+  function reviewCreate(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     const form = new FormData(event.currentTarget);
+    setProposal(Object.fromEntries(form) as Record<string, string>);
+  }
+
+  async function create() {
+    if (!proposal) return;
+    setPending(true); setError(""); setNotice("");
     const response = await fetch("/api/admin/users", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...csrfHeaders() },
-      body: JSON.stringify(Object.fromEntries(form)),
+      body: JSON.stringify(proposal),
     });
     const payload = await response.json();
+    setPending(false);
     if (!response.ok) return setError(payload.error);
     setNotice("Usuario creado. La contraseña ya puede utilizarse.");
+    setProposal(null);
     setOpen(false);
     await load();
   }
@@ -54,18 +66,29 @@ export default function UsersManager() {
       </div>
       {open && (
         <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm">
-          <form onSubmit={create} className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+          <form onSubmit={reviewCreate} className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Acceso</p><h2 className="mt-2 text-2xl font-semibold tracking-tight">Crear usuario</h2>
             <div className="mt-6 space-y-4">
               <label className="block space-y-2 text-sm font-semibold">Nombre<input name="name" required className={input} /></label>
               <label className="block space-y-2 text-sm font-semibold">Correo<input name="email" type="email" required className={input} /></label>
-              <label className="block space-y-2 text-sm font-semibold">Contraseña temporal<input name="password" type="password" minLength={12} required className={input} /><span className="block text-xs font-normal text-slate-500">Mínimo 12 caracteres.</span></label>
+              <label className="block space-y-2 text-sm font-semibold">Contraseña temporal<input name="password" type="password" minLength={16} maxLength={256} autoComplete="new-password" required className={input} /><span className="block text-xs font-normal text-slate-500">Mínimo 16 caracteres; usa una frase única.</span></label>
               <label className="block space-y-2 text-sm font-semibold">Rol<select name="role" defaultValue="editor" className={input}><option value="editor">Editor</option><option value="admin">Administrador</option><option value="owner">Dueño</option></select></label>
             </div>
             <div className="mt-7 flex justify-end gap-2"><button type="button" onClick={() => setOpen(false)} className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100">Cancelar</button><button className="rounded-lg bg-[#0f4386] px-5 py-2.5 text-sm font-semibold text-white">Crear usuario</button></div>
           </form>
         </div>
       )}
+      <ChangeReviewDialog
+        open={Boolean(proposal)}
+        title="Crear acceso para un usuario"
+        description="Confirma el nombre, correo y nivel de permisos. La contraseña se mantiene oculta durante la revisión."
+        changes={buildChangeSet({}, proposal ?? {})}
+        confirmLabel="Crear usuario"
+        pending={pending}
+        tone="publish"
+        onCancel={() => setProposal(null)}
+        onConfirm={create}
+      />
     </>
   );
 }

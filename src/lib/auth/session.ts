@@ -2,17 +2,21 @@ import "server-only";
 
 import { and, eq, gt } from "drizzle-orm";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import type { NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
 import { getDb } from "@/lib/db";
 import { adminSessions, adminUsers } from "@/lib/db/schema";
 import type { AdminSessionUser, Permission } from "@/lib/cms/types";
 import { permissionsForRole } from "./rbac";
 import { randomToken, sha256 } from "./crypto";
+import { getClientIp, getUserAgent } from "./request";
 
 export const SESSION_COOKIE = "intervo_admin_session";
 export const CSRF_COOKIE = "intervo_csrf";
 const ABSOLUTE_SESSION_MS = 8 * 60 * 60 * 1000;
 const IDLE_SESSION_MS = 30 * 60 * 1000;
+const SESSION_TOUCH_MS = 60 * 1000;
 
 export class AuthError extends Error {
   constructor(
@@ -33,14 +37,13 @@ export async function createSession(
   const token = randomToken();
   const csrf = randomToken(24);
   const expiresAt = new Date(Date.now() + ABSOLUTE_SESSION_MS);
-  const forwarded = request.headers.get("x-forwarded-for");
   await db.insert(adminSessions).values({
     userId: user.id,
     tokenHash: sha256(token),
     csrfHash: sha256(csrf),
     mfaVerified,
-    ip: forwarded?.split(",")[0]?.trim() || null,
-    userAgent: request.headers.get("user-agent"),
+    ip: getClientIp(request),
+    userAgent: getUserAgent(request),
     expiresAt,
   });
   return { token, csrf, expiresAt };
@@ -68,8 +71,9 @@ export function setSessionCookies(
 }
 
 export function clearSessionCookies(response: NextResponse) {
-  response.cookies.set(SESSION_COOKIE, "", { httpOnly: true, path: "/", maxAge: 0 });
-  response.cookies.set(CSRF_COOKIE, "", { httpOnly: false, path: "/", maxAge: 0 });
+  const secure = process.env.NODE_ENV === "production";
+  response.cookies.set(SESSION_COOKIE, "", { httpOnly: true, secure, sameSite: "strict", path: "/", maxAge: 0 });
+  response.cookies.set(CSRF_COOKIE, "", { httpOnly: false, secure, sameSite: "strict", path: "/", maxAge: 0 });
 }
 
 async function resolveSession(token: string | undefined | null) {
@@ -93,7 +97,9 @@ async function resolveSession(token: string | undefined | null) {
     await db.delete(adminSessions).where(eq(adminSessions.id, row.session.id));
     return null;
   }
-  await db.update(adminSessions).set({ lastSeenAt: now }).where(eq(adminSessions.id, row.session.id));
+  if (Date.now() - row.session.lastSeenAt.getTime() > SESSION_TOUCH_MS) {
+    await db.update(adminSessions).set({ lastSeenAt: now }).where(eq(adminSessions.id, row.session.id));
+  }
   const elevated = row.user.role === "owner" || row.user.role === "admin";
   const user: AdminSessionUser = {
     id: row.user.id,
@@ -111,10 +117,10 @@ export async function getRequestSession(request: NextRequest) {
   return resolveSession(request.cookies.get(SESSION_COOKIE)?.value);
 }
 
-export async function getCurrentSession() {
+export const getCurrentSession = cache(async function getCurrentSession() {
   const cookieStore = await cookies();
   return resolveSession(cookieStore.get(SESSION_COOKIE)?.value);
-}
+});
 
 export async function requirePermission(
   request: NextRequest,
@@ -144,6 +150,15 @@ export function apiError(error: unknown) {
   if (error instanceof AuthError) {
     return Response.json({ error: error.message }, { status: error.status });
   }
+  if (error instanceof ZodError) {
+    return Response.json({ error: "Los datos enviados no son válidos." }, { status: 400 });
+  }
   console.error(error);
-  return Response.json({ error: error instanceof Error ? error.message : "Error interno." }, { status: 500 });
+  const message =
+    process.env.NODE_ENV === "production"
+      ? "Error interno."
+      : error instanceof Error
+        ? error.message
+        : "Error interno.";
+  return Response.json({ error: message }, { status: 500 });
 }

@@ -82,8 +82,8 @@ async function main() {
     const name = process.env.ADMIN_BOOTSTRAP_NAME?.trim() || "Administrador Intervo";
 
     if (email && password) {
-      if (password.length < 12) {
-        throw new Error("ADMIN_BOOTSTRAP_PASSWORD debe tener al menos 12 caracteres.");
+      if (password.length < 16) {
+        throw new Error("ADMIN_BOOTSTRAP_PASSWORD debe tener al menos 16 caracteres.");
       }
 
       const [existing] = await db
