@@ -138,80 +138,68 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="absolute inset-0 bg-mist/50" />
         <div className="container-x relative grid gap-6 py-20 md:py-24 lg:grid-cols-2">
           <Reveal>
-            <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-white shadow-card">
-              <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-br from-navy-950 via-navy to-azure" />
-              <div className="absolute inset-x-0 top-0 h-72 bg-grid opacity-45" />
-              <div className="relative p-5 md:p-7">
-                <div className="rounded-[1.15rem] border border-white/15 bg-white/10 p-2 shadow-soft backdrop-blur-sm">
-                  <Link
-                    href={resolveNavigationLink(siteConfig, loc, "socios", recognizedPartners[0]?.id)}
-                    className="group relative block aspect-[16/11] overflow-hidden rounded-xl bg-navy-950"
-                    aria-label={recognizedPartners[0]?.name}
-                  >
-                    {recognizedPartners[0] && (
-                      <Image
-                        src={asset(recognizedPartners[0].photo)}
-                        alt={recognizedPartners[0].name}
-                        fill
-                        sizes="(min-width: 1024px) 36vw, 100vw"
-                        className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/28 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5">
-                      <span className="max-w-[14rem] font-serif text-2xl font-medium leading-none text-white md:text-3xl">
-                        {recognizedPartners[0]?.name}
-                      </span>
-                      <ArrowUpRight className="h-5 w-5 shrink-0 text-white/80 transition-transform duration-500 group-hover:-translate-y-1 group-hover:translate-x-1" />
-                    </div>
-                  </Link>
+            <div className="relative h-full overflow-hidden rounded-2xl bg-navy-950 text-white shadow-card">
+              <div className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-azure" />
+              <div className="absolute inset-0 bg-grid opacity-35" />
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-navy-950 to-transparent" />
+              <div className="relative flex h-full flex-col p-6 md:p-8">
+                <div className="flex items-start justify-between gap-6 border-b border-white/12 pb-6">
+                  <div>
+                    <span className="eyebrow eyebrow--light">{t.recognition.eyebrow}</span>
+                    <h2 className="mt-5 max-w-xl font-serif text-3xl leading-[1.02] text-white md:text-4xl">
+                      {t.recognition.title}
+                    </h2>
+                  </div>
+                  <div className="hidden min-w-24 text-right sm:block">
+                    <span className="block font-serif text-6xl leading-none text-white">03</span>
+                    <span className="mt-2 block text-[0.62rem] font-semibold uppercase leading-snug tracking-[0.22em] text-white/58">
+                      {recognizedCountLabel}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="-mt-6 ml-auto grid w-[88%] grid-cols-2 gap-3 md:w-[82%]">
-                  {recognizedPartners.slice(1).map((partner, index) => (
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  {recognizedPartners.map((partner, index) => (
                     <Link
                       key={partner.name}
                       href={resolveNavigationLink(siteConfig, loc, "socios", partner.id)}
-                      className={`group relative aspect-[4/5] overflow-hidden rounded-xl bg-navy-950 shadow-card ring-4 ring-white ${index === 1 ? "mt-8" : ""}`}
+                      className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-navy-950 shadow-soft ring-1 ring-white/15 transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card"
                       aria-label={partner.name}
                     >
                       <Image
                         src={asset(partner.photo)}
                         alt={partner.name}
                         fill
-                        sizes="(min-width: 1024px) 16vw, 44vw"
-                        className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                        sizes="(min-width: 1024px) 16vw, (min-width: 640px) 30vw, 100vw"
+                        className="object-cover object-top brightness-105 contrast-105 transition-transform duration-700 ease-out group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-navy-950/96 via-navy-950/25 to-transparent" />
-                      <div className="absolute inset-x-0 bottom-0 p-4">
-                        <span className="block font-serif text-xl font-medium leading-none text-white md:text-2xl">
+                      <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-navy-950/96 via-navy-950/42 to-transparent" />
+                      <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
+                      <div className="absolute left-4 top-4 rounded-full border border-white/25 bg-white/12 px-2.5 py-1 text-[0.65rem] font-semibold tracking-[0.18em] text-white/85 backdrop-blur-sm">
+                        {String(index + 1).padStart(2, "0")}
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
+                        <span className="block font-serif text-2xl font-medium leading-none text-white md:text-[1.7rem]">
                           {partner.name}
                         </span>
+                        <span className="mt-4 block h-px w-9 bg-accent-soft transition-all duration-500 group-hover:w-16" />
                       </div>
                     </Link>
                   ))}
                 </div>
 
-                <div className="mt-8 grid gap-7 border-t border-line pt-8 md:grid-cols-[0.72fr_1fr] md:items-start">
-                  <div>
-                    <span className="eyebrow">{t.recognition.eyebrow}</span>
-                    <div className="mt-5 flex items-end gap-3">
-                      <span className="font-serif text-6xl leading-none text-navy">03</span>
-                      <span className="pb-2 text-xs font-semibold uppercase tracking-[0.22em] text-muted">
-                        {recognizedCountLabel}
-                      </span>
-                    </div>
+                <div className="mt-auto grid gap-5 pt-7 sm:grid-cols-[1fr_auto] sm:items-end">
+                  <div className="sm:hidden">
+                    <span className="font-serif text-5xl leading-none text-white">03</span>
+                    <span className="ml-3 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/58">
+                      {recognizedCountLabel}
+                    </span>
                   </div>
-                  <div>
-                    <h2 className="font-serif text-3xl leading-[1.02] text-ink md:text-4xl">
-                      {t.recognition.title}
-                    </h2>
-                    <p className="mt-5 text-[1rem] leading-relaxed text-muted">{t.recognition.lead}</p>
-                    <Link href={resolveNavigationLink(siteConfig, loc, "socios")} className="btn btn-primary mt-7 w-fit !px-7 !py-3.5">
-                      {t.recognition.cta}
-                      <ArrowUpRight className="h-4 w-4" />
-                    </Link>
-                  </div>
+                  <p className="max-w-xl text-[1rem] leading-relaxed text-white/70">{t.recognition.lead}</p>
+                  <Link href={resolveNavigationLink(siteConfig, loc, "socios")} className="btn btn-light w-fit !px-7 !py-3.5">
+                    {t.recognition.cta}
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
                 </div>
               </div>
               <ul className="sr-only">
