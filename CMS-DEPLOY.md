@@ -30,7 +30,7 @@
    ```
 
 6. Eliminar `ADMIN_BOOTSTRAP_PASSWORD` de Secrets después de crear el owner. El seed es idempotente y no lo vuelve a necesitar.
-7. Iniciar la app, entrar a `/admin` y activar MFA con una aplicación TOTP.
+7. Iniciar la app y entrar a `/admin` con el correo y la contraseña del owner.
 
 ## 3. Producción
 
@@ -40,7 +40,7 @@
 4. Ejecutar las migraciones contra la base de producción antes del primer corte.
 5. Publicar y verificar:
    - `GET /api/health` devuelve HTTP `200`, `ok: true` y `database: "ok"`.
-   - El owner entra, activa MFA y puede guardar un borrador.
+   - El owner entra con correo y contraseña y puede guardar un borrador.
    - El borrador no cambia la URL pública.
    - La vista protegida muestra el borrador.
    - Publicar incrementa la versión y actualiza ES/EN.
@@ -53,13 +53,14 @@
 - Videos: MP4, WebM o MOV, máximo 200 MB.
 - SVG se rechaza. El servidor valida la firma binaria, no solo nombre/extensión.
 - Un medio referenciado por contenido no se elimina.
-- Dueño y Administrador requieren MFA. Editor no puede publicar ni gestionar usuarios.
+- El acceso usa únicamente correo y contraseña. Editor no puede publicar ni gestionar usuarios.
+- Las contraseñas se almacenan con bcrypt (12 rondas) y las cuentas nuevas requieren al menos 16 caracteres.
 - Las cookies de sesión son HttpOnly, Secure en producción y SameSite Strict.
 - Login y formulario tienen rate limit; todas las mutaciones del panel requieren CSRF.
 - El rate limit se guarda en PostgreSQL y se comparte entre instancias Autoscale.
 - Las respuestas usan CSP, HSTS, protección anti-frame, `nosniff` y políticas restrictivas del navegador.
-- No reutilices la contraseña temporal usada durante desarrollo. Antes de publicar, crea una frase nueva,
-  activa MFA y elimina el Secret de bootstrap.
+- No reutilices la contraseña temporal usada durante desarrollo. Antes de publicar, crea una frase nueva
+  y elimina el Secret de bootstrap.
 - Ejecuta `npm audit` antes de cada publicación y aplica primero las actualizaciones en una URL de prueba.
 
 ## 5. Operación editorial

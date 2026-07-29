@@ -7,6 +7,7 @@ type Props = {
   title: string;
   desc?: string;
   index?: string;
+  image?: string;
 };
 
 const SERVICE_IMAGES: Record<string, string> = {
@@ -17,8 +18,8 @@ const SERVICE_IMAGES: Record<string, string> = {
   realestate: "/images/services/derecho-inmobiliario.webp",
 };
 
-export default function ServiceCard({ id, title, desc, index }: Props) {
-  const image = SERVICE_IMAGES[id];
+export default function ServiceCard({ id, title, desc, index, image: configuredImage }: Props) {
+  const image = configuredImage || SERVICE_IMAGES[id];
 
   return (
     <article className="group relative flex h-full min-h-[21rem] overflow-hidden rounded-2xl bg-navy-950 shadow-card transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-soft">

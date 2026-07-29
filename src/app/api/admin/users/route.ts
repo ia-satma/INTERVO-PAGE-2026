@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
         name: adminUsers.name,
         role: adminUsers.role,
         isActive: adminUsers.isActive,
-        mfaEnabled: adminUsers.mfaEnabled,
         createdAt: adminUsers.createdAt,
       })
       .from(adminUsers)

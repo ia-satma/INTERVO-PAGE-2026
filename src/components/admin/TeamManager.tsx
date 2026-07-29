@@ -22,7 +22,25 @@ import ChangeReviewDialog from "./ChangeReviewDialog";
 import MediaPickerDialog from "./MediaPickerDialog";
 
 type JsonRecord = Record<string, unknown>;
-type OrganizationMember = { id: string; name: string; photo?: string };
+type OrganizationMember = {
+  id: string;
+  name: string;
+  photo?: string;
+  roleEs: string;
+  roleEn: string;
+  practiceAreaIds: string[];
+  specialtiesEs: string[];
+  specialtiesEn: string[];
+  bioEs?: string;
+  bioEn?: string;
+  chambers?: string;
+  managing?: boolean;
+  visible: boolean;
+  email?: string;
+  phoneDisplay?: string;
+  phoneHref?: string;
+  linkedin?: string;
+};
 type Organization = {
   partners: OrganizationMember[];
   lawyers: OrganizationMember[];
@@ -34,6 +52,7 @@ type Partner = {
   name: string;
   roleEs: string;
   roleEn: string;
+  practiceAreaIds: string[];
   specialtiesEs: string[];
   specialtiesEn: string[];
   bioEs: string;
@@ -53,12 +72,20 @@ type CmsDocument = {
   version: number;
 };
 type GroupKey = "lawyers" | "interns" | "administration";
+type CategoryKey = "partners" | GroupKey;
+type PracticeAreaOption = {
+  id: string;
+  labelEs: string;
+  labelEn: string;
+};
 
-const groupLabels: Record<GroupKey, string> = {
+const groupLabels: Record<CategoryKey, string> = {
+  partners: "Socio",
   lawyers: "Abogados",
   interns: "Pasantes",
   administration: "Administración",
 };
+const additionalGroupKeys: GroupKey[] = ["lawyers", "interns", "administration"];
 
 const inputClass =
   "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm leading-relaxed text-slate-900 outline-none transition-[border-color,box-shadow] focus:border-sky-700 focus:ring-2 focus:ring-sky-700/15";
@@ -77,6 +104,75 @@ function list(value: unknown): unknown[] {
 
 function text(value: unknown, fallback = "") {
   return typeof value === "string" ? value : fallback;
+}
+
+function strings(value: unknown) {
+  return list(value).map((item) => text(item)).filter(Boolean);
+}
+
+function normalizeLabel(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function buildPracticeAreaOptions(siteDocument: CmsDocument, navigationDocument: CmsDocument): PracticeAreaOption[] {
+  const site = record(siteDocument.data);
+  const navEs = record(record(navigationDocument.data).es);
+  const navEn = record(record(navigationDocument.data).en);
+  const servicesEs = record(navEs.services);
+  const servicesEn = record(navEn.services);
+  const featuredEs = record(servicesEs.featured);
+  const featuredEn = record(servicesEn.featured);
+  const otherEs = record(servicesEs.other);
+  const otherEn = record(servicesEn.other);
+  const configuredIds = [...strings(site.featuredServices), ...strings(site.otherServices)];
+  const discoveredIds = [
+    ...Object.keys(featuredEs),
+    ...Object.keys(featuredEn),
+    ...Object.keys(otherEs),
+    ...Object.keys(otherEn),
+  ];
+  const ids = Array.from(new Set([...configuredIds, ...discoveredIds]));
+
+  return ids.flatMap((id) => {
+    const featuredEsItem = record(featuredEs[id]);
+    const featuredEnItem = record(featuredEn[id]);
+    const labelEs = text(featuredEsItem.title) || text(otherEs[id]);
+    const labelEn = text(featuredEnItem.title) || text(otherEn[id]) || labelEs;
+    return labelEs ? [{ id, labelEs, labelEn }] : [];
+  });
+}
+
+function inferPracticeAreaIds(
+  configured: unknown,
+  specialtiesEs: string[],
+  specialtiesEn: string[],
+  options: PracticeAreaOption[],
+) {
+  const stored = strings(configured).filter((id) => options.some((option) => option.id === id));
+  if (stored.length > 0) return stored;
+  const labels = new Set([...specialtiesEs, ...specialtiesEn].map(normalizeLabel));
+  return options
+    .filter((option) => labels.has(normalizeLabel(option.labelEs)) || labels.has(normalizeLabel(option.labelEn)))
+    .map((option) => option.id);
+}
+
+function extraSpecialties(values: string[], options: PracticeAreaOption[]) {
+  const known = new Set(options.flatMap((option) => [option.labelEs, option.labelEn]).map(normalizeLabel));
+  return values.filter((value) => !known.has(normalizeLabel(value)));
+}
+
+function mergePracticeAreas(ids: string[], extras: string[], options: PracticeAreaOption[], locale: "es" | "en") {
+  return [
+    ...ids.flatMap((id) => {
+      const option = options.find((candidate) => candidate.id === id);
+      return option ? [locale === "es" ? option.labelEs : option.labelEn] : [];
+    }),
+    ...extras.map((item) => item.trim()).filter(Boolean),
+  ];
 }
 
 function slugify(value: string) {
@@ -98,7 +194,11 @@ function uniqueId(name: string, used: string[]) {
   return `${base}-${index}`;
 }
 
-function buildPartners(siteDocument: CmsDocument, navigationDocument: CmsDocument): Partner[] {
+function buildPartners(
+  siteDocument: CmsDocument,
+  navigationDocument: CmsDocument,
+  practiceAreas: PracticeAreaOption[],
+): Partner[] {
   const site = record(siteDocument.data);
   const navEs = record(record(navigationDocument.data).es);
   const navEn = record(record(navigationDocument.data).en);
@@ -110,13 +210,16 @@ function buildPartners(siteDocument: CmsDocument, navigationDocument: CmsDocumen
     const id = text(partner.id);
     const es = record(profilesEs[id]);
     const en = record(profilesEn[id]);
+    const specialtiesEs = strings(es.specialties);
+    const specialtiesEn = strings(en.specialties);
     return {
       id,
       name: text(partner.name, "Nuevo abogado"),
       roleEs: text(es.role, "Socio"),
       roleEn: text(en.role, "Partner"),
-      specialtiesEs: list(es.specialties).map((item) => text(item)).filter(Boolean),
-      specialtiesEn: list(en.specialties).map((item) => text(item)).filter(Boolean),
+      practiceAreaIds: inferPracticeAreaIds(partner.practiceAreaIds, specialtiesEs, specialtiesEn, practiceAreas),
+      specialtiesEs,
+      specialtiesEn,
       bioEs: text(es.bio),
       bioEn: text(en.bio),
       chambers: text(partner.chambers),
@@ -131,12 +234,37 @@ function buildPartners(siteDocument: CmsDocument, navigationDocument: CmsDocumen
   });
 }
 
-function buildOrganization(siteDocument: CmsDocument): Organization {
+function buildOrganization(siteDocument: CmsDocument, practiceAreas: PracticeAreaOption[]): Organization {
   const source = record(record(siteDocument.data).organization);
   const normalize = (key: keyof Organization) =>
     list(source[key]).map((value) => {
       const member = record(value);
-      return { id: text(member.id), name: text(member.name), photo: text(member.photo) || undefined };
+      const specialtiesEs = strings(member.specialtiesEs);
+      const specialtiesEn = strings(member.specialtiesEn);
+      return {
+        id: text(member.id),
+        name: text(member.name),
+        photo: text(member.photo) || undefined,
+        roleEs: text(member.roleEs),
+        roleEn: text(member.roleEn),
+        practiceAreaIds: inferPracticeAreaIds(
+          member.practiceAreaIds,
+          specialtiesEs,
+          specialtiesEn,
+          practiceAreas,
+        ),
+        specialtiesEs,
+        specialtiesEn,
+        bioEs: text(member.bioEs) || undefined,
+        bioEn: text(member.bioEn) || undefined,
+        chambers: text(member.chambers) || undefined,
+        managing: Boolean(member.managing),
+        visible: member.visible !== false,
+        email: text(member.email) || undefined,
+        phoneDisplay: text(member.phoneDisplay) || undefined,
+        phoneHref: text(member.phoneHref) || undefined,
+        linkedin: text(member.linkedin) || undefined,
+      };
     });
   return {
     partners: normalize("partners"),
@@ -260,6 +388,68 @@ function StringList({
   );
 }
 
+function PracticeAreaSelector({
+  options,
+  selectedIds,
+  onChange,
+}: {
+  options: PracticeAreaOption[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  return (
+    <fieldset className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <legend className="text-sm font-semibold text-slate-800">Áreas de práctica</legend>
+          <p className="mt-1 text-xs text-slate-500">
+            Selecciona todas las áreas a las que pertenece. Los nombres ES/EN vienen del catálogo de Servicios.
+          </p>
+        </div>
+        <span className="rounded-full bg-white px-2.5 py-1 font-mono text-[0.68rem] font-semibold text-slate-500">
+          {selectedIds.length} seleccionada{selectedIds.length === 1 ? "" : "s"}
+        </span>
+      </div>
+      {options.length === 0 ? (
+        <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          No hay áreas configuradas. Agrégalas primero en Servicios.
+        </p>
+      ) : (
+        <div className="mt-4 grid gap-2 md:grid-cols-2">
+          {options.map((option) => {
+            const checked = selectedIds.includes(option.id);
+            return (
+              <label
+                key={option.id}
+                className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 transition-colors ${
+                  checked ? "border-sky-700 bg-sky-50" : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() =>
+                    onChange(
+                      checked
+                        ? selectedIds.filter((id) => id !== option.id)
+                        : [...selectedIds, option.id],
+                    )
+                  }
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-sky-700"
+                />
+                <span className="min-w-0">
+                  <span className="block text-xs font-semibold text-slate-800">{option.labelEs}</span>
+                  <span className="mt-0.5 block text-[0.68rem] leading-snug text-slate-500">{option.labelEn}</span>
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      )}
+    </fieldset>
+  );
+}
+
 export default function TeamManager({
   siteDocument,
   navigationDocument,
@@ -269,8 +459,18 @@ export default function TeamManager({
   navigationDocument: CmsDocument;
   canPublish: boolean;
 }) {
-  const initialPartners = useMemo(() => buildPartners(siteDocument, navigationDocument), [siteDocument, navigationDocument]);
-  const initialOrganization = useMemo(() => buildOrganization(siteDocument), [siteDocument]);
+  const practiceAreas = useMemo(
+    () => buildPracticeAreaOptions(siteDocument, navigationDocument),
+    [navigationDocument, siteDocument],
+  );
+  const initialPartners = useMemo(
+    () => buildPartners(siteDocument, navigationDocument, practiceAreas),
+    [navigationDocument, practiceAreas, siteDocument],
+  );
+  const initialOrganization = useMemo(
+    () => buildOrganization(siteDocument, practiceAreas),
+    [practiceAreas, siteDocument],
+  );
   const [partners, setPartners] = useState<Partner[]>(() => clone(initialPartners));
   const [organization, setOrganization] = useState<Organization>(() => clone(initialOrganization));
   const [savedPartners, setSavedPartners] = useState<Partner[]>(() => clone(initialPartners));
@@ -308,6 +508,7 @@ export default function TeamManager({
       name: "Nuevo abogado",
       roleEs: "Socio",
       roleEn: "Partner",
+      practiceAreaIds: [],
       specialtiesEs: [],
       specialtiesEn: [],
       bioEs: "",
@@ -344,13 +545,26 @@ export default function TeamManager({
 
   function addMember(targetGroup: GroupKey) {
     const id = uniqueId(`nuevo-${targetGroup}`, [
+      ...partners,
       ...organization.lawyers,
       ...organization.interns,
       ...organization.administration,
     ].map((member) => member.id));
     setOrganization((current) => ({
       ...current,
-      [targetGroup]: [...current[targetGroup], { id, name: "Nuevo integrante" }],
+      [targetGroup]: [
+        ...current[targetGroup],
+        {
+          id,
+          name: "Nuevo integrante",
+          roleEs: groupLabels[targetGroup].replace(/s$/, ""),
+          roleEn: targetGroup === "lawyers" ? "Lawyer" : targetGroup === "interns" ? "Intern" : "Administration",
+          practiceAreaIds: [],
+          specialtiesEs: [],
+          specialtiesEn: [],
+          visible: true,
+        },
+      ],
     }));
   }
 
@@ -371,6 +585,112 @@ export default function TeamManager({
     setOrganization((current) => ({ ...current, [targetGroup]: next }));
   }
 
+  function updatePartnerPracticeAreas(ids: string[]) {
+    if (!selected) return;
+    updatePartner({
+      practiceAreaIds: ids,
+      specialtiesEs: mergePracticeAreas(
+        ids,
+        extraSpecialties(selected.specialtiesEs, practiceAreas),
+        practiceAreas,
+        "es",
+      ),
+      specialtiesEn: mergePracticeAreas(
+        ids,
+        extraSpecialties(selected.specialtiesEn, practiceAreas),
+        practiceAreas,
+        "en",
+      ),
+    });
+  }
+
+  function updateMemberPracticeAreas(targetGroup: GroupKey, index: number, ids: string[]) {
+    const member = organization[targetGroup][index];
+    if (!member) return;
+    updateMember(targetGroup, index, {
+      practiceAreaIds: ids,
+      specialtiesEs: mergePracticeAreas(
+        ids,
+        extraSpecialties(member.specialtiesEs, practiceAreas),
+        practiceAreas,
+        "es",
+      ),
+      specialtiesEn: mergePracticeAreas(
+        ids,
+        extraSpecialties(member.specialtiesEn, practiceAreas),
+        practiceAreas,
+        "en",
+      ),
+    });
+  }
+
+  function movePartnerToGroup(partner: Partner, targetGroup: GroupKey) {
+    const member: OrganizationMember = {
+      id: partner.id,
+      name: partner.name,
+      photo: partner.photo || undefined,
+      roleEs: partner.roleEs,
+      roleEn: partner.roleEn,
+      practiceAreaIds: partner.practiceAreaIds,
+      specialtiesEs: partner.specialtiesEs,
+      specialtiesEn: partner.specialtiesEn,
+      bioEs: partner.bioEs || undefined,
+      bioEn: partner.bioEn || undefined,
+      chambers: partner.chambers || undefined,
+      managing: partner.managing,
+      visible: partner.visible,
+      email: partner.email || undefined,
+      phoneDisplay: partner.phoneDisplay || undefined,
+      phoneHref: partner.phoneHref || undefined,
+      linkedin: partner.linkedin || undefined,
+    };
+    const remaining = partners.filter((candidate) => candidate.id !== partner.id);
+    setPartners(remaining);
+    setOrganization((current) => ({
+      ...current,
+      [targetGroup]: [...current[targetGroup], member],
+    }));
+    setSelectedId(remaining[0]?.id ?? "");
+    setGroup(targetGroup);
+  }
+
+  function moveMemberCategory(sourceGroup: GroupKey, index: number, target: CategoryKey) {
+    const member = organization[sourceGroup][index];
+    if (!member || target === sourceGroup) return;
+    setOrganization((current) => ({
+      ...current,
+      [sourceGroup]: current[sourceGroup].filter((_, memberIndex) => memberIndex !== index),
+      ...(target === "partners"
+        ? {}
+        : { [target]: [...current[target], member] }),
+    }));
+    if (target === "partners") {
+      const partner: Partner = {
+        id: member.id,
+        name: member.name,
+        roleEs: member.roleEs || "Socio",
+        roleEn: member.roleEn || "Partner",
+        practiceAreaIds: member.practiceAreaIds,
+        specialtiesEs: member.specialtiesEs,
+        specialtiesEn: member.specialtiesEn,
+        bioEs: member.bioEs ?? "",
+        bioEn: member.bioEn ?? "",
+        chambers: member.chambers ?? "",
+        managing: Boolean(member.managing),
+        visible: member.visible,
+        email: member.email ?? "",
+        phoneDisplay: member.phoneDisplay ?? "",
+        phoneHref: member.phoneHref ?? "",
+        photo: member.photo ?? "",
+        linkedin: member.linkedin ?? "",
+      };
+      setPartners((current) => [...current, partner]);
+      setSelectedId(partner.id);
+    } else {
+      setGroup(target);
+    }
+  }
+
   async function putDocument(key: string, data: JsonRecord) {
     const response = await fetch(`/api/admin/documents/${key}`, {
       method: "PUT",
@@ -386,6 +706,19 @@ export default function TeamManager({
     setMessage("");
     setError("");
     try {
+      const allPeople = [
+        ...partners,
+        ...organization.lawyers,
+        ...organization.interns,
+        ...organization.administration,
+      ];
+      const ids = allPeople.map((person) => person.id.trim()).filter(Boolean);
+      if (ids.length !== allPeople.length || new Set(ids).size !== ids.length) {
+        throw new Error("Cada integrante debe tener un identificador único y no vacío.");
+      }
+      if (allPeople.some((person) => !person.name.trim())) {
+        throw new Error("Cada integrante debe tener un nombre.");
+      }
       const siteData = clone(siteDocument.data);
       const navData = clone(navigationDocument.data);
       const publicPartners = partners.map((partner) => ({
@@ -394,6 +727,7 @@ export default function TeamManager({
         chambers: partner.chambers.trim() || null,
         managing: partner.managing || undefined,
         visible: partner.visible,
+        practiceAreaIds: partner.practiceAreaIds,
         email: partner.email.trim(),
         phoneDisplay: partner.phoneDisplay.trim(),
         phoneHref: partner.phoneHref.trim() || (partner.phoneDisplay ? `tel:${partner.phoneDisplay.replace(/[^\d+]/g, "")}` : ""),
@@ -401,12 +735,28 @@ export default function TeamManager({
         linkedin: partner.linkedin.trim() || undefined,
       }));
       siteData.partners = publicPartners;
+      const serializeMember = (member: OrganizationMember) => ({
+        ...member,
+        name: member.name.trim(),
+        roleEs: member.roleEs.trim(),
+        roleEn: member.roleEn.trim(),
+        specialtiesEs: extraSpecialties(member.specialtiesEs, practiceAreas),
+        specialtiesEn: extraSpecialties(member.specialtiesEn, practiceAreas),
+      });
       siteData.organization = {
-        ...organization,
-        partners: publicPartners.map((partner) => ({
+        lawyers: organization.lawyers.map(serializeMember),
+        interns: organization.interns.map(serializeMember),
+        administration: organization.administration.map(serializeMember),
+        partners: partners.map((partner) => ({
           id: partner.id,
-          name: partner.name,
+          name: partner.name.trim(),
           photo: partner.photo || undefined,
+          roleEs: partner.roleEs.trim(),
+          roleEn: partner.roleEn.trim(),
+          practiceAreaIds: partner.practiceAreaIds,
+          specialtiesEs: extraSpecialties(partner.specialtiesEs, practiceAreas),
+          specialtiesEn: extraSpecialties(partner.specialtiesEn, practiceAreas),
+          visible: partner.visible,
         })),
       };
 
@@ -621,6 +971,25 @@ export default function TeamManager({
               <div className="space-y-6">
                 <PhotoField value={selected.photo} name={selected.name} onChange={(photo) => updatePartner({ photo })} />
 
+                <label className="block space-y-2 text-xs font-semibold text-slate-700">
+                  Categoría dentro del organigrama
+                  <select
+                    value="partners"
+                    onChange={(event) => {
+                      const target = event.target.value as CategoryKey;
+                      if (target !== "partners") movePartnerToGroup(selected, target);
+                    }}
+                    className={inputClass}
+                  >
+                    {(Object.keys(groupLabels) as CategoryKey[]).map((key) => (
+                      <option key={key} value={key}>{groupLabels[key]}</option>
+                    ))}
+                  </select>
+                  <span className="block font-normal text-slate-500">
+                    Al cambiarla, la persona se moverá al grupo correspondiente sin perder sus datos.
+                  </span>
+                </label>
+
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="space-y-2 text-xs font-semibold text-slate-700">
                     Nombre completo
@@ -655,9 +1024,27 @@ export default function TeamManager({
                   </label>
                 </div>
 
+                <PracticeAreaSelector
+                  options={practiceAreas}
+                  selectedIds={selected.practiceAreaIds}
+                  onChange={updatePartnerPracticeAreas}
+                />
+
                 <div className="grid gap-4 lg:grid-cols-2">
-                  <StringList label="Áreas de práctica — Español" values={selected.specialtiesEs} onChange={(specialtiesEs) => updatePartner({ specialtiesEs })} />
-                  <StringList label="Practice areas — English" values={selected.specialtiesEn} onChange={(specialtiesEn) => updatePartner({ specialtiesEn })} />
+                  <StringList
+                    label="Especialidades adicionales — Español"
+                    values={extraSpecialties(selected.specialtiesEs, practiceAreas)}
+                    onChange={(extras) => updatePartner({
+                      specialtiesEs: mergePracticeAreas(selected.practiceAreaIds, extras, practiceAreas, "es"),
+                    })}
+                  />
+                  <StringList
+                    label="Additional specialties — English"
+                    values={extraSpecialties(selected.specialtiesEn, practiceAreas)}
+                    onChange={(extras) => updatePartner({
+                      specialtiesEn: mergePracticeAreas(selected.practiceAreaIds, extras, practiceAreas, "en"),
+                    })}
+                  />
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-2">
@@ -703,7 +1090,7 @@ export default function TeamManager({
             <p className="mt-1 text-sm text-slate-500">Abogados, pasantes y administración pueden llevar fotografía o mostrarse con iniciales.</p>
           </div>
           <div className="flex rounded-xl bg-slate-100 p-1">
-            {(Object.keys(groupLabels) as GroupKey[]).map((key) => (
+            {additionalGroupKeys.map((key) => (
               <button key={key} type="button" onClick={() => setGroup(key)} className={`rounded-lg px-3 py-2 text-xs font-semibold ${group === key ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}>
                 {groupLabels[key]} ({organization[key].length})
               </button>
@@ -713,18 +1100,104 @@ export default function TeamManager({
 
         <div className="mt-5 space-y-3">
           {organization[group].map((member, index) => (
-            <div key={`${member.id}-${index}`} className="grid gap-3 rounded-xl border border-slate-200 p-4 md:grid-cols-[72px_1fr_auto] md:items-center">
-              <CompactPhotoField value={member.photo ?? ""} name={member.name} onChange={(photo) => updateMember(group, index, { photo: photo || undefined })} />
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="space-y-2 text-xs font-semibold text-slate-700">Nombre<input value={member.name} onChange={(event) => updateMember(group, index, { name: event.target.value })} className={inputClass} /></label>
-                <label className="space-y-2 text-xs font-semibold text-slate-700">Identificador<input value={member.id} onChange={(event) => updateMember(group, index, { id: slugify(event.target.value) })} className={inputClass} /></label>
+            <article key={`${member.id}-${index}`} className="rounded-2xl border border-slate-200 p-4 md:p-5">
+              <div className="grid gap-4 md:grid-cols-[72px_1fr_auto] md:items-start">
+                <CompactPhotoField
+                  value={member.photo ?? ""}
+                  name={member.name}
+                  onChange={(photo) => updateMember(group, index, { photo: photo || undefined })}
+                />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">
+                    Nombre
+                    <input
+                      value={member.name}
+                      onChange={(event) => updateMember(group, index, { name: event.target.value })}
+                      className={inputClass}
+                    />
+                  </label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">
+                    Categoría
+                    <select
+                      value={group}
+                      onChange={(event) =>
+                        moveMemberCategory(group, index, event.target.value as CategoryKey)
+                      }
+                      className={inputClass}
+                    >
+                      {(Object.keys(groupLabels) as CategoryKey[]).map((key) => (
+                        <option key={key} value={key}>{groupLabels[key]}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">
+                    Identificador
+                    <input
+                      value={member.id}
+                      onChange={(event) => updateMember(group, index, { id: slugify(event.target.value) })}
+                      className={inputClass}
+                    />
+                  </label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700">
+                    Puesto en español
+                    <input
+                      value={member.roleEs}
+                      onChange={(event) => updateMember(group, index, { roleEs: event.target.value })}
+                      className={inputClass}
+                    />
+                  </label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700 sm:col-start-2">
+                    Puesto en inglés
+                    <input
+                      value={member.roleEn}
+                      onChange={(event) => updateMember(group, index, { roleEn: event.target.value })}
+                      className={inputClass}
+                    />
+                  </label>
+                </div>
+                <div className="flex items-center justify-end gap-1">
+                  <button type="button" onClick={() => moveMember(group, index, -1)} aria-label="Subir" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200"><ArrowUp size={15} /></button>
+                  <button type="button" onClick={() => moveMember(group, index, 1)} aria-label="Bajar" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200"><ArrowDown size={15} /></button>
+                  <button type="button" onClick={() => setOrganization((current) => ({ ...current, [group]: current[group].filter((_, memberIndex) => memberIndex !== index) }))} aria-label="Eliminar" className="grid h-9 w-9 place-items-center rounded-lg border border-rose-200 text-rose-700"><Trash size={15} /></button>
+                </div>
               </div>
-              <div className="flex items-center justify-end gap-1">
-                <button type="button" onClick={() => moveMember(group, index, -1)} aria-label="Subir" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200"><ArrowUp size={15} /></button>
-                <button type="button" onClick={() => moveMember(group, index, 1)} aria-label="Bajar" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200"><ArrowDown size={15} /></button>
-                <button type="button" onClick={() => setOrganization((current) => ({ ...current, [group]: current[group].filter((_, memberIndex) => memberIndex !== index) }))} aria-label="Eliminar" className="grid h-9 w-9 place-items-center rounded-lg border border-rose-200 text-rose-700"><Trash size={15} /></button>
+
+              <div className="mt-5 border-t border-slate-200 pt-5">
+                <PracticeAreaSelector
+                  options={practiceAreas}
+                  selectedIds={member.practiceAreaIds}
+                  onChange={(ids) => updateMemberPracticeAreas(group, index, ids)}
+                />
+                <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                  <StringList
+                    label="Especialidades adicionales — Español"
+                    values={extraSpecialties(member.specialtiesEs, practiceAreas)}
+                    onChange={(extras) => updateMember(group, index, {
+                      specialtiesEs: mergePracticeAreas(member.practiceAreaIds, extras, practiceAreas, "es"),
+                    })}
+                  />
+                  <StringList
+                    label="Additional specialties — English"
+                    values={extraSpecialties(member.specialtiesEn, practiceAreas)}
+                    onChange={(extras) => updateMember(group, index, {
+                      specialtiesEn: mergePracticeAreas(member.practiceAreaIds, extras, practiceAreas, "en"),
+                    })}
+                  />
+                </div>
+                <label className="mt-4 flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+                  <span>
+                    <span className="block text-sm font-semibold">Visible en el sitio</span>
+                    <span className="text-xs text-slate-500">Ocultar conserva a la persona en el borrador.</span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={member.visible}
+                    onChange={(event) => updateMember(group, index, { visible: event.target.checked })}
+                    className="h-5 w-5 accent-sky-700"
+                  />
+                </label>
               </div>
-            </div>
+            </article>
           ))}
           <button type="button" onClick={() => addMember(group)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 text-sm font-semibold text-slate-600 hover:border-sky-600 hover:text-sky-800">
             <Plus size={17} weight="bold" /> Añadir a {groupLabels[group]}

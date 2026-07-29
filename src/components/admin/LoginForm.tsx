@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Key, LockKey, WarningCircle } from "@phosphor-icons/react";
+import { ArrowRight, LockKey, WarningCircle } from "@phosphor-icons/react";
 
 export default function LoginForm() {
   const router = useRouter();
   const [pending, setPending] = useState(false);
-  const [requiresMfa, setRequiresMfa] = useState(false);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
 
@@ -24,21 +23,15 @@ export default function LoginForm() {
       body: JSON.stringify({
         email: form.get("email"),
         password: form.get("password"),
-        code: requiresMfa ? form.get("code") : undefined,
       }),
     });
     const payload = await response.json().catch(() => ({}));
-    if (response.status === 428) {
-      setRequiresMfa(true);
-      setPending(false);
-      return;
-    }
     if (!response.ok) {
       setError(payload.error || "No fue posible iniciar sesión.");
       setPending(false);
       return;
     }
-    router.replace(payload.requiresEnrollment ? "/admin/mfa" : "/admin");
+    router.replace("/admin");
     router.refresh();
   }
 
@@ -54,12 +47,6 @@ export default function LoginForm() {
         <label htmlFor="password" className="block text-sm font-semibold text-slate-800">Contraseña</label>
         <input id="password" name="password" type="password" autoComplete="current-password" required className={field} />
       </div>
-      {requiresMfa && (
-        <div className="space-y-2">
-          <label htmlFor="code" className="flex items-center gap-2 text-sm font-semibold text-slate-800"><Key size={17} /> Código de seis dígitos</label>
-          <input id="code" name="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required className={`${field} font-mono tracking-[0.35em]`} autoFocus />
-        </div>
-      )}
       {error && (
         <p className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
           <WarningCircle size={18} className="mt-0.5 shrink-0" /> {error}

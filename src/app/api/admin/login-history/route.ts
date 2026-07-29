@@ -8,7 +8,6 @@ const loginActions = [
   "auth.login",
   "auth.login_failed",
   "auth.login_blocked",
-  "auth.mfa_challenge",
   "auth.logout",
 ];
 

@@ -10,6 +10,7 @@ import { isLocale } from "@/i18n/config";
 import { asset } from "@/lib/asset";
 import { resolveNavigationLink } from "@/lib/cms/links";
 import { buildPageMetadata } from "@/lib/seo";
+import type { OrganizationMember } from "@/lib/site";
 
 function initials(name: string) {
   return name
@@ -18,6 +19,22 @@ function initials(name: string) {
     .slice(0, 2)
     .map((part) => part[0])
     .join("");
+}
+
+function practiceAreaLabels(
+  person: OrganizationMember,
+  locale: "es" | "en",
+  services: {
+    featured: Record<string, { title: string }>;
+    other: Record<string, string>;
+  },
+) {
+  const catalogLabels = (person.practiceAreaIds ?? []).flatMap((id) => {
+    const label = services.featured[id]?.title ?? services.other[id];
+    return label ? [label] : [];
+  });
+  const additional = locale === "es" ? person.specialtiesEs ?? [] : person.specialtiesEn ?? [];
+  return Array.from(new Set([...catalogLabels, ...additional]));
 }
 
 export async function generateMetadata({
@@ -61,39 +78,45 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
       specialties: [],
       bio: "",
     };
+    const hasControlledPracticeAreas =
+      person.practiceAreaIds !== undefined ||
+      person.specialtiesEs !== undefined ||
+      person.specialtiesEn !== undefined;
     return [{
       id: p.id,
       href: resolveNavigationLink(siteConfig, loc, "socios", p.id),
       name: p.name,
       role: info.role,
       photo: p.photo,
-      specialties: info.specialties,
+      specialties: hasControlledPracticeAreas
+        ? practiceAreaLabels(person, loc, dict.services)
+        : info.specialties,
       managing: p.managing,
     }];
   });
 
   const members = [
     ...partnerMembers,
-    ...siteConfig.organization.lawyers.map((person) => ({
+    ...siteConfig.organization.lawyers.filter((person) => person.visible !== false).map((person) => ({
       id: person.id,
       name: person.name,
-      role: org.lawyers,
+      role: (loc === "es" ? person.roleEs : person.roleEn) || org.lawyers,
       photo: person.photo,
-      specialties: [],
+      specialties: practiceAreaLabels(person, loc, dict.services),
     })),
-    ...siteConfig.organization.interns.map((person) => ({
+    ...siteConfig.organization.interns.filter((person) => person.visible !== false).map((person) => ({
       id: person.id,
       name: person.name,
-      role: org.interns,
+      role: (loc === "es" ? person.roleEs : person.roleEn) || org.interns,
       photo: person.photo,
-      specialties: [],
+      specialties: practiceAreaLabels(person, loc, dict.services),
     })),
-    ...siteConfig.organization.administration.map((person) => ({
+    ...siteConfig.organization.administration.filter((person) => person.visible !== false).map((person) => ({
       id: person.id,
       name: person.name,
-      role: org.administration,
+      role: (loc === "es" ? person.roleEs : person.roleEn) || org.administration,
       photo: person.photo,
-      specialties: [],
+      specialties: practiceAreaLabels(person, loc, dict.services),
     })),
   ];
 
@@ -136,7 +159,7 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
             <div className="mx-auto h-8 w-px bg-navy/25" />
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              {siteConfig.organization.partners.map((person) => (
+              {siteConfig.organization.partners.filter((person) => person.visible !== false).map((person) => (
                 <div
                   key={person.name}
                   className="flex min-h-[12rem] flex-col items-center justify-center rounded-xl bg-navy px-4 py-5 text-center shadow-card"
@@ -166,9 +189,9 @@ export default async function SociosPage({ params }: { params: Promise<{ locale:
 
             <div className="grid gap-5 lg:grid-cols-3">
               {[
-                { label: org.lawyers, items: siteConfig.organization.lawyers },
-                { label: org.interns, items: siteConfig.organization.interns },
-                { label: org.administration, items: siteConfig.organization.administration },
+                { label: org.lawyers, items: siteConfig.organization.lawyers.filter((person) => person.visible !== false) },
+                { label: org.interns, items: siteConfig.organization.interns.filter((person) => person.visible !== false) },
+                { label: org.administration, items: siteConfig.organization.administration.filter((person) => person.visible !== false) },
               ].map((group) => (
                 <div key={group.label}>
                   <div className="rounded-t-xl bg-navy-950 px-5 py-4">

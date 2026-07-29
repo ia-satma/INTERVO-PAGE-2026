@@ -7,7 +7,6 @@ import {
   Funnel,
   MagnifyingGlass,
   Prohibit,
-  SignIn,
   SignOut,
   UserCircle,
   WarningCircle,
@@ -15,7 +14,7 @@ import {
 
 type LoginEvent = {
   id: string;
-  action: "auth.login" | "auth.login_failed" | "auth.login_blocked" | "auth.mfa_challenge" | "auth.logout";
+  action: "auth.login" | "auth.login_failed" | "auth.login_blocked" | "auth.logout";
   metadata: Record<string, unknown>;
   ip?: string | null;
   userAgent?: string | null;
@@ -47,16 +46,13 @@ function deviceLabel(userAgent?: string | null) {
 function reasonLabel(event: LoginEvent) {
   const reason = event.metadata.reason;
   if (reason === "invalid_credentials") return "Credenciales incorrectas";
-  if (reason === "invalid_mfa") return "Código MFA incorrecto";
   if (reason === "rate_limit") return "Demasiados intentos";
-  if (event.action === "auth.mfa_challenge") return "Verificación MFA solicitada";
   return "";
 }
 
 function statusFor(event: LoginEvent) {
   if (event.action === "auth.login") return { label: "Acceso exitoso", Icon: CheckCircle, className: "bg-emerald-50 text-emerald-700" };
   if (event.action === "auth.logout") return { label: "Sesión cerrada", Icon: SignOut, className: "bg-slate-100 text-slate-600" };
-  if (event.action === "auth.mfa_challenge") return { label: "MFA solicitado", Icon: SignIn, className: "bg-sky-50 text-sky-700" };
   return { label: "Acceso rechazado", Icon: Prohibit, className: "bg-rose-50 text-rose-700" };
 }
 

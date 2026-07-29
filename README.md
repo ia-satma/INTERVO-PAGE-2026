@@ -17,7 +17,7 @@ firma boutique de asesoría legal y de negocios con sede en Monterrey.
 - **Imaginería conceptual** (dirección editorial estilo Woods Rogers, adaptada): gradient-mesh, grano, motivo puente/∞ y **texturas de mármol en duotono** de la foto propia de la firma (`public/images/textures/`)
 - **Directorio de Abogados**: grid de socios con foto real + perfil individual por abogado (`/socios/[id]`) — bio, áreas de práctica, contacto directo
 - Internacionalización propia (ES/EN) vía segmento `[locale]` + `proxy` de detección de idioma
-- **CMS full-stack:** PostgreSQL + Drizzle, App Storage, roles, MFA, borradores, publicación y versiones
+- **CMS full-stack:** PostgreSQL + Drizzle, App Storage, roles, sesiones seguras, borradores, publicación y versiones
 - El formulario de contacto guarda solicitudes en el panel y puede notificar por Resend
 - `sharp` como dependencia para el optimizador de imágenes de Next (necesaria para `npm run dev`/`npm start`
   locales; el export estático a GitHub Pages usa `images.unoptimized`, así que no la necesita en producción)

@@ -95,6 +95,13 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     ctaBackground: "/images/textures/brand-shapes-navy-3.webp",
     insightCardBackground: "/images/textures/brand-shapes-navy-2.webp",
     servicesBackground: "/images/textures/brand-shapes-light-2.webp",
+    serviceImages: {
+      ma: "/images/services/fusiones-adquisiciones-ma.webp",
+      finance: "/images/services/finanzas-corporativas.webp",
+      corporate: "/images/services/corporativo-transaccional.webp",
+      trusts: "/images/services/fideicomisos-planeacion-patrimonial.webp",
+      realestate: "/images/services/derecho-inmobiliario.webp",
+    },
     globalBackground: "/images/textures/brand-shapes-navy-1.webp",
     homeServicesBackground: "/images/textures/brand-shapes-light-2.webp",
     homeRecognitionBackground: "/images/textures/brand-shapes-navy-1.webp",

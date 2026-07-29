@@ -22,7 +22,7 @@ import MediaPickerDialog from "./MediaPickerDialog";
 
 type JsonRecord = Record<string, unknown>;
 
-const imageSlots: Array<{ key: Exclude<keyof SiteConfig["media"], "homeHero" | "heroVideo">; label: string; description: string }> = [
+const imageSlots: Array<{ key: Exclude<keyof SiteConfig["media"], "homeHero" | "heroVideo" | "serviceImages">; label: string; description: string }> = [
   { key: "heroPoster", label: "Poster del video principal", description: "Imagen mostrada mientras carga el video de portada." },
   { key: "firmImage", label: "Imagen de La Firma", description: "Fotografía principal dentro de la página institucional." },
   { key: "logoColor", label: "Logotipo a color", description: "Encabezado sobre fondos claros." },
@@ -42,6 +42,14 @@ const imageSlots: Array<{ key: Exclude<keyof SiteConfig["media"], "homeHero" | "
   { key: "firmRecognitionBackground", label: "Fondo de reconocimientos", description: "Panel de Chambers en La Firma." },
   { key: "teamBackground", label: "Fondo para personas sin foto", description: "Textura usada detrás de las iniciales del equipo." },
 ];
+
+const serviceLabels: Record<string, string> = {
+  ma: "Fusiones y Adquisiciones (M&A)",
+  finance: "Finanzas Corporativas",
+  corporate: "Corporativo y Transaccional",
+  trusts: "Fideicomisos y Planeación Patrimonial",
+  realestate: "Derecho Inmobiliario",
+};
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
@@ -114,8 +122,23 @@ export default function MediaAssignments({
   const [error, setError] = useState("");
   const [review, setReview] = useState<"save" | "publish" | null>(null);
 
-  const media = data.media as SiteConfig["media"];
-  const savedMedia = savedData.media as SiteConfig["media"];
+  const media = useMemo(
+    () => ({
+      ...(data.media as SiteConfig["media"]),
+      serviceImages: (data.media as SiteConfig["media"]).serviceImages ?? {},
+    }),
+    [data.media],
+  );
+  const savedMedia = useMemo(
+    () => ({
+      ...(savedData.media as SiteConfig["media"]),
+      serviceImages: (savedData.media as SiteConfig["media"]).serviceImages ?? {},
+    }),
+    [savedData.media],
+  );
+  const serviceIds = Array.isArray(data.featuredServices)
+    ? data.featuredServices.filter((value): value is string => typeof value === "string")
+    : Object.keys(media.serviceImages);
   const dirty = JSON.stringify(media) !== JSON.stringify(savedMedia);
   const reviewChanges = useMemo(
     () => review ? buildChangeSet(savedMedia, media) : [],
@@ -172,7 +195,9 @@ export default function MediaAssignments({
           <span className={`h-2.5 w-2.5 rounded-full ${dirty ? "bg-amber-500" : "bg-emerald-500"}`} />
           <div>
             <p className="text-sm font-semibold text-slate-800">{dirty ? "Cambios sin guardar" : "Todas las asignaciones están cargadas"}</p>
-            <p className="text-xs text-slate-500">{imageSlots.length + media.homeHero.length + 1} posiciones editables de imagen o video</p>
+            <p className="text-xs text-slate-500">
+              {imageSlots.length + media.homeHero.length + serviceIds.length + 1} posiciones editables de imagen o video
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -234,6 +259,34 @@ export default function MediaAssignments({
                 <button type="button" aria-label="Eliminar imagen" onClick={() => updateMedia({ homeHero: media.homeHero.filter((_, itemIndex) => itemIndex !== index) })} className="grid h-8 w-8 place-items-center rounded-md text-rose-700 hover:bg-rose-50"><Trash size={15} /></button>
               </div>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-7">
+        <div className="mb-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Servicios</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight">Imágenes de áreas de práctica</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Cada tarjeta puede usar una imagen distinta o reutilizar una fotografía del historial.
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {serviceIds.map((id) => (
+            <AssignmentCard
+              key={id}
+              label={serviceLabels[id] ?? id}
+              description="Imagen mostrada en la tarjeta de esta área de práctica."
+              value={media.serviceImages[id] ?? ""}
+              onChange={(value) =>
+                updateMedia({
+                  serviceImages: {
+                    ...media.serviceImages,
+                    [id]: value,
+                  },
+                })
+              }
+            />
           ))}
         </div>
       </section>

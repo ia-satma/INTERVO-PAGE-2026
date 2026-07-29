@@ -6,7 +6,7 @@ import { csrfHeaders } from "@/lib/client/csrf";
 import { buildChangeSet } from "@/lib/client/change-set";
 import ChangeReviewDialog from "./ChangeReviewDialog";
 
-type User = { id: string; name: string; email: string; role: "owner" | "admin" | "editor"; isActive: boolean; mfaEnabled: boolean; createdAt: string };
+type User = { id: string; name: string; email: string; role: "owner" | "admin" | "editor"; isActive: boolean; createdAt: string };
 
 export default function UsersManager() {
   const [users, setUsers] = useState<User[]>([]);
@@ -60,7 +60,7 @@ export default function UsersManager() {
           <div key={user.id} className="grid gap-3 border-b border-slate-200 px-5 py-4 last:border-b-0 sm:grid-cols-[1fr_150px_130px] sm:items-center">
             <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100 text-slate-500"><UserCircle size={21} /></span><div><p className="text-sm font-semibold text-slate-900">{user.name}</p><p className="mt-0.5 text-xs text-slate-500">{user.email}</p></div></div>
             <span className="w-fit rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold capitalize text-sky-800">{user.role}</span>
-            <span className={`inline-flex items-center gap-1.5 text-xs ${user.mfaEnabled ? "text-emerald-700" : "text-slate-400"}`}><ShieldCheck size={15} /> {user.mfaEnabled ? "MFA activo" : "Sin MFA"}</span>
+            <span className={`inline-flex items-center gap-1.5 text-xs ${user.isActive ? "text-emerald-700" : "text-rose-700"}`}><ShieldCheck size={15} /> {user.isActive ? "Acceso activo" : "Acceso desactivado"}</span>
           </div>
         ))}
       </div>

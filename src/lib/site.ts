@@ -101,6 +101,7 @@ export type PartnerMeta = {
   name: string;
   chambers: string | null;
   managing?: boolean;
+  practiceAreaIds?: string[];
   email: string;
   phoneDisplay: string;
   phoneHref: string;
@@ -166,6 +167,20 @@ export type OrganizationMember = {
   id: string;
   name: string;
   photo?: string;
+  roleEs?: string;
+  roleEn?: string;
+  practiceAreaIds?: string[];
+  specialtiesEs?: string[];
+  specialtiesEn?: string[];
+  bioEs?: string;
+  bioEn?: string;
+  chambers?: string;
+  managing?: boolean;
+  visible?: boolean;
+  email?: string;
+  phoneDisplay?: string;
+  phoneHref?: string;
+  linkedin?: string;
 };
 
 export const ORGANIZATION: {

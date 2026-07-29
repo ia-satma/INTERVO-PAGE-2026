@@ -6,6 +6,8 @@ import { writeAudit } from "@/lib/auth/audit";
 import { apiError, requirePermission } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { cmsDocuments, mediaItems } from "@/lib/db/schema";
+import { DEFAULT_SITE_CONFIG } from "@/lib/cms/defaults";
+import { deepMerge } from "@/lib/cms/merge";
 import {
   deleteMediaObject,
   MAX_IMAGE_BYTES,
@@ -14,6 +16,7 @@ import {
   listVirtualMedia,
   storeMediaBytes,
 } from "@/lib/media/storage";
+import { buildMediaUsageMap } from "@/lib/media/usage";
 
 export const runtime = "nodejs";
 
@@ -33,7 +36,37 @@ export async function GET(request: NextRequest) {
     for (const item of await listVirtualMedia()) {
       if (!byUrl.has(item.url)) byUrl.set(item.url, item);
     }
-    return NextResponse.json({ items: Array.from(byUrl.values()) });
+    const items = Array.from(byUrl.values());
+    const documents = db
+      ? await db
+          .select({
+            key: cmsDocuments.key,
+            label: cmsDocuments.label,
+            draft: cmsDocuments.draft,
+            published: cmsDocuments.published,
+          })
+          .from(cmsDocuments)
+      : [];
+    const usageDocuments = documents.map((document) =>
+      document.key === "site-config"
+        ? {
+            ...document,
+            draft: deepMerge(DEFAULT_SITE_CONFIG, document.draft),
+            published: deepMerge(DEFAULT_SITE_CONFIG, document.published),
+          }
+        : document,
+    );
+    const usageMap = buildMediaUsageMap(usageDocuments, items.map((item) => item.url));
+    return NextResponse.json({
+      items: items.map((item) => {
+        const usages = usageMap.get(item.url) ?? [];
+        return {
+          ...item,
+          usages,
+          usageCount: usages.length,
+        };
+      }),
+    });
   } catch (error) {
     return apiError(error);
   }

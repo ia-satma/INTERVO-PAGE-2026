@@ -113,6 +113,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   index={String(i + 1).padStart(2, "0")}
                   title={dict.services.featured[id].title}
                   desc={dict.services.featured[id].desc}
+                  image={siteConfig.media.serviceImages[id]}
                 />
               </Reveal>
             ))}

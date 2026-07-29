@@ -4,7 +4,7 @@ import { apiError, clearSessionCookies, requirePermission, revokeRequestSession 
 
 export async function POST(request: NextRequest) {
   try {
-    const context = await requirePermission(request, "content:read", { csrf: true, mfa: false });
+    const context = await requirePermission(request, "content:read", { csrf: true });
     await revokeRequestSession(request);
     await writeAudit(request, {
       userId: context.user.id,

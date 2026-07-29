@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Check,
+  ClockCounterClockwise,
   CloudArrowUp,
   DownloadSimple,
   FileImage,
@@ -30,7 +31,22 @@ type Media = {
   posterUrl?: string | null;
   virtual?: boolean;
   createdAt?: string | null;
+  usageCount?: number;
+  usages?: Array<{
+    documentKey: string;
+    documentLabel: string;
+    state: "draft" | "published";
+    path: string;
+  }>;
 };
+
+function formatMediaDate(value?: string | null) {
+  if (!value) return "Recurso original del sitio";
+  return new Intl.DateTimeFormat("es-MX", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
 
 export default function MediaManager() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +75,16 @@ export default function MediaManager() {
   useEffect(() => { void load(); }, []);
 
   const filtered = useMemo(
-    () => items.filter((item) => (kind === "all" || item.kind === kind) && item.name.toLowerCase().includes(query.toLowerCase())),
+    () => items.filter((item) => {
+      const term = query.toLowerCase();
+      const searchable = [
+        item.name,
+        item.altEs,
+        item.altEn,
+        ...(item.usages ?? []).flatMap((usage) => [usage.documentLabel, usage.path]),
+      ].filter(Boolean).join(" ").toLowerCase();
+      return (kind === "all" || item.kind === kind) && searchable.includes(term);
+    }),
     [items, kind, query],
   );
 
@@ -145,7 +170,9 @@ export default function MediaManager() {
           <input ref={inputRef} type="file" onChange={reviewUpload} disabled={uploading} accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm,video/quicktime" className="sr-only" />
         </label>
       </div>
-      <p className="mb-5 text-xs text-slate-500">Imágenes hasta 20 MB. Videos MP4, WebM o MOV hasta 200 MB. Los recursos en uso no se pueden eliminar.</p>
+      <p className="mb-5 text-xs text-slate-500">
+        Historial reutilizable de imágenes y videos. Puedes seleccionar el mismo archivo en varios apartados; las referencias en uso no se pueden eliminar.
+      </p>
       {notice && <p className="mb-5 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"><Check size={17} weight="bold" /> {notice}</p>}
       {error && <p className="mb-5 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"><WarningCircle size={17} /> {error}</p>}
       {state === "loading" && <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">{Array.from({ length: 8 }).map((_, index) => <div key={index} className="aspect-[4/3] animate-pulse rounded-2xl bg-slate-200" />)}</div>}
@@ -163,7 +190,13 @@ export default function MediaManager() {
               </div>
               <div className="p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0"><h3 className="truncate text-sm font-semibold text-slate-800">{item.name}</h3><p className="mt-1 text-xs text-slate-500">{item.virtual ? "Referencia histórica" : item.size ? `${(item.size / 1024 / 1024).toFixed(1)} MB` : "Subido al panel"}</p></div>
+                  <div className="min-w-0">
+                    <h3 className="truncate text-sm font-semibold text-slate-800">{item.name}</h3>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {item.size ? `${(item.size / 1024 / 1024).toFixed(1)} MB · ` : ""}
+                      {formatMediaDate(item.createdAt)}
+                    </p>
+                  </div>
                   <div className="flex shrink-0 items-center gap-1">
                     <a
                       href={item.virtual ? item.url : `${item.url}${item.url.includes("?") ? "&" : "?"}download=1`}
@@ -179,6 +212,27 @@ export default function MediaManager() {
                   </div>
                 </div>
                 {(item.altEs || item.altEn) && <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-slate-500">{item.altEs || item.altEn}</p>}
+                <details className="mt-3 border-t border-slate-100 pt-3">
+                  <summary className="flex cursor-pointer list-none items-center gap-2 text-xs font-semibold text-sky-800">
+                    <ClockCounterClockwise size={15} />
+                    {item.usageCount
+                      ? `${item.usageCount} referencia${item.usageCount === 1 ? "" : "s"} en el contenido`
+                      : "Disponible para reutilizar"}
+                  </summary>
+                  {Boolean(item.usages?.length) && (
+                    <ul className="mt-2 space-y-1.5 text-[0.68rem] leading-relaxed text-slate-500">
+                      {item.usages?.map((usage, index) => (
+                        <li key={`${usage.documentKey}-${usage.state}-${usage.path}-${index}`}>
+                          <span className="font-semibold text-slate-700">{usage.documentLabel}</span>
+                          {" · "}
+                          {usage.state === "draft" ? "Borrador" : "Publicado"}
+                          {" · "}
+                          <span className="font-mono">{usage.path}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </details>
               </div>
             </article>
           ))}

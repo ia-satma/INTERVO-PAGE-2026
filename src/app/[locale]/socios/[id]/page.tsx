@@ -8,10 +8,31 @@ import StructuredData from "@/components/StructuredData";
 import { ArrowLeft, ArrowUpRight, Award, Mail, Phone, Linkedin } from "@/components/icons";
 import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
-import { PARTNERS } from "@/lib/site";
+import { PARTNERS, type OrganizationMember } from "@/lib/site";
 import { asset } from "@/lib/asset";
 import { resolveNavigationLink } from "@/lib/cms/links";
 import { buildPageMetadata, buildPersonSchema } from "@/lib/seo";
+
+function initials(name: string) {
+  const parts = name.split(" ").filter(Boolean);
+  return `${parts[0]?.[0] ?? ""}${parts[parts.length - 1]?.[0] ?? ""}`;
+}
+
+function practiceAreaLabels(
+  person: OrganizationMember,
+  locale: "es" | "en",
+  services: {
+    featured: Record<string, { title: string }>;
+    other: Record<string, string>;
+  },
+) {
+  const catalogLabels = (person.practiceAreaIds ?? []).flatMap((practiceId) => {
+    const label = services.featured[practiceId]?.title ?? services.other[practiceId];
+    return label ? [label] : [];
+  });
+  const additional = locale === "es" ? person.specialtiesEs ?? [] : person.specialtiesEn ?? [];
+  return Array.from(new Set([...catalogLabels, ...additional]));
+}
 
 export function generateStaticParams() {
   return PARTNERS.map((p) => ({ id: p.id }));
@@ -55,10 +76,26 @@ export default async function PartnerProfilePage({
   if (!partner) notFound();
 
   const profiles = dict.partners as Record<string, { role: string; specialties: string[]; bio: string }>;
-  const info = profiles[id] ?? {
+  const profileInfo = profiles[id] ?? {
     role: partner.managing ? dict.socios.managingLabel : dict.socios.partnerLabel,
     specialties: [],
     bio: "",
+  };
+  const organizationMember = siteConfig.organization.partners.find((person) => person.id === id);
+  const hasControlledPracticeAreas = Boolean(
+    organizationMember &&
+    (
+      organizationMember.practiceAreaIds !== undefined ||
+      organizationMember.specialtiesEs !== undefined ||
+      organizationMember.specialtiesEn !== undefined
+    ),
+  );
+  const info = {
+    ...profileInfo,
+    specialties:
+      hasControlledPracticeAreas && organizationMember
+        ? practiceAreaLabels(organizationMember, loc, dict.services)
+        : profileInfo.specialties,
   };
   const t = dict.socios;
   const visiblePartners = siteConfig.partners.filter((item) => item.visible !== false);
@@ -99,14 +136,33 @@ export default async function PartnerProfilePage({
           <div className="mt-8 grid gap-10 lg:grid-cols-12 lg:items-end">
             <Reveal className="lg:col-span-4">
               <div className="relative aspect-[4/5] w-full max-w-sm overflow-hidden rounded-2xl shadow-card">
-                <Image
-                  src={asset(partner.photo)}
-                  alt={partner.name}
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 33vw"
-                />
+                {partner.photo ? (
+                  <Image
+                    src={asset(partner.photo)}
+                    alt={partner.name}
+                    fill
+                    priority
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                  />
+                ) : (
+                  <>
+                    <Image
+                      src={asset(siteConfig.media.teamBackground)}
+                      alt=""
+                      fill
+                      priority
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 33vw"
+                    />
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 grid place-items-center bg-navy-950/55 font-serif text-8xl text-white/35"
+                    >
+                      {initials(partner.name)}
+                    </span>
+                  </>
+                )}
               </div>
             </Reveal>
 
@@ -204,13 +260,19 @@ export default async function PartnerProfilePage({
                     className="group flex items-center gap-3.5 rounded-xl border border-line bg-white p-3.5 transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card"
                   >
                     <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-mist">
-                      <Image
-                        src={asset(p.photo)}
-                        alt={p.name}
-                        fill
-                        className="object-cover grayscale transition-[filter] duration-500 group-hover:grayscale-0"
-                        sizes="56px"
-                      />
+                      {p.photo ? (
+                        <Image
+                          src={asset(p.photo)}
+                          alt={p.name}
+                          fill
+                          className="object-cover grayscale transition-[filter] duration-500 group-hover:grayscale-0"
+                          sizes="56px"
+                        />
+                      ) : (
+                        <span className="grid h-full w-full place-items-center bg-navy font-display text-xs font-semibold text-white">
+                          {initials(p.name)}
+                        </span>
+                      )}
                     </span>
                     <span className="min-w-0">
                       <span className="block truncate font-serif text-base leading-tight transition-colors group-hover:text-navy">

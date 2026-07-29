@@ -77,6 +77,7 @@ export type SiteConfig = {
     ctaBackground: string;
     insightCardBackground: string;
     servicesBackground: string;
+    serviceImages: Record<string, string>;
     globalBackground: string;
     homeServicesBackground: string;
     homeRecognitionBackground: string;
@@ -91,8 +92,6 @@ export type AdminSessionUser = {
   name: string;
   role: "owner" | "admin" | "editor";
   permissions: Permission[];
-  mfaEnabled: boolean;
-  mfaVerified: boolean;
 };
 
 export type Permission =

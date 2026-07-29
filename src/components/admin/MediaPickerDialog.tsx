@@ -14,6 +14,12 @@ type Item = {
   url: string;
   altEs?: string;
   virtual?: boolean;
+  createdAt?: string | null;
+  usageCount?: number;
+  usages?: Array<{
+    documentLabel: string;
+    path: string;
+  }>;
 };
 
 export default function MediaPickerDialog({
@@ -83,7 +89,15 @@ export default function MediaPickerDialog({
   }, [open]);
 
   const filtered = useMemo(
-    () => items.filter((item) => (!kind || item.kind === kind) && item.name.toLowerCase().includes(query.toLowerCase())),
+    () => items.filter((item) => {
+      const term = query.toLowerCase();
+      const searchable = [
+        item.name,
+        item.altEs,
+        ...(item.usages ?? []).flatMap((usage) => [usage.documentLabel, usage.path]),
+      ].filter(Boolean).join(" ").toLowerCase();
+      return (!kind || item.kind === kind) && searchable.includes(term);
+    }),
     [items, kind, query],
   );
   if (!open) return null;
@@ -94,7 +108,7 @@ export default function MediaPickerDialog({
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Biblioteca</p>
-            <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">Elegir medio existente</h2>
+            <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">Elegir del historial de medios</h2>
           </div>
           <button onClick={onClose} aria-label="Cerrar" className="grid h-10 w-10 place-items-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"><X size={20} /></button>
         </div>
@@ -102,7 +116,7 @@ export default function MediaPickerDialog({
           <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
             <label className="relative block">
               <MagnifyingGlass size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por nombre…" className="w-full rounded-xl border border-slate-200 py-3 pr-4 pl-10 text-sm outline-none focus:border-sky-700 focus:ring-2 focus:ring-sky-700/15" />
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por nombre o apartado de uso…" className="w-full rounded-xl border border-slate-200 py-3 pr-4 pl-10 text-sm outline-none focus:border-sky-700 focus:ring-2 focus:ring-sky-700/15" />
             </label>
             {allowUpload && (
               <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0f4386] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0072ad]">
@@ -146,7 +160,13 @@ export default function MediaPickerDialog({
                   </div>
                   <div className="p-3">
                     <p className="truncate text-xs font-semibold text-slate-800">{item.name}</p>
-                    <p className="mt-1 text-[0.68rem] text-slate-500">{item.virtual ? "En uso en el sitio" : "Subido al panel"}</p>
+                    <p className="mt-1 text-[0.68rem] text-slate-500">
+                      {item.usageCount
+                        ? `Usado en ${item.usageCount} referencia${item.usageCount === 1 ? "" : "s"}`
+                        : item.virtual
+                          ? "Recurso original disponible"
+                          : "Subido al panel · disponible"}
+                    </p>
                   </div>
                 </button>
               ))}

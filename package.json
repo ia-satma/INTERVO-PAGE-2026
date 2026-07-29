@@ -5,7 +5,7 @@
   "description": "Sitio web corporativo bilingüe de intervø — Legal and Business Consulting (Intervo Legal, S.C.)",
   "scripts": {
     "dev": "next dev --webpack --hostname 0.0.0.0",
-    "build": "next build",
+    "build": "npm run clean:appledouble && next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -14,7 +14,10 @@
     "db:migrate": "npm run clean:appledouble && drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed-cms.ts",
-    "test:cms": "node --import tsx --test src/lib/cms/*.test.ts"
+    "test": "npm run test:cms && npm run test:auth && npm run test:media",
+    "test:cms": "node --import tsx --test src/lib/cms/*.test.ts",
+    "test:auth": "node --import tsx --test src/lib/auth/*.test.ts",
+    "test:media": "node --import tsx --test src/lib/media/*.test.ts"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
@@ -24,7 +27,6 @@
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
     "next": "^16.2.12",
-    "otplib": "^13.4.1",
     "postgres": "^3.4.9",
     "react": "19.2.7",
     "react-dom": "19.2.7",

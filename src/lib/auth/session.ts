@@ -30,7 +30,6 @@ export class AuthError extends Error {
 export async function createSession(
   user: typeof adminUsers.$inferSelect,
   request: NextRequest,
-  mfaVerified: boolean,
 ) {
   const db = getDb();
   if (!db) throw new Error("DATABASE_URL no está configurada.");
@@ -41,7 +40,6 @@ export async function createSession(
     userId: user.id,
     tokenHash: sha256(token),
     csrfHash: sha256(csrf),
-    mfaVerified,
     ip: getClientIp(request),
     userAgent: getUserAgent(request),
     expiresAt,
@@ -100,15 +98,12 @@ async function resolveSession(token: string | undefined | null) {
   if (Date.now() - row.session.lastSeenAt.getTime() > SESSION_TOUCH_MS) {
     await db.update(adminSessions).set({ lastSeenAt: now }).where(eq(adminSessions.id, row.session.id));
   }
-  const elevated = row.user.role === "owner" || row.user.role === "admin";
   const user: AdminSessionUser = {
     id: row.user.id,
     email: row.user.email,
     name: row.user.name,
     role: row.user.role,
     permissions: permissionsForRole(row.user.role),
-    mfaEnabled: row.user.mfaEnabled,
-    mfaVerified: elevated ? row.user.mfaEnabled && row.session.mfaVerified : true,
   };
   return { ...row, user };
 }
@@ -125,14 +120,11 @@ export const getCurrentSession = cache(async function getCurrentSession() {
 export async function requirePermission(
   request: NextRequest,
   permission: Permission,
-  options: { csrf?: boolean; mfa?: boolean } = {},
+  options: { csrf?: boolean } = {},
 ) {
   const context = await getRequestSession(request);
   if (!context) throw new AuthError("Sesión no válida.", 401);
   if (!context.user.permissions.includes(permission)) throw new AuthError("No tienes permiso para esta acción.", 403);
-  if (options.mfa !== false && ["owner", "admin"].includes(context.user.role) && !context.user.mfaVerified) {
-    throw new AuthError("Debes completar la verificación de dos pasos.", 403);
-  }
   if (options.csrf) {
     const csrf = request.headers.get("x-csrf-token");
     if (!csrf || sha256(csrf) !== context.session.csrfHash) throw new AuthError("Token CSRF inválido.", 403);
