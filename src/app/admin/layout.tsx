@@ -1,6 +1,5 @@
-import "@fontsource-variable/inter";
-import "@fontsource-variable/bricolage-grotesque";
 import "../globals.css";
+import { bricolage, inter } from "../fonts";
 
 export const metadata = {
   title: "Intervo Admin",
@@ -9,7 +8,7 @@ export const metadata = {
 
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${inter.variable} ${bricolage.variable}`}>
       <body>{children}</body>
     </html>
   );

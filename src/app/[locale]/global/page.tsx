@@ -11,6 +11,7 @@ import { Globe } from "@/components/icons";
 import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
 import { resolveNavigationLink } from "@/lib/cms/links";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -20,17 +21,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
-  return {
+  return buildPageMetadata({
+    locale: loc,
     title: dict.meta.global.title,
     description: dict.meta.global.description,
-    alternates: {
-      canonical: resolveNavigationLink(siteConfig, loc, "global"),
-      languages: {
-        es: resolveNavigationLink(siteConfig, "es", "global"),
-        en: resolveNavigationLink(siteConfig, "en", "global"),
-      },
-    },
-  };
+    siteConfig,
+    canonical: resolveNavigationLink(siteConfig, loc, "global"),
+    es: resolveNavigationLink(siteConfig, "es", "global"),
+    en: resolveNavigationLink(siteConfig, "en", "global"),
+  });
 }
 
 export default async function GlobalPage({ params }: { params: Promise<{ locale: string }> }) {

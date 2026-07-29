@@ -107,7 +107,7 @@ son el seed/fallback, no el flujo editorial cotidiano.
       bloque `insights.items`). La firma debe proveer las publicaciones reales; hoy las tarjetas no enlazan
       a páginas de detalle (se puede añadir `[slug]` cuando exista contenido).
 - [ ] **Aviso de Privacidad:** el texto en `dictionaries` es de referencia; debe validarlo la firma.
-- [ ] **Dominio/URL canónica:** actualizar `SITE_URL` en `src/lib/site.ts` si difiere de `https://www.intervo.legal`.
+- [ ] **Dominio/URL canónica:** configurar `NEXT_PUBLIC_SITE_URL` si difiere de `https://intervo-page-2026.replit.app`.
 - [ ] **Nombre completo de Carlos Marcos:** el brochure 2025 usa "Roberto Carlos Marcos Romero" en una
       tarjeta y "Carlos Marcos Iga" en otra (mismo correo `cmarcos@intervo.legal`). Se mantiene "Carlos
       Marcos Iga" (el usado en Chambers & Partners); confirmar con la firma cuál es el nombre preferido.

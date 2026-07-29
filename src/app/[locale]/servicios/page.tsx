@@ -10,6 +10,7 @@ import { ServiceIcon } from "@/components/icons";
 import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
 import { resolveNavigationLink } from "@/lib/cms/links";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -19,17 +20,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
-  return {
+  return buildPageMetadata({
+    locale: loc,
     title: dict.meta.servicios.title,
     description: dict.meta.servicios.description,
-    alternates: {
-      canonical: resolveNavigationLink(siteConfig, loc, "servicios"),
-      languages: {
-        es: resolveNavigationLink(siteConfig, "es", "servicios"),
-        en: resolveNavigationLink(siteConfig, "en", "servicios"),
-      },
-    },
-  };
+    siteConfig,
+    canonical: resolveNavigationLink(siteConfig, loc, "servicios"),
+    es: resolveNavigationLink(siteConfig, "es", "servicios"),
+    en: resolveNavigationLink(siteConfig, "en", "servicios"),
+  });
 }
 
 export default async function ServiciosPage({ params }: { params: Promise<{ locale: string }> }) {

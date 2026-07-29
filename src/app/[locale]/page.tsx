@@ -12,6 +12,7 @@ import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/reposi
 import { isLocale } from "@/i18n/config";
 import { asset } from "@/lib/asset";
 import { resolveHomeLink, resolveNavigationLink } from "@/lib/cms/links";
+import { buildPageMetadata } from "@/lib/seo";
 
 const RECOGNIZED_PARTNER_IDS = ["carlos", "alfredo", "jorge"];
 
@@ -23,17 +24,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
-  return {
+  return buildPageMetadata({
+    locale: loc,
     title: dict.meta.home.title,
     description: dict.meta.home.description,
-    alternates: {
-      canonical: resolveHomeLink(siteConfig, loc),
-      languages: {
-        es: resolveHomeLink(siteConfig, "es"),
-        en: resolveHomeLink(siteConfig, "en"),
-      },
-    },
-  };
+    siteConfig,
+    canonical: resolveHomeLink(siteConfig, loc),
+    es: resolveHomeLink(siteConfig, "es"),
+    en: resolveHomeLink(siteConfig, "en"),
+  });
 }
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {

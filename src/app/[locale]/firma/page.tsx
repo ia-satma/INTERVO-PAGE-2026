@@ -9,6 +9,7 @@ import ValueCard from "@/components/ValueCard";
 import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
 import { resolveNavigationLink } from "@/lib/cms/links";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -18,17 +19,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
-  return {
+  return buildPageMetadata({
+    locale: loc,
     title: dict.meta.firma.title,
     description: dict.meta.firma.description,
-    alternates: {
-      canonical: resolveNavigationLink(siteConfig, loc, "firma"),
-      languages: {
-        es: resolveNavigationLink(siteConfig, "es", "firma"),
-        en: resolveNavigationLink(siteConfig, "en", "firma"),
-      },
-    },
-  };
+    siteConfig,
+    canonical: resolveNavigationLink(siteConfig, loc, "firma"),
+    es: resolveNavigationLink(siteConfig, "es", "firma"),
+    en: resolveNavigationLink(siteConfig, "en", "firma"),
+  });
 }
 
 export default async function FirmaPage({ params }: { params: Promise<{ locale: string }> }) {

@@ -28,7 +28,7 @@ export default function Logo({
       height={180}
       className={className}
       priority={priority}
-      unoptimized
+      sizes="(min-width: 768px) 144px, 128px"
     />
   );
 }
@@ -48,5 +48,5 @@ export function LogoMark({
   whiteSrc = "/brand/isotype-white.png",
 }: MarkProps) {
   const src = asset(variant === "white" ? whiteSrc : colorSrc);
-  return <Image src={src} alt="intervø" width={96} height={96} className={className} unoptimized />;
+  return <Image src={src} alt="intervø" width={96} height={96} sizes="96px" className={className} />;
 }

@@ -6,6 +6,7 @@ import { Phone, Mail, Whatsapp, Linkedin, Globe, MapPin, ArrowUpRight } from "@/
 import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
 import { resolveNavigationLink, resolvePrivacyLink, visibleSocialLinks } from "@/lib/cms/links";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -15,17 +16,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
-  return {
+  return buildPageMetadata({
+    locale: loc,
     title: dict.meta.contacto.title,
     description: dict.meta.contacto.description,
-    alternates: {
-      canonical: resolveNavigationLink(siteConfig, loc, "contacto"),
-      languages: {
-        es: resolveNavigationLink(siteConfig, "es", "contacto"),
-        en: resolveNavigationLink(siteConfig, "en", "contacto"),
-      },
-    },
-  };
+    siteConfig,
+    canonical: resolveNavigationLink(siteConfig, loc, "contacto"),
+    es: resolveNavigationLink(siteConfig, "es", "contacto"),
+    en: resolveNavigationLink(siteConfig, "en", "contacto"),
+  });
 }
 
 export default async function ContactoPage({ params }: { params: Promise<{ locale: string }> }) {

@@ -1,8 +1,17 @@
 import type { Locale } from "@/i18n/config";
 
-/** Canonical production URL (update when the domain/hosting is confirmed). */
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.intervo.legal";
+const explicitSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const replitDomain = process.env.REPLIT_DOMAINS?.split(",")
+  .map((domain) => domain.trim())
+  .find(Boolean);
+const runtimeSiteUrl = explicitSiteUrl || (replitDomain ? `https://${replitDomain}` : "");
+
+/** Canonical origin. NEXT_PUBLIC_SITE_URL wins; Replit is detected automatically. */
+export const SITE_URL = runtimeSiteUrl || "https://intervo-page-2026.replit.app";
+
+export function resolveRuntimeSiteUrl(configuredUrl: string) {
+  return (runtimeSiteUrl || configuredUrl || SITE_URL).replace(/\/+$/, "");
+}
 
 export const SITE = {
   name: "intervø",

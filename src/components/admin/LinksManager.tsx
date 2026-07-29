@@ -312,7 +312,7 @@ export default function LinksManager({
             <label className={labelClass}>Inicio EN<input value={utility.homeEn} onChange={(event) => updateUtility({ homeEn: event.target.value })} className={inputClass} /></label>
             <label className={labelClass}>Privacidad ES<input value={utility.privacyEs} onChange={(event) => updateUtility({ privacyEs: event.target.value })} className={inputClass} /></label>
             <label className={labelClass}>Privacidad EN<input value={utility.privacyEn} onChange={(event) => updateUtility({ privacyEn: event.target.value })} className={inputClass} /></label>
-            <label className={`${labelClass} md:col-span-2`}>URL pública canónica<input value={site.url} onChange={(event) => setData((current) => ({ ...current, site: { ...(current.site as JsonRecord), url: event.target.value } }))} className={inputClass} placeholder="https://www.intervo.legal" /></label>
+            <label className={`${labelClass} md:col-span-2`}>URL pública canónica<input value={site.url} onChange={(event) => setData((current) => ({ ...current, site: { ...(current.site as JsonRecord), url: event.target.value } }))} className={inputClass} placeholder="https://intervo-page-2026.replit.app" /></label>
           </div>
         </section>
 

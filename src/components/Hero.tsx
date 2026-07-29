@@ -97,7 +97,7 @@ export default function Hero({ content: t, media, primaryHref, secondaryHref }: 
             fill
             priority={i === 0}
             sizes="118vmin"
-            className="hero-image-in object-cover"
+            className={`${i === 0 ? "" : "hero-image-in"} object-cover`}
           />
           <div className="absolute inset-0 bg-gradient-to-br from-azure/25 via-transparent to-navy-950/60" />
         </div>
@@ -109,12 +109,12 @@ export default function Hero({ content: t, media, primaryHref, secondaryHref }: 
 
       <div className="container-x relative z-10 w-full pb-28 pt-36">
         <div className="max-w-3xl">
-          <div key={`k-${i}`} className="hero-anim">
+          <div key={`k-${i}`} className={i === 0 ? "" : "hero-anim"}>
             <span className="eyebrow eyebrow--light">{current.kicker}</span>
           </div>
           <h1
             key={`t-${i}`}
-            className="hero-anim display-1 mt-7 text-white"
+            className={`${i === 0 ? "" : "hero-anim"} display-1 mt-7 text-white`}
             style={{ animationDelay: "0.08s" }}
           >
             {current.title}

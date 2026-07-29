@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import "@fontsource-variable/inter";
-import "@fontsource-variable/bricolage-grotesque";
 import "../globals.css";
+import { bricolage, inter } from "../fonts";
 import Header, { type HeaderModel } from "@/components/Header";
 import Footer from "@/components/Footer";
+import StructuredData from "@/components/StructuredData";
 import { isLocale, locales } from "@/i18n/config";
 import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { SITE_URL } from "@/lib/site";
+import { buildOrganizationSchema, buildPageMetadata } from "@/lib/seo";
 import {
   resolveHomeLink,
   resolveNavigationLink,
@@ -32,29 +33,22 @@ export async function generateMetadata({
   const siteConfig = await getPublishedSiteConfig();
   const bp = process.env.EXPORT === "true" ? "/INTERVO-PAGE-2026" : "";
   return {
+    ...buildPageMetadata({
+      locale,
+      title: dict.meta.home.title,
+      description: dict.meta.home.description,
+      siteConfig,
+      canonical: resolveHomeLink(siteConfig, locale),
+      es: resolveHomeLink(siteConfig, "es"),
+      en: resolveHomeLink(siteConfig, "en"),
+    }),
     metadataBase: new URL(siteConfig.site.url || SITE_URL),
     title: {
       default: dict.meta.home.title,
       template: "%s",
     },
-    description: dict.meta.home.description,
     applicationName: siteConfig.site.name,
     authors: [{ name: siteConfig.site.legalName }],
-    alternates: {
-      canonical: resolveHomeLink(siteConfig, locale),
-      languages: {
-        es: resolveHomeLink(siteConfig, "es"),
-        en: resolveHomeLink(siteConfig, "en"),
-      },
-    },
-    openGraph: {
-      type: "website",
-      siteName: siteConfig.site.name,
-      locale: locale === "es" ? "es_MX" : "en_US",
-      title: dict.meta.home.title,
-      description: dict.meta.home.description,
-      url: resolveHomeLink(siteConfig, locale),
-    },
     icons: {
       icon: `${bp}${siteConfig.media.favicon}`,
       apple: `${bp}${siteConfig.media.favicon}`,
@@ -130,10 +124,17 @@ export default async function LocaleLayout({
     })),
     languageRoutes,
   };
+  const organizationSchema = buildOrganizationSchema({
+    locale,
+    description: dict.meta.home.description,
+    siteConfig,
+    serviceNames: siteConfig.featuredServices.map((id) => dict.services.featured[id].title),
+  });
 
   return (
-    <html lang={dict.htmlLang}>
+    <html lang={dict.htmlLang} className={`${inter.variable} ${bricolage.variable}`}>
       <body>
+        <StructuredData id="intervo-organization-schema" data={organizationSchema} />
         <Header locale={locale} model={headerModel} />
         <main>{children}</main>
         <Footer locale={locale} dict={dict} siteConfig={siteConfig} />

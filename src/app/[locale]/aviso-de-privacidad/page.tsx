@@ -3,6 +3,7 @@ import PageHeader from "@/components/PageHeader";
 import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { isLocale } from "@/i18n/config";
 import { resolvePrivacyLink } from "@/lib/cms/links";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -13,16 +14,16 @@ export async function generateMetadata({
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   return {
-    title: dict.meta.privacy.title,
-    description: dict.meta.privacy.description,
-    robots: { index: false, follow: true },
-    alternates: {
+    ...buildPageMetadata({
+      locale: loc,
+      title: dict.meta.privacy.title,
+      description: dict.meta.privacy.description,
+      siteConfig,
       canonical: resolvePrivacyLink(siteConfig, loc),
-      languages: {
-        es: resolvePrivacyLink(siteConfig, "es"),
-        en: resolvePrivacyLink(siteConfig, "en"),
-      },
-    },
+      es: resolvePrivacyLink(siteConfig, "es"),
+      en: resolvePrivacyLink(siteConfig, "en"),
+    }),
+    robots: { index: false, follow: true },
   };
 }
 

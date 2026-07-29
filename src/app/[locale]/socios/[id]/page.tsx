@@ -4,12 +4,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import CTASection from "@/components/CTASection";
 import Reveal from "@/components/Reveal";
+import StructuredData from "@/components/StructuredData";
 import { ArrowLeft, ArrowUpRight, Award, Mail, Phone, Linkedin } from "@/components/icons";
 import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/repository";
-import { isLocale, locales } from "@/i18n/config";
+import { isLocale } from "@/i18n/config";
 import { PARTNERS } from "@/lib/site";
 import { asset } from "@/lib/asset";
 import { resolveNavigationLink } from "@/lib/cms/links";
+import { buildPageMetadata, buildPersonSchema } from "@/lib/seo";
 
 export function generateStaticParams() {
   return PARTNERS.map((p) => ({ id: p.id }));
@@ -29,14 +31,16 @@ export async function generateMetadata({
   if (!info) return {};
   const title = `${partner.name} — ${info.role} · ${siteConfig.site.name}`;
   const description = info.bio;
-  return {
+  return buildPageMetadata({
+    locale: loc,
     title,
     description,
-    alternates: {
-      canonical: resolveNavigationLink(siteConfig, loc, "socios", id),
-      languages: Object.fromEntries(locales.map((l) => [l, resolveNavigationLink(siteConfig, l, "socios", id)])),
-    },
-  };
+    siteConfig,
+    canonical: resolveNavigationLink(siteConfig, loc, "socios", id),
+    es: resolveNavigationLink(siteConfig, "es", "socios", id),
+    en: resolveNavigationLink(siteConfig, "en", "socios", id),
+    image: partner.photo,
+  });
 }
 
 export default async function PartnerProfilePage({
@@ -60,9 +64,26 @@ export default async function PartnerProfilePage({
   const visiblePartners = siteConfig.partners.filter((item) => item.visible !== false);
   const others = visiblePartners.filter((p) => p.id !== id);
   const index = visiblePartners.findIndex((p) => p.id === id) + 1;
+  const profileUrl = resolveNavigationLink(siteConfig, loc, "socios", id);
+  const personSchema = buildPersonSchema({
+    locale: loc,
+    siteConfig,
+    id,
+    name: partner.name,
+    role: info.role,
+    bio: info.bio,
+    specialties: info.specialties,
+    photo: partner.photo,
+    email: partner.email,
+    phone: partner.phoneDisplay,
+    linkedin: partner.linkedin,
+    recognition: partner.chambers,
+    url: profileUrl,
+  });
 
   return (
     <>
+      <StructuredData id={`intervo-person-${id}`} data={personSchema} />
       <section className="relative overflow-hidden border-b border-line bg-mist pb-16 pt-32 md:pb-20 md:pt-40">
         <div className="container-x relative">
           <Reveal>

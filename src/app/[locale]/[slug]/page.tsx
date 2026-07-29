@@ -6,8 +6,10 @@ import PageHeader from "@/components/PageHeader";
 import Reveal from "@/components/Reveal";
 import { ArrowUpRight } from "@/components/icons";
 import { isLocale } from "@/i18n/config";
-import { getCmsDocument } from "@/lib/cms/repository";
+import { getCmsDocument, getPublishedSiteConfig } from "@/lib/cms/repository";
 import { asset } from "@/lib/asset";
+import { absoluteSiteLink } from "@/lib/cms/links";
+import { buildPageMetadata } from "@/lib/seo";
 
 type Section = {
   type: "rich_text" | "image_text" | "video" | "stats" | "cards" | "cta";
@@ -41,13 +43,20 @@ async function contentFor(localeValue: string, slug: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const page = await contentFor(locale, slug);
+  const [page, siteConfig] = await Promise.all([
+    contentFor(locale, slug),
+    getPublishedSiteConfig(),
+  ]);
   if (!page.content) return {};
-  return {
+  return buildPageMetadata({
+    locale: page.locale,
     title: page.content.seoTitle || page.content.title,
     description: page.content.seoDescription || page.content.subtitle,
-    alternates: { canonical: `/${page.locale}/${slug}`, languages: { es: `/es/${slug}`, en: `/en/${slug}` } },
-  };
+    siteConfig,
+    canonical: absoluteSiteLink(siteConfig, `/${page.locale}/${slug}`),
+    es: absoluteSiteLink(siteConfig, `/es/${slug}`),
+    en: absoluteSiteLink(siteConfig, `/en/${slug}`),
+  });
 }
 
 export default async function ModularPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {

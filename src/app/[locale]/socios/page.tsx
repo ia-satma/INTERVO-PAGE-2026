@@ -9,6 +9,7 @@ import { getPublishedDictionary, getPublishedSiteConfig } from "@/lib/cms/reposi
 import { isLocale } from "@/i18n/config";
 import { asset } from "@/lib/asset";
 import { resolveNavigationLink } from "@/lib/cms/links";
+import { buildPageMetadata } from "@/lib/seo";
 
 function initials(name: string) {
   return name
@@ -27,17 +28,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
-  return {
+  return buildPageMetadata({
+    locale: loc,
     title: dict.meta.socios.title,
     description: dict.meta.socios.description,
-    alternates: {
-      canonical: resolveNavigationLink(siteConfig, loc, "socios"),
-      languages: {
-        es: resolveNavigationLink(siteConfig, "es", "socios"),
-        en: resolveNavigationLink(siteConfig, "en", "socios"),
-      },
-    },
-  };
+    siteConfig,
+    canonical: resolveNavigationLink(siteConfig, loc, "socios"),
+    es: resolveNavigationLink(siteConfig, "es", "socios"),
+    en: resolveNavigationLink(siteConfig, "en", "socios"),
+  });
 }
 
 export default async function SociosPage({ params }: { params: Promise<{ locale: string }> }) {

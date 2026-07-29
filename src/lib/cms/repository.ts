@@ -8,11 +8,33 @@ import es from "@/i18n/dictionaries/es";
 import en from "@/i18n/dictionaries/en";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
+import { resolveRuntimeSiteUrl } from "@/lib/site";
 import { CMS_DOCUMENTS, DEFAULT_SITE_CONFIG, getDocumentDefinition } from "./defaults";
 import type { SiteConfig } from "./types";
 import { deepMerge } from "./merge";
 
 type RecordValue = Record<string, unknown>;
+
+const getPublishedByKey = cache(async () => {
+  const publishedByKey = new Map<string, RecordValue>();
+  const db = getDb();
+  if (!db) return publishedByKey;
+  try {
+    const rows = await db
+      .select({
+        key: cmsDocuments.key,
+        published: cmsDocuments.published,
+      })
+      .from(cmsDocuments);
+    for (const row of rows) publishedByKey.set(row.key, row.published);
+  } catch (error) {
+    console.warn(
+      "CMS no disponible durante la lectura pública; se usará el contenido inicial.",
+      error instanceof Error ? error.message : error,
+    );
+  }
+  return publishedByKey;
+});
 
 export async function ensureCmsDocuments() {
   const db = getDb();
@@ -190,25 +212,7 @@ export async function restoreDocumentVersion(key: string, versionId: string, use
 
 export const getPublishedDictionary = cache(async (locale: Locale): Promise<Dictionary> => {
   let dictionary = structuredClone(locale === "es" ? es : en) as Dictionary;
-  const db = getDb();
-  const publishedByKey = new Map<string, RecordValue>();
-
-  if (db) {
-    try {
-      const rows = await db
-        .select({
-          key: cmsDocuments.key,
-          published: cmsDocuments.published,
-        })
-        .from(cmsDocuments);
-
-      for (const row of rows) {
-        publishedByKey.set(row.key, row.published);
-      }
-    } catch (error) {
-      console.warn("CMS no disponible durante la lectura pública; se usará el contenido inicial.", error instanceof Error ? error.message : error);
-    }
-  }
+  const publishedByKey = await getPublishedByKey();
 
   for (const definition of CMS_DOCUMENTS) {
     if (definition.key === "site-config") continue;
@@ -228,17 +232,13 @@ export const getPublishedDictionary = cache(async (locale: Locale): Promise<Dict
 });
 
 export const getPublishedSiteConfig = cache(async (): Promise<SiteConfig> => {
-  const db = getDb();
-  if (!db) return DEFAULT_SITE_CONFIG;
-  try {
-    const [document] = await db
-      .select({ published: cmsDocuments.published })
-      .from(cmsDocuments)
-      .where(eq(cmsDocuments.key, "site-config"))
-      .limit(1);
-    return deepMerge(DEFAULT_SITE_CONFIG, document?.published ?? {});
-  } catch (error) {
-    console.warn("Configuración CMS no disponible; se usará la configuración inicial.", error instanceof Error ? error.message : error);
-    return DEFAULT_SITE_CONFIG;
-  }
+  const publishedByKey = await getPublishedByKey();
+  const merged = deepMerge(DEFAULT_SITE_CONFIG, publishedByKey.get("site-config") ?? {});
+  return {
+    ...merged,
+    site: {
+      ...merged.site,
+      url: resolveRuntimeSiteUrl(merged.site.url),
+    },
+  };
 });
