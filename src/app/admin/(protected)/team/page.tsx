@@ -26,11 +26,13 @@ export default async function AdminTeamPage() {
           key: siteDocument.key,
           version: siteDocument.version,
           data: siteDocument.data as Record<string, unknown>,
+          published: siteDocument.published as Record<string, unknown>,
         }}
         navigationDocument={{
           key: navigationDocument.key,
           version: navigationDocument.version,
           data: navigationDocument.data as Record<string, unknown>,
+          published: navigationDocument.published as Record<string, unknown>,
         }}
         canPublish={context.user.permissions.includes("content:publish")}
       />

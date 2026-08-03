@@ -22,18 +22,13 @@ export const SITE = {
   linkedin: "https://www.linkedin.com/company/intervolegal/",
 } as const;
 
-/**
- * Contact & offices — verified against the firm's official business cards and
- * letterhead (pCloud "PAPELERIA" folder). No shared "info@"/"contacto@" inbox
- * was found; the firm uses one address per partner (initial+lastname@intervo.legal).
- * The Managing Partner's address is used as the general contact default.
- */
+/** Contact data approved by the firm for the public website. */
 export const CONTACT = {
   phoneDisplay: "+52 811 405 5614",
   phoneHref: "tel:+528114055614",
-  whatsappHref: "https://wa.me/528114055614",
-  email: "agarcia@intervo.legal",
-  emailHref: "mailto:agarcia@intervo.legal",
+  whatsappHref: "",
+  email: "info@intervo.legal",
+  emailHref: "mailto:info@intervo.legal",
 } as const;
 
 export type Office = {
@@ -55,7 +50,7 @@ export const OFFICES: Office[] = [
       "San Pedro Garza García, Nuevo León",
     ],
     mapsHref:
-      "https://www.google.com/maps/search/?api=1&query=Torre+Legacy+Valle+Sol+122+San+Pedro+Garza+Garcia",
+      "https://google.com/maps/place/Intervo+Legal/@25.6619843,-100.3481927,222m/data=!3m1!1e3!4m6!3m5!1s0x8662bfb2a3dca203:0x4707c3f4f9ff6ad8!8m2!3d25.6618876!4d-100.3484943!16s%2Fg%2F11lg27s7sx?entry=ttu&g_ep=EgoyMDI2MDcyNy4wIKXMDSoASAFQAw%3D%3D",
   },
   {
     id: "juarez",
@@ -69,7 +64,7 @@ export const OFFICES: Office[] = [
       "Ciudad Juárez, Chihuahua",
     ],
     mapsHref:
-      "https://www.google.com/maps/search/?api=1&query=Blvd+Tomas+Fernandez+7930+Col+Campestre+Ciudad+Juarez",
+      "https://www.google.com/maps/place/Intervo+Legal,+S.+C.+(Jrz)/@31.7288311,-106.4102507,171m/data=!3m1!1e3!4m6!3m5!1s0x86e75d53005f2579:0x89ff97e3148c2a32!8m2!3d31.72906!4d-106.4097379!16s%2Fg%2F11xsw6bts7?entry=ttu&g_ep=EgoyMDI2MDcyNy4wIKXMDSoASAFQAw%3D%3D",
   },
 ];
 
@@ -106,6 +101,7 @@ export type PartnerMeta = {
   phoneDisplay: string;
   phoneHref: string;
   photo: string;
+  cardPhoto?: string;
   linkedin?: string;
 };
 
@@ -141,11 +137,11 @@ export const PARTNERS: PartnerMeta[] = [
     id: "alfredo",
     name: "Alfredo García Villarreal",
     chambers: "Band 3",
-    managing: true,
     email: "agarcia@intervo.legal",
     phoneDisplay: "+52 811 396 7180",
     phoneHref: "tel:+528113967180",
     photo: "/images/team/alfredo.webp",
+    cardPhoto: "/images/team/alfredo-card.webp",
     linkedin: "https://mx.linkedin.com/in/alfredogarciaintervolegal",
   },
   {

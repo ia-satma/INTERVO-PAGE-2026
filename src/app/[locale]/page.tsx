@@ -14,8 +14,6 @@ import { asset } from "@/lib/asset";
 import { resolveHomeLink, resolveNavigationLink } from "@/lib/cms/links";
 import { buildPageMetadata } from "@/lib/seo";
 
-const RECOGNIZED_PARTNER_IDS = ["carlos", "alfredo", "jorge"];
-
 export async function generateMetadata({
   params,
 }: {
@@ -40,14 +38,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   const t = dict.home;
-  const recognizedPartners = RECOGNIZED_PARTNER_IDS.flatMap((id) => {
-    const partner = siteConfig.partners.find((item) => item.visible !== false && item.id === id);
+  const partnersById = new Map(
+    siteConfig.partners.filter((partner) => partner.visible !== false).map((partner) => [partner.id, partner]),
+  );
+  const orderedPartners = siteConfig.organization.partners.flatMap((person) => {
+    const partner = partnersById.get(person.id);
     return partner ? [partner] : [];
   });
+  const recognizedPartners = orderedPartners.filter((partner) => Boolean(partner.chambers));
   const recognizedCountLabel = loc === "es" ? "Socios reconocidos" : "Recognized partners";
-  const partnerRoleLabel = loc === "es" ? "Socio principal" : "Principal partner";
+  const partnersLabel = loc === "es" ? "Socios" : "Partners";
   const recognitionTopicLabel = "Corporate/Commercial: Monterrey";
-  const profileLinkLabel = loc === "es" ? "Ver perfil" : "View profile";
 
   return (
     <>
@@ -106,7 +107,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
 
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {siteConfig.featuredServices.slice(0, 3).map((id, i) => (
+            {siteConfig.featuredServices.slice(0, 4).map((id, i) => (
               <Reveal key={id} delay={i * 0.05}>
                 <ServiceCard
                   id={id}
@@ -117,25 +118,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 />
               </Reveal>
             ))}
-            <Reveal delay={0.15}>
-              <Link
-                href={resolveNavigationLink(siteConfig, loc, "servicios")}
-                className="group relative flex h-full min-h-[21rem] overflow-hidden rounded-2xl bg-navy-950 shadow-card transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-soft"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy to-azure" />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/30 to-white/10" />
-                <div className="absolute inset-0 ring-1 ring-inset ring-white/12 transition-colors duration-500 group-hover:ring-accent-soft/45" />
-                <div className="relative z-10 flex h-full w-full flex-col p-7">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/70 bg-white text-navy shadow-soft transition-colors duration-500 group-hover:bg-accent-soft group-hover:text-navy-950">
-                    <ArrowUpRight className="h-6 w-6" />
-                  </span>
-                  <div className="mt-auto pt-12">
-                    <span className="font-serif text-2xl leading-snug text-white">{t.services.cta}</span>
-                    <span className="mt-5 block h-px w-10 bg-accent-soft transition-all duration-500 group-hover:w-20" />
-                  </div>
-                </div>
-              </Link>
-            </Reveal>
           </div>
         </div>
       </section>
@@ -160,62 +142,67 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </h2>
                 </div>
                 <div className="hidden min-w-24 text-right sm:block">
-                  <span className="block font-serif text-6xl leading-none text-navy">03</span>
+                  <span className="block font-serif text-6xl leading-none text-navy">{String(recognizedPartners.length).padStart(2, "0")}</span>
                   <span className="mt-2 block text-[0.62rem] font-semibold uppercase leading-snug tracking-[0.22em] text-muted">
                     {recognizedCountLabel}
                   </span>
                 </div>
               </div>
 
-              <div className="mt-6 grid gap-4">
-                {recognizedPartners.map((partner) => (
+              <div className="mt-6">
+                <div className="mb-3 flex items-center justify-between gap-4">
+                  <span className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-muted-2">{partnersLabel}</span>
+                  <span className="font-serif text-xl text-navy">{String(orderedPartners.length).padStart(2, "0")}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {orderedPartners.map((partner) => (
                   <Link
                     key={partner.name}
                     href={resolveNavigationLink(siteConfig, loc, "socios", partner.id)}
-                    className="group grid min-h-[11rem] overflow-hidden rounded-xl border border-line bg-white shadow-soft transition-[transform,box-shadow,border-color] duration-500 hover:-translate-y-1 hover:border-accent/35 hover:shadow-card sm:h-[13rem] sm:grid-cols-[0.95fr_1.05fr]"
+                    className="group relative aspect-[4/5] min-h-0 overflow-hidden rounded-xl bg-navy-950 shadow-soft ring-1 ring-navy/10 transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-card"
                     aria-label={partner.name}
                   >
-                    <div className="relative min-h-[14rem] overflow-hidden bg-mist sm:min-h-0">
-                      <Image
-                        src={asset(partner.photo)}
-                        alt={partner.name}
-                        fill
-                        sizes="(min-width: 1024px) 20vw, (min-width: 640px) 42vw, 100vw"
-                        className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="grid bg-navy-950 sm:grid-rows-[0.92fr_1.08fr]">
-                      <div className="relative overflow-hidden bg-gradient-to-br from-azure-bright via-azure to-navy p-4 text-white md:p-5">
-                        <div className="absolute inset-0 bg-grid opacity-25" />
-                        <div className="relative">
-                          <span className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-white/68">
-                            {partnerRoleLabel}
-                          </span>
-                          <span className="mt-2.5 block max-w-56 font-serif text-[1.45rem] font-medium leading-none text-white md:text-[1.55rem]">
-                            {partner.name}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col justify-between gap-3 bg-navy-950 p-4 text-white md:p-5">
-                        <div>
-                          <span className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-accent-soft">
-                            Chambers & Partners
-                          </span>
-                          <p className="mt-2 text-sm leading-relaxed text-white/68">{recognitionTopicLabel}</p>
-                        </div>
-                        <span className="inline-flex items-center gap-2 text-sm font-semibold text-white">
-                          {profileLinkLabel}
-                          <ArrowUpRight className="h-4 w-4 transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                        </span>
-                      </div>
+                    <Image
+                      src={asset(partner.cardPhoto ?? partner.photo)}
+                      alt={partner.name}
+                      fill
+                      sizes="(min-width: 1024px) 15vw, (min-width: 640px) 28vw, 50vw"
+                      className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/5 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-3.5 text-white">
+                      <span className="block font-serif text-lg leading-[1.05]">{partner.name}</span>
+                      <ArrowUpRight className="mt-2 h-4 w-4 text-accent-soft transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </div>
                   </Link>
-                ))}
+                  ))}
+                </div>
+
+                <div className="mt-7 border-t border-line pt-6">
+                  <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-muted-2">Chambers &amp; Partners</p>
+                  <div className="mt-3 grid gap-2">
+                    {recognizedPartners.map((partner) => (
+                      <Link
+                        key={partner.id}
+                        href={resolveNavigationLink(siteConfig, loc, "socios", partner.id)}
+                        className="group flex items-center justify-between gap-5 rounded-lg bg-mist px-4 py-3 transition-colors hover:bg-navy hover:text-white"
+                      >
+                        <span className="min-w-0">
+                          <span className="block font-display text-sm font-semibold">{partner.name}</span>
+                          <span className="mt-0.5 block text-xs text-muted group-hover:text-white/65">{recognitionTopicLabel}</span>
+                        </span>
+                        <span className="shrink-0 rounded-full border border-accent/30 px-3 py-1 text-xs font-semibold text-navy group-hover:border-white/25 group-hover:text-accent-soft">
+                          {partner.chambers}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="mt-7 grid gap-5 border-t border-line pt-7 sm:grid-cols-[1fr_auto] sm:items-end">
                 <div className="sm:hidden">
-                  <span className="font-serif text-5xl leading-none text-navy">03</span>
+                  <span className="font-serif text-5xl leading-none text-navy">{String(recognizedPartners.length).padStart(2, "0")}</span>
                   <span className="ml-3 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-muted">
                     {recognizedCountLabel}
                   </span>
@@ -226,17 +213,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </div>
-              <ul className="sr-only">
-                {dict.firma.recognition.badges.map((b) => (
-                  <li key={b.name} className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                    <ArrowRight className="h-4 w-4 shrink-0 text-accent" />
-                    <span className="font-serif text-xl text-ink">{b.name}</span>
-                    <span className="tag rounded-full border border-accent/30 bg-accent/[0.07] px-3 py-1">
-                      Chambers - {b.band}
-                    </span>
-                  </li>
-                ))}
-              </ul>
             </div>
           </Reveal>
 

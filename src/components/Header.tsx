@@ -107,7 +107,7 @@ export default function Header({ locale, model }: { locale: Locale; model: Heade
               colorSrc={model.media.logoColor}
               whiteSrc={model.media.logoWhite}
               alt={model.descriptor}
-              className="h-8 w-auto md:h-9"
+              className="h-8 w-auto md:h-10"
               priority
             />
           </Link>
@@ -146,8 +146,14 @@ export default function Header({ locale, model }: { locale: Locale; model: Heade
         >
           <MarbleDuotone src={model.media.menuBackground} className="absolute inset-0 opacity-[0.14]" />
           <div className="glow-radial pointer-events-none absolute inset-0" />
-          <div className="relative flex h-full flex-col items-start justify-between p-12">
-            <Logo variant="white" colorSrc={model.media.logoColor} whiteSrc={model.media.logoWhite} alt={model.descriptor} className="h-9 w-auto" />
+          <div className="relative flex h-full flex-col items-start justify-end p-12">
+            <Logo
+              variant="white"
+              colorSrc={model.media.logoColor}
+              whiteSrc={model.media.logoWhite}
+              alt={model.descriptor}
+              className="absolute left-1/2 top-1/2 h-16 w-auto -translate-x-1/2 -translate-y-1/2 xl:h-[4.5rem]"
+            />
             <div>
               <p className="font-serif text-3xl leading-tight text-white/90">{model.tagline}</p>
               <p className="mt-4 text-sm text-white/50">

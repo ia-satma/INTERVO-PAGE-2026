@@ -185,7 +185,7 @@ const es = {
     managingLabel: "Socio Director",
     partnerLabel: "Socio",
     specialtiesLabel: "Especialidad",
-    note: "El orden del equipo corresponde al organigrama oficial de la firma.",
+    note: "",
     viewProfile: "Ver perfil",
     filter: {
       label: "Filtrar por área de práctica",
@@ -202,9 +202,9 @@ const es = {
       eyebrow: "Organigrama",
       title: "Estructura del equipo",
       subtitle:
-        "La organización actual de intervø integra socios, abogados, pasantes y administración para atender cada operación con una ruta clara de responsabilidad.",
+        "La organización actual de intervø integra socios, asociados, pasantes y administración para atender cada operación con una ruta clara de responsabilidad.",
       partners: "Socios",
-      lawyers: "Abogados",
+      lawyers: "Asociados",
       interns: "Pasantes",
       administration: "Administración",
     },
@@ -303,7 +303,7 @@ const es = {
     info: {
       phoneLabel: "Teléfono",
       emailLabel: "Correo",
-      emailNote: "Atención directa del Socio Director.",
+      emailNote: "",
       officesLabel: "Oficinas",
       linkedinLabel: "LinkedIn",
     },
@@ -420,14 +420,14 @@ const es = {
       bio: "Luis acompaña a los clientes de intervø en operaciones de fusiones y adquisiciones, estructuración de fideicomisos y transacciones inmobiliarias, además de asesoría en derecho migratorio y propiedad industrial.",
     },
     alfredo: {
-      role: "Socio Director",
+      role: "Socio",
       specialties: [
         "Derecho Corporativo",
         "Adquisiciones en México y el extranjero",
         "Derecho Inmobiliario",
         "Financiamiento",
       ],
-      bio: "Alfredo es Socio Director de intervø. Cuenta con una Maestría en Derecho de la Empresa (LL.M.) por la Universitat Pompeu Fabra (2004–2005) y experiencia previa en White & Case LLP y Arizpe, Valdés & Marcos, S.C. Su práctica se enfoca en derecho corporativo, adquisiciones en México y el extranjero, derecho inmobiliario y financiamiento. Rankeado por Chambers & Partners — Latin America (Band 3), Corporate/Commercial: Monterrey.",
+      bio: "Alfredo es socio de intervø. Cuenta con una Maestría en Derecho de la Empresa (LL.M.) por la Universitat Pompeu Fabra (2004–2005) y experiencia previa en White & Case LLP y Arizpe, Valdés & Marcos, S.C. Su práctica se enfoca en derecho corporativo, adquisiciones en México y el extranjero, derecho inmobiliario y financiamiento. Rankeado por Chambers & Partners — Latin America (Band 3), Corporate/Commercial: Monterrey.",
     },
     faustino: {
       role: "Socio",

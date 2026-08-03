@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import InsightCard from "@/components/InsightCard";
 import CTASection from "@/components/CTASection";
@@ -31,6 +32,7 @@ export default async function PublicacionesPage({ params }: { params: Promise<{ 
   const { locale } = await params;
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
+  if (siteConfig.navigation.find((item) => item.key === "publicaciones")?.visible === false) notFound();
   const t = dict.insights;
 
   return (

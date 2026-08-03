@@ -14,6 +14,7 @@
     "db:migrate": "npm run clean:appledouble && drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed-cms.ts",
+    "cms:apply-client-feedback": "tsx scripts/apply-client-feedback-2026-08.ts",
     "test": "npm run test:cms && npm run test:auth && npm run test:media",
     "test:cms": "node --import tsx --test src/lib/cms/*.test.ts",
     "test:auth": "node --import tsx --test src/lib/auth/*.test.ts",
@@ -44,7 +45,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.2.12",
-    "postcss": "^8.5.18",
+    "postcss": "8.5.25",
     "tailwindcss": "4.3.2",
     "tsx": "^4.23.1",
     "typescript": "5.9.3"
@@ -55,6 +56,7 @@
     "unrs-resolver@1.12.2": true
   },
   "overrides": {
+    "brace-expansion": "5.0.9",
     "@esbuild-kit/core-utils": {
       "esbuild": "0.25.12"
     },

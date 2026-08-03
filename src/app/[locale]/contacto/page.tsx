@@ -32,6 +32,8 @@ export default async function ContactoPage({ params }: { params: Promise<{ local
   const loc = isLocale(locale) ? locale : "es";
   const [dict, siteConfig] = await Promise.all([getPublishedDictionary(loc), getPublishedSiteConfig()]);
   const t = dict.contacto;
+  const socialLinks = visibleSocialLinks(siteConfig);
+  const hasWhatsapp = Boolean(siteConfig.contact.whatsappHref.trim());
 
   const subjects = [
     ...Object.values(dict.services.featured).map((s) => s.title),
@@ -73,12 +75,15 @@ export default async function ContactoPage({ params }: { params: Promise<{ local
                   <span className="font-display font-semibold text-ink">{siteConfig.contact.email}</span>
                 </span>
               </a>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <a href={siteConfig.contact.whatsappHref} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center gap-3 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-mist text-navy"><Whatsapp className="h-5 w-5" /></span>
-                  <span className="font-display font-semibold text-ink">{dict.actions.whatsapp}</span>
-                </a>
-                {visibleSocialLinks(siteConfig).map((social) => {
+              {(hasWhatsapp || socialLinks.length > 0) && (
+                <div className={`grid gap-3 ${hasWhatsapp && socialLinks.length > 0 ? "sm:grid-cols-2" : ""}`}>
+                {hasWhatsapp && (
+                  <a href={siteConfig.contact.whatsappHref} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center gap-3 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-mist text-navy"><Whatsapp className="h-5 w-5" /></span>
+                    <span className="font-display font-semibold text-ink">{dict.actions.whatsapp}</span>
+                  </a>
+                )}
+                {socialLinks.map((social) => {
                   const SocialIcon = social.id.toLowerCase() === "linkedin" ? Linkedin : Globe;
                   return (
                     <a key={social.id} href={social.href} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center gap-3 rounded-xl border border-line bg-white px-5 py-4 transition-colors hover:border-navy/30">
@@ -87,8 +92,9 @@ export default async function ContactoPage({ params }: { params: Promise<{ local
                     </a>
                   );
                 })}
-              </div>
-              <p className="mt-1 text-[0.8rem] text-muted-2">{t.info.emailNote}</p>
+                </div>
+              )}
+              {t.info.emailNote.trim() && <p className="mt-1 text-[0.8rem] text-muted-2">{t.info.emailNote}</p>}
             </div>
           </div>
         </div>

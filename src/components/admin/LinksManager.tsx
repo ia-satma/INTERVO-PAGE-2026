@@ -93,14 +93,18 @@ function SectionTitle({
 
 export default function LinksManager({
   siteData,
+  publishedData,
   canPublish,
 }: {
   siteData: JsonRecord;
+  publishedData: JsonRecord;
   canPublish: boolean;
 }) {
   const initial = useMemo(() => normalized(siteData), [siteData]);
+  const initialPublished = useMemo(() => normalized(publishedData), [publishedData]);
   const [data, setData] = useState<JsonRecord>(() => clone(initial));
   const [savedData, setSavedData] = useState<JsonRecord>(() => clone(initial));
+  const [published, setPublished] = useState<JsonRecord>(() => clone(initialPublished));
   const [pending, setPending] = useState<"save" | "publish" | "">("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -114,8 +118,8 @@ export default function LinksManager({
   const site = data.site as SiteConfig["site"];
   const dirty = JSON.stringify(data) !== JSON.stringify(savedData);
   const reviewChanges = useMemo(
-    () => review ? buildChangeSet(savedData, data) : [],
-    [data, review, savedData],
+    () => review ? buildChangeSet(review === "publish" ? published : savedData, data) : [],
+    [data, published, review, savedData],
   );
 
   function updateNavigation(index: number, changes: Partial<NavigationItem>) {
@@ -204,6 +208,7 @@ export default function LinksManager({
       setError(payload.error || "No se pudieron publicar los enlaces.");
       return;
     }
+    setPublished(clone(data));
     setMessage("Enlaces y redes publicados correctamente.");
     setReview(null);
   }
@@ -327,7 +332,7 @@ export default function LinksManager({
             <label className={labelClass}>Enlace telefónico<input value={contact.phoneHref} onChange={(event) => updateContact({ phoneHref: event.target.value })} className={inputClass} placeholder="tel:+52…" /></label>
             <label className={labelClass}>Correo visible<input value={contact.email} onChange={(event) => updateContact({ email: event.target.value })} className={inputClass} /></label>
             <label className={labelClass}>Enlace de correo<input value={contact.emailHref} onChange={(event) => updateContact({ emailHref: event.target.value })} className={inputClass} placeholder="mailto:…" /></label>
-            <label className={`${labelClass} md:col-span-2`}>WhatsApp<input value={contact.whatsappHref} onChange={(event) => updateContact({ whatsappHref: event.target.value })} className={inputClass} placeholder="https://wa.me/…" /></label>
+            <label className={`${labelClass} md:col-span-2`}>WhatsApp<input value={contact.whatsappHref} onChange={(event) => updateContact({ whatsappHref: event.target.value })} className={inputClass} placeholder="Vacío = botón oculto · https://wa.me/…" /><span className="font-normal text-slate-500">Deja este campo vacío para ocultar WhatsApp en Contacto.</span></label>
           </div>
         </section>
       </div>

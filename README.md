@@ -97,15 +97,13 @@ son el seed/fallback, no el flujo editorial cotidiano.
 
 ## TODO antes de lanzar
 
-- [x] **Correo de contacto:** resuelto con datos reales de la papelería oficial (tarjetas de
-      presentación). No existe un inbox genérico `info@`/`contacto@`; cada socio tiene su propio
-      correo (`inicial+apellido@intervo.legal`). El contacto general del sitio usa el del Socio
-      Director (`agarcia@intervo.legal`) y cada `PartnerCard` en Socios muestra su correo/tel. directo.
+- [x] **Correo de contacto:** el cliente aprobó `info@intervo.legal` como correo general visible,
+      destino `mailto:` y buzón de notificaciones. Los perfiles de socios conservan sus datos directos.
 - [x] **Formulario de contacto:** guarda solicitudes en PostgreSQL y las muestra en `/admin/submissions`;
       Resend es opcional para notificaciones.
-- [ ] **Publicaciones / Insights:** los 3 artículos son contenido de muestra (en `dictionaries/{es,en}.ts`,
-      bloque `insights.items`). La firma debe proveer las publicaciones reales; hoy las tarjetas no enlazan
-      a páginas de detalle (se puede añadir `[slug]` cuando exista contenido).
+- [ ] **Publicaciones / Insights:** los artículos de muestra permanecen como borrador, pero la sección está
+      oculta de navegación, footer y sitemap; su ruta pública responde 404 hasta que la firma entregue
+      contenido real y la reactive desde administración.
 - [ ] **Aviso de Privacidad:** el texto en `dictionaries` es de referencia; debe validarlo la firma.
 - [ ] **Dominio/URL canónica:** configurar `NEXT_PUBLIC_SITE_URL` si difiere de `https://intervo-page-2026.replit.app`.
 - [ ] **Nombre completo de Carlos Marcos:** el brochure 2025 usa "Roberto Carlos Marcos Romero" en una

@@ -187,7 +187,7 @@ const en: Dictionary = {
     managingLabel: "Managing Partner",
     partnerLabel: "Partner",
     specialtiesLabel: "Focus areas",
-    note: "The team order follows the firm's official organization chart.",
+    note: "",
     viewProfile: "View profile",
     filter: {
       label: "Filter by practice area",
@@ -204,9 +204,9 @@ const en: Dictionary = {
       eyebrow: "Organization",
       title: "Team structure",
       subtitle:
-        "intervø's current organization brings together partners, attorneys, interns and administration to serve each matter with clear responsibility.",
+        "intervø's current organization brings together partners, associates, interns and administration to serve each matter with clear responsibility.",
       partners: "Partners",
-      lawyers: "Attorneys",
+      lawyers: "Associates",
       interns: "Interns",
       administration: "Administration",
     },
@@ -305,7 +305,7 @@ const en: Dictionary = {
     info: {
       phoneLabel: "Phone",
       emailLabel: "Email",
-      emailNote: "Handled directly by the Managing Partner.",
+      emailNote: "",
       officesLabel: "Offices",
       linkedinLabel: "LinkedIn",
     },
@@ -422,14 +422,14 @@ const en: Dictionary = {
       bio: "Luis supports intervø's clients in mergers and acquisitions, trust structuring and real estate transactions, alongside immigration law and industrial property advice.",
     },
     alfredo: {
-      role: "Managing Partner",
+      role: "Partner",
       specialties: [
         "Corporate Law",
         "Acquisitions in Mexico and abroad",
         "Real Estate Law",
         "Financing",
       ],
-      bio: "Alfredo is intervø's Managing Partner. He holds an LL.M. in Business Law from Universitat Pompeu Fabra (2004–2005) and previously practiced at White & Case LLP and Arizpe, Valdés & Marcos, S.C. His practice focuses on corporate law, acquisitions in Mexico and abroad, real estate law and financing. Ranked by Chambers & Partners — Latin America (Band 3), Corporate/Commercial: Monterrey.",
+      bio: "Alfredo is a partner at intervø. He holds an LL.M. in Business Law from Universitat Pompeu Fabra (2004–2005) and previously practiced at White & Case LLP and Arizpe, Valdés & Marcos, S.C. His practice focuses on corporate law, acquisitions in Mexico and abroad, real estate law and financing. Ranked by Chambers & Partners — Latin America (Band 3), Corporate/Commercial: Monterrey.",
     },
     faustino: {
       role: "Partner",

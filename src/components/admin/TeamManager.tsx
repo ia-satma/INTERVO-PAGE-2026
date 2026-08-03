@@ -64,11 +64,13 @@ type Partner = {
   phoneDisplay: string;
   phoneHref: string;
   photo: string;
+  cardPhoto: string;
   linkedin: string;
 };
 type CmsDocument = {
   key: string;
   data: JsonRecord;
+  published: JsonRecord;
   version: number;
 };
 type GroupKey = "lawyers" | "interns" | "administration";
@@ -81,7 +83,7 @@ type PracticeAreaOption = {
 
 const groupLabels: Record<CategoryKey, string> = {
   partners: "Socio",
-  lawyers: "Abogados",
+  lawyers: "Asociados",
   interns: "Pasantes",
   administration: "Administración",
 };
@@ -229,6 +231,7 @@ function buildPartners(
       phoneDisplay: text(partner.phoneDisplay),
       phoneHref: text(partner.phoneHref),
       photo: text(partner.photo),
+      cardPhoto: text(partner.cardPhoto),
       linkedin: text(partner.linkedin),
     };
   });
@@ -274,7 +277,7 @@ function buildOrganization(siteDocument: CmsDocument, practiceAreas: PracticeAre
   };
 }
 
-function PhotoField({ value, name, onChange }: { value: string; name: string; onChange: (value: string) => void }) {
+function PhotoField({ value, name, label = "Fotografía", help, onChange }: { value: string; name: string; label?: string; help?: string; onChange: (value: string) => void }) {
   const [picker, setPicker] = useState(false);
   return (
     <div className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[112px_1fr] sm:items-center">
@@ -288,7 +291,8 @@ function PhotoField({ value, name, onChange }: { value: string; name: string; on
         )}
       </div>
       <div>
-        <p className="text-xs font-semibold text-slate-700">Fotografía</p>
+        <p className="text-xs font-semibold text-slate-700">{label}</p>
+        {help && <p className="mt-1 text-xs leading-relaxed text-slate-500">{help}</p>}
         <p className="mt-1 break-all text-xs text-slate-500">{value || "Sin fotografía asignada"}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
@@ -471,10 +475,28 @@ export default function TeamManager({
     () => buildOrganization(siteDocument, practiceAreas),
     [practiceAreas, siteDocument],
   );
+  const publishedSiteDocument = useMemo(
+    () => ({ ...siteDocument, data: siteDocument.published }),
+    [siteDocument],
+  );
+  const publishedNavigationDocument = useMemo(
+    () => ({ ...navigationDocument, data: navigationDocument.published }),
+    [navigationDocument],
+  );
+  const initialPublishedPartners = useMemo(
+    () => buildPartners(publishedSiteDocument, publishedNavigationDocument, practiceAreas),
+    [practiceAreas, publishedNavigationDocument, publishedSiteDocument],
+  );
+  const initialPublishedOrganization = useMemo(
+    () => buildOrganization(publishedSiteDocument, practiceAreas),
+    [practiceAreas, publishedSiteDocument],
+  );
   const [partners, setPartners] = useState<Partner[]>(() => clone(initialPartners));
   const [organization, setOrganization] = useState<Organization>(() => clone(initialOrganization));
   const [savedPartners, setSavedPartners] = useState<Partner[]>(() => clone(initialPartners));
   const [savedOrganization, setSavedOrganization] = useState<Organization>(() => clone(initialOrganization));
+  const [publishedPartners, setPublishedPartners] = useState<Partner[]>(() => clone(initialPublishedPartners));
+  const [publishedOrganization, setPublishedOrganization] = useState<Organization>(() => clone(initialPublishedOrganization));
   const [selectedId, setSelectedId] = useState(initialPartners[0]?.id ?? "");
   const [group, setGroup] = useState<GroupKey>("lawyers");
   const [pending, setPending] = useState<"save" | "publish" | "">("");
@@ -489,10 +511,12 @@ export default function TeamManager({
     JSON.stringify(organization) !== JSON.stringify(savedOrganization);
   const reviewChanges = useMemo(
     () => review ? buildChangeSet(
-      { partners: savedPartners, organization: savedOrganization },
+      review === "publish"
+        ? { partners: publishedPartners, organization: publishedOrganization }
+        : { partners: savedPartners, organization: savedOrganization },
       { partners, organization },
     ) : [],
-    [organization, partners, review, savedOrganization, savedPartners],
+    [organization, partners, publishedOrganization, publishedPartners, review, savedOrganization, savedPartners],
   );
 
   function updatePartner(changes: Partial<Partner>) {
@@ -520,6 +544,7 @@ export default function TeamManager({
       phoneDisplay: "",
       phoneHref: "",
       photo: "",
+      cardPhoto: "",
       linkedin: "",
     };
     setPartners((current) => [...current, next]);
@@ -557,8 +582,8 @@ export default function TeamManager({
         {
           id,
           name: "Nuevo integrante",
-          roleEs: groupLabels[targetGroup].replace(/s$/, ""),
-          roleEn: targetGroup === "lawyers" ? "Lawyer" : targetGroup === "interns" ? "Intern" : "Administration",
+          roleEs: targetGroup === "lawyers" ? "Asociado" : groupLabels[targetGroup].replace(/s$/, ""),
+          roleEn: targetGroup === "lawyers" ? "Associate" : targetGroup === "interns" ? "Intern" : "Administration",
           practiceAreaIds: [],
           specialtiesEs: [],
           specialtiesEn: [],
@@ -682,6 +707,7 @@ export default function TeamManager({
         phoneDisplay: member.phoneDisplay ?? "",
         phoneHref: member.phoneHref ?? "",
         photo: member.photo ?? "",
+        cardPhoto: member.photo ?? "",
         linkedin: member.linkedin ?? "",
       };
       setPartners((current) => [...current, partner]);
@@ -732,6 +758,7 @@ export default function TeamManager({
         phoneDisplay: partner.phoneDisplay.trim(),
         phoneHref: partner.phoneHref.trim() || (partner.phoneDisplay ? `tel:${partner.phoneDisplay.replace(/[^\d+]/g, "")}` : ""),
         photo: partner.photo,
+        cardPhoto: partner.cardPhoto.trim() || undefined,
         linkedin: partner.linkedin.trim() || undefined,
       }));
       siteData.partners = publicPartners;
@@ -750,7 +777,7 @@ export default function TeamManager({
         partners: partners.map((partner) => ({
           id: partner.id,
           name: partner.name.trim(),
-          photo: partner.photo || undefined,
+          photo: partner.cardPhoto || partner.photo || undefined,
           roleEs: partner.roleEs.trim(),
           roleEn: partner.roleEn.trim(),
           practiceAreaIds: partner.practiceAreaIds,
@@ -818,6 +845,8 @@ export default function TeamManager({
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || `No se pudo publicar ${key}.`);
       }
+      setPublishedPartners(clone(partners));
+      setPublishedOrganization(clone(organization));
       setMessage("Equipo publicado. Las fichas, el organigrama y las fotografías ya están actualizados.");
       setReview(null);
     } catch (publishError) {
@@ -906,7 +935,7 @@ export default function TeamManager({
           <div className="flex items-center justify-between border-b border-slate-200 p-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Perfiles públicos</p>
-              <h2 className="mt-1 text-lg font-semibold">Socios y abogados</h2>
+              <h2 className="mt-1 text-lg font-semibold">Socios</h2>
             </div>
             <button
               type="button"
@@ -969,7 +998,22 @@ export default function TeamManager({
               </div>
 
               <div className="space-y-6">
-                <PhotoField value={selected.photo} name={selected.name} onChange={(photo) => updatePartner({ photo })} />
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <PhotoField
+                    value={selected.photo}
+                    name={selected.name}
+                    label="Foto de perfil"
+                    help="Se usa en la ficha individual del socio."
+                    onChange={(photo) => updatePartner({ photo })}
+                  />
+                  <PhotoField
+                    value={selected.cardPhoto}
+                    name={selected.name}
+                    label="Foto para tarjetas"
+                    help="Se usa en Portada y Equipo. Si se deja vacía, se mostrará la foto de perfil."
+                    onChange={(cardPhoto) => updatePartner({ cardPhoto })}
+                  />
+                </div>
 
                 <label className="block space-y-2 text-xs font-semibold text-slate-700">
                   Categoría dentro del organigrama
@@ -1087,7 +1131,7 @@ export default function TeamManager({
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Organigrama</p>
             <h2 className="mt-1 text-2xl font-semibold tracking-tight">Equipo adicional</h2>
-            <p className="mt-1 text-sm text-slate-500">Abogados, pasantes y administración pueden llevar fotografía o mostrarse con iniciales.</p>
+            <p className="mt-1 text-sm text-slate-500">Asociados, pasantes y administración pueden llevar fotografía, LinkedIn o mostrarse con iniciales.</p>
           </div>
           <div className="flex rounded-xl bg-slate-100 p-1">
             {additionalGroupKeys.map((key) => (
@@ -1153,6 +1197,17 @@ export default function TeamManager({
                       onChange={(event) => updateMember(group, index, { roleEn: event.target.value })}
                       className={inputClass}
                     />
+                  </label>
+                  <label className="space-y-2 text-xs font-semibold text-slate-700 sm:col-span-2">
+                    LinkedIn verificado
+                    <input
+                      type="url"
+                      value={member.linkedin ?? ""}
+                      onChange={(event) => updateMember(group, index, { linkedin: event.target.value || undefined })}
+                      placeholder="https://www.linkedin.com/in/…"
+                      className={inputClass}
+                    />
+                    <span className="block font-normal text-slate-500">Si está vacío, la tarjeta no será un enlace.</span>
                   </label>
                 </div>
                 <div className="flex items-center justify-end gap-1">

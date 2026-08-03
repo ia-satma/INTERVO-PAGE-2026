@@ -51,3 +51,11 @@ test("las redes visibles se filtran y los protocolos peligrosos se rechazan", ()
     /Red social 3/,
   );
 });
+
+test("WhatsApp vacío es un estado oculto válido", () => {
+  const config = structuredClone(DEFAULT_SITE_CONFIG) as unknown as Record<string, unknown> & {
+    contact: { whatsappHref: string };
+  };
+  config.contact.whatsappHref = "";
+  assert.deepEqual(validateSiteConfigLinks(config), []);
+});

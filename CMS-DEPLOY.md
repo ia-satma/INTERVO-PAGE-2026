@@ -27,17 +27,20 @@
    npm install
    npm run db:migrate
    npm run db:seed
+   npm run cms:apply-client-feedback
    ```
 
-6. Eliminar `ADMIN_BOOTSTRAP_PASSWORD` de Secrets después de crear el owner. El seed es idempotente y no lo vuelve a necesitar.
-7. Iniciar la app y entrar a `/admin` con el correo y la contraseña del owner.
+   El último comando prepara los comentarios aprobados como borrador, crea una versión recuperable y no publica nada. Es idempotente.
+6. Confirmar que `CONTACT_NOTIFICATION_EMAIL` tenga el valor `info@intervo.legal`.
+7. Eliminar `ADMIN_BOOTSTRAP_PASSWORD` de Secrets después de crear el owner. El seed es idempotente y no lo vuelve a necesitar.
+8. Iniciar la app y entrar a `/admin` con el correo y la contraseña del owner.
 
 ## 3. Producción
 
 1. En Replit Publishing elegir **Autoscale**.
 2. Crear/seleccionar la Production Database.
 3. Replicar los Secrets necesarios en producción.
-4. Ejecutar las migraciones contra la base de producción antes del primer corte.
+4. Ejecutar las migraciones, el seed y `npm run cms:apply-client-feedback` contra la base de producción antes del primer corte.
 5. Publicar y verificar:
    - `GET /api/health` devuelve HTTP `200`, `ok: true` y `database: "ok"`.
    - El owner entra con correo y contraseña y puede guardar un borrador.

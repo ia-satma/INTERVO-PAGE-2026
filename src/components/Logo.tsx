@@ -15,8 +15,8 @@ export default function Logo({
   variant = "color",
   className = "h-9 w-auto",
   priority,
-  colorSrc = "/brand/logo-color.png",
-  whiteSrc = "/brand/logo-white.png",
+  colorSrc = "/brand/logo-color-trim.png",
+  whiteSrc = "/brand/logo-white-trim.png",
   alt = "intervø",
 }: LogoProps) {
   const src = asset(variant === "white" ? whiteSrc : colorSrc);
@@ -24,11 +24,12 @@ export default function Logo({
     <Image
       src={src}
       alt={alt}
-      width={360}
-      height={180}
+      width={736}
+      height={164}
       className={className}
       priority={priority}
-      sizes="(min-width: 768px) 144px, 128px"
+      sizes="(min-width: 768px) 180px, 144px"
+      unoptimized
     />
   );
 }

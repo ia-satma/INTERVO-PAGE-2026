@@ -21,6 +21,7 @@ export default async function LinksPage() {
       />
       <LinksManager
         siteData={document.data as Record<string, unknown>}
+        publishedData={document.published as Record<string, unknown>}
         canPublish={context.user.permissions.includes("content:publish")}
       />
     </>
