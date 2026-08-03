@@ -7,8 +7,10 @@ import {
   resolvePrivacyLink,
 } from "@/lib/cms/links";
 
-export const dynamic = "force-static";
-export const revalidate = 300;
+// The sitemap depends on published CMS state. Rendering it dynamically avoids
+// freezing navigation visibility from the database at deployment build time.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [documents, siteConfig] = await Promise.all([listCmsDocuments(), getPublishedSiteConfig()]);
