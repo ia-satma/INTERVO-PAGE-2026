@@ -33,10 +33,11 @@ jobs:
         run: rm -f src/proxy.ts
 
       # GitHub Pages remains a public static fallback while the CMS runs on
-      # Replit. The temporary CI checkout removes server-only routes; source
-      # files remain intact in GitHub.
+      # Replit. The temporary CI checkout removes server-only routes and the
+      # CMS-backed dynamic sitemap; source files remain intact in GitHub and
+      # Replit continues serving the canonical sitemap.
       - name: Remove full-stack routes from Pages fallback
-        run: rm -rf 'src/app/api' 'src/app/admin' 'src/app/[locale]/[slug]'
+        run: rm -rf 'src/app/api' 'src/app/admin' 'src/app/[locale]/[slug]' 'src/app/sitemap.ts'
 
       - name: Build static export
         run: npm run build

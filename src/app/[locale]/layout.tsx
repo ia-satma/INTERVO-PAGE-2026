@@ -16,10 +16,10 @@ import {
   visibleSocialLinks,
 } from "@/lib/cms/links";
 
-// Replit can invalidate prerendered locale routes after a CMS publication.
-// Keep on-demand regeneration enabled; invalid locales are still rejected by
-// the isLocale guard below.
-export const dynamicParams = true;
+// Only ES and EN are valid locale segments. This also keeps the locale layout
+// compatible with the temporary static export used by the GitHub Pages backup;
+// Replit can still revalidate the generated locale routes after publishing.
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
