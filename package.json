@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Sitio web corporativo bilingüe de intervø — Legal and Business Consulting (Intervo Legal, S.C.)",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "next dev --webpack --hostname 0.0.0.0",
     "build": "npm run clean:appledouble && next build --webpack",
@@ -15,6 +18,11 @@
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed-cms.ts",
     "cms:apply-client-feedback": "tsx scripts/apply-client-feedback-2026-08.ts",
+    "replit:preflight": "tsx scripts/replit-preflight.ts",
+    "replit:setup": "npm run replit:preflight && npm run db:migrate && npm run db:seed && npm run replit:preflight",
+    "storage:check": "tsx scripts/storage-check.ts",
+    "handoff:export": "tsx scripts/handoff-export.ts",
+    "handoff:import": "tsx scripts/handoff-import.ts",
     "test": "npm run test:cms && npm run test:auth && npm run test:media",
     "test:cms": "node --import tsx --test src/lib/cms/*.test.ts",
     "test:auth": "node --import tsx --test src/lib/auth/*.test.ts",

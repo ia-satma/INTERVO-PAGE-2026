@@ -24,20 +24,22 @@ firma boutique de asesoría legal y de negocios con sede en Monterrey.
 
 ## Requisitos
 
-- Node.js ≥ 20 (probado con Node 24)
+- Node.js ≥ 22.12.0
 - npm
 
 ## Desarrollo
 
 ```bash
-npm install
-npm run db:push
+npm ci
+npm run db:migrate
 npm run db:seed
 npm run dev       # http://localhost:3000  → redirige a /es
 ```
 
 El sitio público funciona con los defaults versionados si `DATABASE_URL` no existe. El panel
 requiere PostgreSQL y un owner creado por el seed. Consulta [CMS-DEPLOY.md](./CMS-DEPLOY.md).
+Para importar el proyecto en otra cuenta Replit sin copiar accesos ni datos personales, sigue
+[REPLIT-HANDOFF.md](./REPLIT-HANDOFF.md).
 
 ## Producción
 
@@ -122,7 +124,8 @@ son el seed/fallback, no el flujo editorial cotidiano.
 ## Despliegue
 
 La producción full-stack está preparada para Replit Autoscale con Replit Database y App Storage.
-El procedimiento completo, variables y checklist están en [CMS-DEPLOY.md](./CMS-DEPLOY.md).
+El procedimiento operativo está en [CMS-DEPLOY.md](./CMS-DEPLOY.md) y la entrega entre cuentas en
+[REPLIT-HANDOFF.md](./REPLIT-HANDOFF.md).
 
 **GitHub Pages (actual):** export estático vía `EXPORT=true npm run build` (ver
 `.github/workflows/deploy-pages.yml`), con `images.unoptimized` — las imágenes se sirven tal cual,
