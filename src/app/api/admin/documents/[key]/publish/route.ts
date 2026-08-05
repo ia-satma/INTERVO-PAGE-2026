@@ -9,7 +9,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const context = await requirePermission(request, "content:publish", { csrf: true });
     const { key } = await params;
     const document = await publishDocument(key, context.user.id);
-    revalidatePath("/", "layout");
+    // Revalidate the two public locale trees without invalidating the root
+    // route manifest used by the deployment.
+    revalidatePath("/es", "layout");
+    revalidatePath("/en", "layout");
     await writeAudit(request, {
       userId: context.user.id,
       action: "content.published",

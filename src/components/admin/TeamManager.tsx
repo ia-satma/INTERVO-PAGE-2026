@@ -820,7 +820,7 @@ export default function TeamManager({
       await putDocument("navegacion-seo", navData);
       setSavedPartners(clone(partners));
       setSavedOrganization(clone(organization));
-      setMessage("Equipo guardado como borrador. La web pública aún no cambió.");
+      setMessage("Cambios guardados. El sitio público todavía no se ha modificado.");
       if (closeReview) setReview(null);
       return true;
     } catch (saveError) {
@@ -847,7 +847,7 @@ export default function TeamManager({
       }
       setPublishedPartners(clone(partners));
       setPublishedOrganization(clone(organization));
-      setMessage("Equipo publicado. Las fichas, el organigrama y las fotografías ya están actualizados.");
+      setMessage("Cambios publicados correctamente.");
       setReview(null);
     } catch (publishError) {
       setError(publishError instanceof Error ? publishError.message : "No se pudo publicar el equipo.");
@@ -869,31 +869,34 @@ export default function TeamManager({
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href="/admin/content/equipo"
-            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300"
-          >
-            Editar textos de la página <ArrowSquareOut size={15} />
-          </Link>
-          <button
-            type="button"
-            onClick={() => setReview("save")}
-            disabled={!dirty || Boolean(pending)}
-            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400"
-          >
-            <FloppyDisk size={16} /> {pending === "save" ? "Guardando…" : "Guardar borrador"}
-          </button>
-          {canPublish && (
+        <div className="flex flex-col items-start gap-1.5 sm:items-end">
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/content/equipo"
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300"
+            >
+              Editar textos de la página <ArrowSquareOut size={15} />
+            </Link>
             <button
               type="button"
-              onClick={() => setReview("publish")}
-              disabled={Boolean(pending)}
-              className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50"
+              onClick={() => setReview("save")}
+              disabled={!dirty || Boolean(pending)}
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400"
             >
-              <CloudArrowUp size={16} /> {pending === "publish" ? "Publicando…" : "Publicar equipo"}
+              <FloppyDisk size={16} /> {pending === "save" ? "Guardando…" : "Guardar cambios"}
             </button>
-          )}
+            {canPublish && (
+              <button
+                type="button"
+                onClick={() => setReview("publish")}
+                disabled={Boolean(pending)}
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50"
+              >
+                <CloudArrowUp size={16} /> {pending === "publish" ? "Publicando…" : "Publicar cambios"}
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-slate-500">Guardar cambios no modifica el sitio público.</p>
         </div>
       </div>
 
@@ -912,7 +915,7 @@ export default function TeamManager({
         title={review === "publish" ? "Publicar equipo y organigrama" : "Guardar cambios del equipo"}
         description={review === "publish" ? "Revisa personas, cargos, fotografías, orden y perfiles bilingües antes de hacerlos públicos." : "Comprueba todas las diferencias antes de guardar el borrador del equipo."}
         changes={reviewChanges}
-        confirmLabel={review === "publish" ? "Publicar equipo" : "Guardar borrador"}
+        confirmLabel={review === "publish" ? "Publicar cambios" : "Guardar cambios"}
         pending={Boolean(pending)}
         tone={review === "publish" ? "publish" : "save"}
         onCancel={() => setReview(null)}

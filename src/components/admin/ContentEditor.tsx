@@ -241,7 +241,7 @@ export default function ContentEditor({ document, canPublish }: { document: Docu
       return false;
     }
     setSaved(clone(data));
-    setMessage("Borrador guardado. El sitio público todavía no cambió.");
+    setMessage("Cambios guardados. El sitio público todavía no se ha modificado.");
     if (closeReview) setConfirm(null);
     return true;
   }
@@ -303,12 +303,15 @@ export default function ContentEditor({ document, canPublish }: { document: Docu
           <span className="font-semibold text-slate-800">{dirty ? "Cambios sin guardar" : "Borrador sincronizado"}</span>
           <span className="text-slate-400">Versión pública {document.version}</span>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {localized && <button onClick={translate} disabled={Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 active:translate-y-px disabled:opacity-50"><MagicWand size={16} /> {pending === "translate" ? "Traduciendo…" : "Proponer inglés"}</button>}
-          <button onClick={loadVersions} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 active:translate-y-px"><ArrowClockwise size={16} /> Versiones</button>
-          <Link target="_blank" href={`/admin/preview/${encodeURIComponent(document.key)}`} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 active:translate-y-px">Vista previa <ArrowSquareOut size={15} /></Link>
-          <button onClick={() => setConfirm("save")} disabled={!dirty || Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 bg-white px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 active:translate-y-px disabled:border-slate-200 disabled:text-slate-400"><FloppyDisk size={16} /> {pending === "save" ? "Guardando…" : "Guardar borrador"}</button>
-          {canPublish && <button onClick={() => setConfirm("publish")} disabled={Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] active:translate-y-px disabled:opacity-50"><CloudArrowUp size={16} /> Publicar</button>}
+        <div className="flex flex-col items-start gap-1.5 sm:items-end">
+          <div className="flex flex-wrap items-center gap-2">
+            {localized && <button onClick={translate} disabled={Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 active:translate-y-px disabled:opacity-50"><MagicWand size={16} /> {pending === "translate" ? "Traduciendo…" : "Proponer inglés"}</button>}
+            <button onClick={loadVersions} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 active:translate-y-px"><ArrowClockwise size={16} /> Versiones</button>
+            <Link target="_blank" href={`/admin/preview/${encodeURIComponent(document.key)}`} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 active:translate-y-px">Vista previa <ArrowSquareOut size={15} /></Link>
+            <button onClick={() => setConfirm("save")} disabled={!dirty || Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 bg-white px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 active:translate-y-px disabled:border-slate-200 disabled:text-slate-400"><FloppyDisk size={16} /> {pending === "save" ? "Guardando…" : "Guardar cambios"}</button>
+            {canPublish && <button onClick={() => setConfirm("publish")} disabled={Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] active:translate-y-px disabled:opacity-50"><CloudArrowUp size={16} /> {pending === "publish" ? "Publicando…" : "Publicar cambios"}</button>}
+          </div>
+          <p className="text-xs text-slate-500">Guardar cambios no modifica el sitio público.</p>
         </div>
       </div>
 
@@ -345,10 +348,10 @@ export default function ContentEditor({ document, canPublish }: { document: Docu
 
       <ChangeReviewDialog
         open={Boolean(confirm)}
-        title={confirm === "publish" ? `Publicar ${document.label}` : `Guardar borrador de ${document.label}`}
+        title={confirm === "publish" ? `Publicar ${document.label}` : `Guardar cambios de ${document.label}`}
         description={confirm === "publish" ? "Revisa lo que cambiará en el sitio público. La versión anterior quedará disponible en el historial." : "Revisa cada diferencia. El borrador todavía no aparecerá en el sitio público."}
         changes={reviewChanges}
-        confirmLabel={confirm === "publish" ? "Publicar ahora" : "Guardar borrador"}
+        confirmLabel={confirm === "publish" ? "Publicar cambios" : "Guardar cambios"}
         pending={Boolean(pending)}
         tone={confirm === "publish" ? "publish" : "save"}
         emptyMessage="No hay diferencias de contenido; la publicación únicamente generará una nueva versión."

@@ -190,7 +190,7 @@ export default function LinksManager({
     }
     setData(clone(payloadData));
     setSavedData(clone(payloadData));
-    setMessage("Enlaces guardados como borrador.");
+    setMessage("Cambios guardados. El sitio público todavía no se ha modificado.");
     if (closeReview) setReview(null);
     return true;
   }
@@ -209,7 +209,7 @@ export default function LinksManager({
       return;
     }
     setPublished(clone(data));
-    setMessage("Enlaces y redes publicados correctamente.");
+    setMessage("Cambios publicados correctamente.");
     setReview(null);
   }
 
@@ -227,25 +227,28 @@ export default function LinksManager({
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setReview("save")}
-            disabled={!dirty || Boolean(pending)}
-            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400"
-          >
-            <FloppyDisk size={16} /> {pending === "save" ? "Guardando…" : "Guardar borrador"}
-          </button>
-          {canPublish && (
+        <div className="flex flex-col items-start gap-1.5 sm:items-end">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => setReview("publish")}
-              disabled={Boolean(pending)}
-              className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50"
+              onClick={() => setReview("save")}
+              disabled={!dirty || Boolean(pending)}
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400"
             >
-              <CloudArrowUp size={16} /> {pending === "publish" ? "Publicando…" : "Publicar enlaces"}
+              <FloppyDisk size={16} /> {pending === "save" ? "Guardando…" : "Guardar cambios"}
             </button>
-          )}
+            {canPublish && (
+              <button
+                type="button"
+                onClick={() => setReview("publish")}
+                disabled={Boolean(pending)}
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50"
+              >
+                <CloudArrowUp size={16} /> {pending === "publish" ? "Publicando…" : "Publicar cambios"}
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-slate-500">Guardar cambios no modifica el sitio público.</p>
         </div>
       </div>
 
@@ -259,7 +262,7 @@ export default function LinksManager({
         title={review === "publish" ? "Publicar enlaces, redes y contacto" : "Guardar cambios de enlaces"}
         description={review === "publish" ? "Revisa los destinos que quedarán visibles en todo el sitio antes de publicarlos." : "Revisa los campos modificados antes de guardarlos como borrador."}
         changes={reviewChanges}
-        confirmLabel={review === "publish" ? "Publicar enlaces" : "Guardar borrador"}
+        confirmLabel={review === "publish" ? "Publicar cambios" : "Guardar cambios"}
         pending={Boolean(pending)}
         tone={review === "publish" ? "publish" : "save"}
         onCancel={() => setReview(null)}

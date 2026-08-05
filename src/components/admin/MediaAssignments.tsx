@@ -165,7 +165,7 @@ export default function MediaAssignments({
       return false;
     }
     setSavedData(clone(data));
-    setMessage("Asignaciones guardadas como borrador.");
+    setMessage("Cambios guardados. El sitio público todavía no se ha modificado.");
     if (closeReview) setReview(null);
     return true;
   }
@@ -180,7 +180,7 @@ export default function MediaAssignments({
     const payload = await response.json().catch(() => ({}));
     setPending("");
     if (!response.ok) return setError(payload.error || "No se pudieron publicar los medios.");
-    setMessage("Medios publicados correctamente en todo el sitio.");
+    setMessage("Cambios publicados correctamente.");
     setReview(null);
   }
 
@@ -200,15 +200,18 @@ export default function MediaAssignments({
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <button type="button" onClick={() => setReview("save")} disabled={!dirty || Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400">
-            <FloppyDisk size={16} /> {pending === "save" ? "Guardando…" : "Guardar borrador"}
-          </button>
-          {canPublish && (
-            <button type="button" onClick={() => setReview("publish")} disabled={Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50">
-              <CloudArrowUp size={16} /> {pending === "publish" ? "Publicando…" : "Publicar medios"}
+        <div className="flex flex-col items-start gap-1.5 sm:items-end">
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => setReview("save")} disabled={!dirty || Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-800 px-4 py-2 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:border-slate-200 disabled:text-slate-400">
+              <FloppyDisk size={16} /> {pending === "save" ? "Guardando…" : "Guardar cambios"}
             </button>
-          )}
+            {canPublish && (
+              <button type="button" onClick={() => setReview("publish")} disabled={Boolean(pending)} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0f4386] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0072ad] disabled:opacity-50">
+                <CloudArrowUp size={16} /> {pending === "publish" ? "Publicando…" : "Publicar cambios"}
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-slate-500">Guardar cambios no modifica el sitio público.</p>
         </div>
       </div>
 
@@ -219,7 +222,7 @@ export default function MediaAssignments({
         title={review === "publish" ? "Publicar imágenes y videos" : "Guardar asignaciones de medios"}
         description={review === "publish" ? "Comprueba cada archivo que cambiará en el sitio público antes de publicar." : "Revisa las posiciones modificadas antes de guardar el borrador."}
         changes={reviewChanges}
-        confirmLabel={review === "publish" ? "Publicar medios" : "Guardar borrador"}
+        confirmLabel={review === "publish" ? "Publicar cambios" : "Guardar cambios"}
         pending={Boolean(pending)}
         tone={review === "publish" ? "publish" : "save"}
         onCancel={() => setReview(null)}
