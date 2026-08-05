@@ -24,7 +24,10 @@ const contentSecurityPolicy = [
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  allowedDevOrigins: ["127.0.0.1", "localhost"],
+  allowedDevOrigins: ["127.0.0.1", "localhost", "*.replit.dev"],
+  experimental: {
+    globalNotFound: true,
+  },
   // Exposed to server + client so public assets can be prefixed with the base
   // path (next/image with `unoptimized` does NOT auto-prefix public files).
   env: { NEXT_PUBLIC_BASE_PATH: repoBase },

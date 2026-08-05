@@ -9,13 +9,11 @@ import { isLocale, defaultLocale } from "@/i18n/config";
 import { localePath, SITE } from "@/lib/site";
 
 /**
- * Root-level not-found — this is the one Next actually bakes into the static
- * export's top-level `out/404.html`, which GitHub Pages serves for ANY
- * unmatched path (locale-prefixed or not). The nested `[locale]/not-found.tsx`
- * only covers client-side "soft" 404s inside an already-hydrated session.
- * Same pattern: derive locale from the URL on the client (no `params` available here).
+ * Global 404 for an app with multiple root layouts. Next renders this file
+ * without composing the locale or admin layouts, so it owns the complete HTML
+ * document and also handles unmatched development requests from Replit.
  */
-export default function RootNotFound() {
+export default function GlobalNotFound() {
   const pathname = usePathname();
   const segment = pathname.split("/")[1];
   const locale = isLocale(segment) ? segment : defaultLocale;
