@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { ArrowRight, LockKey, WarningCircle } from "@phosphor-icons/react";
 
 export default function LoginForm() {
-  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
@@ -17,22 +15,40 @@ export default function LoginForm() {
     setPending(true);
     setError("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: form.get("email"),
-        password: form.get("password"),
-      }),
-    });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      setError(payload.error || "No fue posible iniciar sesión.");
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20_000);
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        cache: "no-store",
+        signal: controller.signal,
+        body: JSON.stringify({
+          email: form.get("email"),
+          password: form.get("password"),
+        }),
+      });
+      const payload = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) {
+        setError(payload.error || "No fue posible iniciar sesión.");
+        return;
+      }
+
+      // A full navigation makes Safari persist the HttpOnly session cookie
+      // before rendering the protected layout behind Replit's HTTPS proxy.
+      window.location.assign("/admin");
+    } catch (error) {
+      setError(
+        error instanceof DOMException && error.name === "AbortError"
+          ? "El acceso tardó demasiado. Verifica la conexión e intenta nuevamente."
+          : "No fue posible conectar con el panel. Intenta nuevamente.",
+      );
+    } finally {
+      window.clearTimeout(timeout);
       setPending(false);
-      return;
     }
-    router.replace("/admin");
-    router.refresh();
   }
 
   const field = "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-[0.95rem] outline-none transition-[border-color,box-shadow] focus:border-sky-700 focus:ring-2 focus:ring-sky-700/15";
